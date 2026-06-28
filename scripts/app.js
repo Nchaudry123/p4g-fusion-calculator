@@ -1,5 +1,41 @@
 const RESIST_LABELS = ["Phy", "Fire", "Ice", "Elec", "Wind", "Light", "Dark", "Alm"];
 const STAT_LABELS = ["St", "Ma", "En", "Ag", "Lu"];
+const SOCIAL_LINK_UNLOCKS = {
+  Loki: "Fool",
+  Mada: "Magician",
+  Scathach: "Priestess",
+  Isis: "Empress",
+  Odin: "Emperor",
+  Kohryu: "Hierophant",
+  Ishtar: "Lovers",
+  Futsunushi: "Chariot",
+  Sraosha: "Justice",
+  "Ongyo-Ki": "Hermit",
+  Norn: "Fortune",
+  "Zaou-Gongen": "Strength",
+  Attis: "Hanged",
+  Mahakala: "Death",
+  Vishnu: "Temperance",
+  Beelzebub: "Devil",
+  Shiva: "Tower",
+  Helel: "Star",
+  Sandalphon: "Moon",
+  Asura: "Sun",
+  Lucifer: "Judgement",
+  Kaguya: "Aeon",
+  "Magatsu-Izanagi": "Jester"
+};
+const MARGARET_REQUESTS = {
+  "Ippon-Datara": { rank: 2, skill: "Sukukaja" },
+  Matador: { rank: 3, skill: "Mahama" },
+  Gdon: { rank: 4, skill: "Rampage" },
+  "Neko Shogun": { rank: 5, skill: "Bufula" },
+  "Black Frost": { rank: 6, skill: "Auto-Sukukaja" },
+  Yatagarasu: { rank: 7, skill: "Megido" },
+  Yatsufusa: { rank: 8, skill: "Mediarama" },
+  Ganesha: { rank: 9, skill: "Tetrakarn" },
+  Trumpeter: { rank: 10, skill: "Mind Charge" }
+};
 const state = {
   personas: {},
   names: [],
@@ -191,6 +227,7 @@ function renderSuggestionCard(persona, index) {
       <span>
         <strong>${escapeHtml(persona.name)}</strong>
         <em>Lv ${persona.lvl} / ${escapeHtml(persona.race)}</em>
+        ${renderPersonaBadges(persona.name, "mini")}
       </span>
     </button>
   `;
@@ -374,6 +411,7 @@ function renderQueue() {
         <button class="small-action queue-name" type="button" data-select="${escapeAttr(name)}">
           ${escapeHtml(name)}
           <span class="queue-meta">Lv ${persona.lvl} ${escapeHtml(persona.race)}</span>
+          ${renderPersonaBadges(name, "mini")}
         </button>
         <button class="small-action" type="button" aria-label="Remove ${escapeAttr(name)}" data-remove="${index}">x</button>
       </li>
@@ -398,6 +436,7 @@ function renderActivePersona() {
   )).join("");
   const skills = renderSkills(persona);
   const image = personaImage(persona.name);
+  const badges = renderPersonaBadges(persona.name);
 
   $("#activePersona").innerHTML = `
     <article class="persona-card">
@@ -409,6 +448,7 @@ function renderActivePersona() {
           <div>
             <h2 class="persona-name">${escapeHtml(persona.name)}</h2>
             <div class="persona-meta">Level ${persona.lvl} / ${escapeHtml(persona.race)} / ${escapeHtml(persona.inherits || "inheritance")} type</div>
+            ${badges ? `<div class="persona-badges">${badges}</div>` : ""}
           </div>
           <div class="arcana-badge">
             <span>Lv ${persona.lvl}</span>
@@ -468,6 +508,7 @@ function renderRecipes() {
 
 function renderRecipe(recipe, index) {
   const isSpecialLayout = recipe.ingredients.length > 2;
+  const targetBadges = renderPersonaBadges(state.active, "recipe");
   const ingredients = isSpecialLayout
     ? `
       <div class="special-fusion-note">
@@ -493,6 +534,7 @@ function renderRecipe(recipe, index) {
         <span class="recipe-title">Recipe ${index + 1}</span>
         <span class="recipe-meta">${recipe.type}${recipe.score ? ` / Lv sum ${recipe.score}` : ""}</span>
       </div>
+      ${targetBadges ? `<div class="recipe-flags">${targetBadges}</div>` : ""}
       <div class="ingredients">${ingredients}</div>
     </article>
   `;
@@ -507,10 +549,37 @@ function renderIngredientButton(name, index, showStep) {
       <span>
         <strong>${escapeHtml(name)}</strong>
         <span class="mini">Lv ${persona?.lvl ?? "?"} ${escapeHtml(persona?.race ?? "")}</span>
+        ${renderPersonaBadges(name, "mini")}
       </span>
       <span class="mini action-copy">${showStep ? "plan" : "queue +"}</span>
     </button>
   `;
+}
+
+function renderPersonaBadges(name, size = "normal") {
+  const badges = [];
+  if (SOCIAL_LINK_UNLOCKS[name]) {
+    badges.push({
+      kind: "social",
+      label: "Max S.Link",
+      detail: `${SOCIAL_LINK_UNLOCKS[name]} ultimate`
+    });
+  }
+  if (MARGARET_REQUESTS[name]) {
+    const request = MARGARET_REQUESTS[name];
+    badges.push({
+      kind: "request",
+      label: `Margaret ${request.rank}`,
+      detail: request.skill
+    });
+  }
+
+  return badges.map((badge) => `
+    <span class="info-badge ${badge.kind} ${size}">
+      <strong>${escapeHtml(badge.label)}</strong>
+      <span>${escapeHtml(badge.detail)}</span>
+    </span>
+  `).join("");
 }
 
 function getRecipes(name) {

@@ -484,6 +484,78 @@ h1 {
   font-style: normal;
 }
 
+.persona-badges,
+.recipe-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.recipe-flags {
+  padding: 10px 12px 0;
+}
+
+.info-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 235, 104, 0.3);
+  border-radius: 999px;
+  color: var(--paper);
+  background: rgba(0, 0, 0, 0.42);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.18);
+  font-size: 11px;
+  line-height: 1;
+  text-transform: uppercase;
+  animation: smallChipIn 300ms var(--ease-out) both;
+}
+
+.info-badge strong,
+.info-badge span {
+  display: inline;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.info-badge strong {
+  color: white;
+  font-weight: 900;
+}
+
+.info-badge span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.info-badge.social {
+  border-color: rgba(255, 235, 104, 0.48);
+  background:
+    linear-gradient(135deg, rgba(255, 235, 104, 0.18), rgba(0, 0, 0, 0.42));
+}
+
+.info-badge.request {
+  border-color: rgba(86, 191, 232, 0.46);
+  background:
+    linear-gradient(135deg, rgba(86, 191, 232, 0.2), rgba(0, 0, 0, 0.44));
+}
+
+.info-badge.mini {
+  gap: 4px;
+  margin-top: 5px;
+  padding: 4px 6px;
+  font-size: 9px;
+}
+
+.info-badge.recipe {
+  font-size: 10px;
+}
+
 .suggestion-empty {
   padding: 12px;
   color: var(--muted);
@@ -1298,6 +1370,10 @@ h1 {
 .persona-button.special-ingredient > span:not(.ingredient-step) {
   grid-area: text;
   min-width: 0;
+}
+
+.persona-button .info-badge {
+  max-width: 100%;
 }
 
 .persona-button .action-copy {
