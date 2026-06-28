@@ -1,0 +1,267 @@
+{
+  "Megido": {
+    "element": "alm",
+    "target": "All foes",
+    "cost": 3.5
+  },
+  "Megidola": {
+    "element": "alm",
+    "target": "All foes",
+    "cost": 6.5
+  },
+  "Megidolaon": {
+    "element": "alm",
+    "target": "All foes",
+    "cost": 8
+  },
+  "Black Viper": {
+    "element": "alm",
+    "target": "1 foe",
+    "cost": 0
+  },
+  "Morning Star": {
+    "element": "alm",
+    "target": "All foes",
+    "cost": 0
+  },
+  "Hama": {
+    "element": "lig",
+    "target": "1 foe",
+    "cost": 2.5
+  },
+  "Mahamaon": {
+    "element": "lig",
+    "target": "All foes",
+    "cost": 6
+  },
+  "Samsara": {
+    "element": "lig",
+    "target": "All foes",
+    "cost": 0
+  },
+  "Mudo": {
+    "element": "dar",
+    "target": "1 foe",
+    "cost": 2.5
+  },
+  "Mamudoon": {
+    "element": "dar",
+    "target": "All foes",
+    "cost": 6
+  },
+  "Demonic Judgment": {
+    "element": "dar",
+    "target": "-",
+    "cost": 8
+  },
+  "Die for Me!": {
+    "element": "dar",
+    "target": "All foes",
+    "cost": 0
+  },
+  "Pulinpa": {
+    "element": "ail",
+    "target": "1 foe",
+    "cost": 1.5
+  },
+  "Tentarafoo": {
+    "element": "ail",
+    "target": "All foes",
+    "cost": 3
+  },
+  "Evil Touch": {
+    "element": "ail",
+    "target": "1 foe",
+    "cost": 1.5
+  },
+  "Evil Smile": {
+    "element": "ail",
+    "target": "All foes",
+    "cost": 3
+  },
+  "Balzac": {
+    "element": "ail",
+    "target": "1 foe",
+    "cost": 1.5
+  },
+  "Valiant Dance": {
+    "element": "ail",
+    "target": "All foes",
+    "cost": 3
+  },
+  "Poisma": {
+    "element": "ail",
+    "target": "1 foe",
+    "cost": 1.5
+  },
+  "Poison Mist": {
+    "element": "ail",
+    "target": "All foes",
+    "cost": 3
+  },
+  "Soul Break": {
+    "element": "ail",
+    "target": "1 foe",
+    "cost": 1.5
+  },
+  "Anima Freeze": {
+    "element": "ail",
+    "target": "All foes",
+    "cost": 3
+  },
+  "Enervation": {
+    "element": "ail",
+    "target": "1 foe",
+    "cost": 1.5
+  },
+  "Old One": {
+    "element": "ail",
+    "target": "All foes",
+    "cost": 3
+  },
+  "Makajam": {
+    "element": "ail",
+    "target": "1 foe",
+    "cost": 1.5
+  },
+  "Foolish Whisper": {
+    "element": "ail",
+    "target": "All foes",
+    "cost": 3
+  },
+  "Heaven's Blade": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 0
+  },
+  "Pralaya": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 0
+  },
+  "Poison Skewer": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 2.5
+  },
+  "Poison Arrow": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 5.5
+  },
+  "Blight": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 7
+  },
+  "Virus Wave": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 6.5
+  },
+  "Skull Cracker": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 2.5
+  },
+  "Mind Slice": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 4
+  },
+  "Hysterical Slap": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 2.5
+  },
+  "Crazy Chain": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 4
+  },
+  "Muzzle Shot": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 2.5
+  },
+  "Seal Bomb": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 4
+  },
+  "Arm Chopper": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 2.5
+  },
+  "Atom Smasher": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 4
+  },
+  "Cell Breaker": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 3.5
+  },
+  "Mustard Bomb": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 5
+  },
+  "Brain Shake": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 3.5
+  },
+  "Navas Nebula": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 5
+  },
+  "Cruel Attack": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 4.5
+  },
+  "Vile Assault": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 6
+  },
+  "Medicine": {
+    "element": "rec",
+    "target": "-",
+    "cost": 0
+  },
+  "Medical Powder": {
+    "element": "rec",
+    "target": "-",
+    "cost": 0
+  },
+  "Spirit Water": {
+    "element": "rec",
+    "target": "-",
+    "cost": 0
+  },
+  "Value Medicine": {
+    "element": "rec",
+    "target": "-",
+    "cost": 0
+  },
+  "Medical Kit": {
+    "element": "rec",
+    "target": "-",
+    "cost": 0
+  },
+  "Umugi Water": {
+    "element": "rec",
+    "target": "-",
+    "cost": 0
+  },
+  "Shivering Rondo": {
+    "element": "alm",
+    "target": "-",
+    "cost": 0
+  }
+}

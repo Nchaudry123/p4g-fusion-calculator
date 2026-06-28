@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>P4G Velvet Fusion Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="scene" aria-hidden="true">
+      <div class="scene-grid"></div>
+      <div class="scene-card card-one"></div>
+      <div class="scene-card card-two"></div>
+      <div class="scene-card card-three"></div>
+      <div class="signal-band band-one"></div>
+      <div class="signal-band band-two"></div>
+    </div>
+    <main class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <img class="brand-logo" src="assets/p4g-logo-transparent.png" alt="Persona 4 Golden">
+        <div>
+          <p class="kicker">Fusion Calculator</p>
+          <h1 id="page-title">Velvet Fusion Queue</h1>
+          <p class="lede">Search a Persona, inspect every reverse recipe, then click ingredients to build the crafting path in priority order.</p>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="panel queue-panel" aria-label="Fusion priority queue">
+          <div class="panel-title">
+            <span>Priority Queue</span>
+            <button id="clearQueue" class="ghost-button" type="button">Clear</button>
+          </div>
+          <ol id="queueList" class="queue-list"></ol>
+        </aside>
+
+        <section class="panel calculator-panel">
+          <div class="search-row">
+            <label class="search-box">
+              <span>Persona search</span>
+              <input id="personaSearch" list="personaOptions" type="search" autocomplete="off" placeholder="Try Yoshitsune, Alice, Trumpeter...">
+              <datalist id="personaOptions"></datalist>
+            </label>
+            <button id="selectSearch" class="primary-button" type="button">Set Priority 1</button>
+          </div>
+
+          <div id="activePersona" class="active-persona"></div>
+          <div id="recipeSummary" class="summary-strip"></div>
+          <div id="recipes" class="recipes"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
