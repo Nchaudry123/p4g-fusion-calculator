@@ -3,6 +3,7 @@ const STAT_LABELS = ["St", "Ma", "En", "Ag", "Lu"];
 const state = {
   personas: {},
   names: [],
+  arcanas: [],
   raceLevels: new Map(),
   fissionChart: {},
   specialRecipes: {},
@@ -23,6 +24,7 @@ Promise.all([
 ]).then(([personas, chart, specialRecipes, personaImages, skills]) => {
   state.personas = normalizePersonas(personas);
   state.names = Object.keys(state.personas).sort((a, b) => a.localeCompare(b));
+  state.arcanas = [...new Set(Object.values(state.personas).map((persona) => persona.race))].sort((a, b) => a.localeCompare(b));
   state.fissionChart = buildFissionChart(chart);
   state.specialRecipes = specialRecipes;
   state.personaImages = personaImages;
@@ -79,10 +81,13 @@ function buildRaceLevels() {
 
 function setupSearch() {
   const datalist = $("#personaOptions");
-  datalist.innerHTML = state.names.map((name) => `<option value="${escapeHtml(name)}"></option>`).join("");
+  datalist.innerHTML = state.names.concat(state.arcanas).map((name) => `<option value="${escapeHtml(name)}"></option>`).join("");
   $("#selectSearch").addEventListener("click", () => selectPersonaFromInput());
+  $("#personaSearch").addEventListener("input", () => renderSuggestions($("#personaSearch").value));
+  $("#personaSearch").addEventListener("focus", () => renderSuggestions($("#personaSearch").value));
   $("#personaSearch").addEventListener("keydown", (event) => {
     if (event.key === "Enter") selectPersonaFromInput();
+    if (event.key === "Escape") clearSuggestions();
   });
   $("#clearQueue").addEventListener("click", () => {
     state.queue = [];
@@ -94,6 +99,12 @@ function selectPersonaFromInput() {
   const input = $("#personaSearch");
   const match = findPersona(input.value);
   if (!match) {
+    const arcana = findArcana(input.value);
+    if (arcana) {
+      input.setCustomValidity("");
+      renderSuggestions(arcana, true);
+      return;
+    }
     input.setCustomValidity("Choose a Persona from the list.");
     input.reportValidity();
     return;
@@ -108,11 +119,77 @@ function findPersona(value) {
     || state.names.find((name) => name.toLowerCase().includes(normalized));
 }
 
+function findArcana(value) {
+  const normalized = value.trim().toLowerCase();
+  return state.arcanas.find((arcana) => arcana.toLowerCase() === normalized)
+    || state.arcanas.find((arcana) => arcana.toLowerCase().includes(normalized));
+}
+
+function renderSuggestions(value, forceArcana = false) {
+  const tray = $("#suggestions");
+  const query = value.trim().toLowerCase();
+  if (!query) {
+    clearSuggestions();
+    return;
+  }
+
+  const arcana = findArcana(value);
+  const personaMatches = state.names
+    .filter((name) => name.toLowerCase().includes(query))
+    .slice(0, arcana && !forceArcana ? 6 : 12);
+  const arcanaMatches = arcana
+    ? Object.values(state.personas)
+      .filter((persona) => persona.race === arcana)
+      .sort((a, b) => a.lvl - b.lvl || a.name.localeCompare(b.name))
+    : [];
+  const cards = forceArcana || (arcana && arcana.toLowerCase() === query)
+    ? arcanaMatches
+    : personaMatches.map((name) => state.personas[name]);
+
+  if (!cards.length) {
+    tray.innerHTML = `<div class="suggestion-empty">No Personas or Arcana matched.</div>`;
+    tray.classList.add("is-open");
+    return;
+  }
+
+  const title = forceArcana || (arcana && arcana.toLowerCase() === query)
+    ? `${arcana} Arcana`
+    : "Matching Personas";
+  tray.innerHTML = `
+    <div class="suggestion-title">${escapeHtml(title)}</div>
+    <div class="suggestion-grid">
+      ${cards.map((persona, index) => renderSuggestionCard(persona, index)).join("")}
+    </div>
+  `;
+  tray.classList.add("is-open");
+  tray.querySelectorAll("[data-suggest]").forEach((button) => {
+    button.addEventListener("click", () => selectPersona(button.dataset.suggest, true));
+  });
+}
+
+function renderSuggestionCard(persona, index) {
+  return `
+    <button class="suggestion-card" style="--i: ${index}" type="button" data-suggest="${escapeAttr(persona.name)}">
+      <img src="${escapeAttr(personaImage(persona.name))}" alt="" loading="lazy">
+      <span>
+        <strong>${escapeHtml(persona.name)}</strong>
+        <em>Lv ${persona.lvl} / ${escapeHtml(persona.race)}</em>
+      </span>
+    </button>
+  `;
+}
+
+function clearSuggestions() {
+  $("#suggestions").classList.remove("is-open");
+  $("#suggestions").innerHTML = "";
+}
+
 function selectPersona(name, primary = false) {
   state.active = name;
   $("#personaSearch").value = name;
   if (primary) state.queue = [name];
   else addToQueue(name);
+  clearSuggestions();
   renderActivePersona();
   renderRecipes();
   renderQueue();

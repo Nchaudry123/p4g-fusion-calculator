@@ -38,11 +38,12 @@
           <div class="search-row">
             <label class="search-box">
               <span>Persona search</span>
-              <input id="personaSearch" list="personaOptions" type="search" autocomplete="off" placeholder="Try Yoshitsune, Alice, Trumpeter...">
+              <input id="personaSearch" list="personaOptions" type="search" autocomplete="off" placeholder="Try Yoshitsune, Alice, Trumpeter, or Tower...">
               <datalist id="personaOptions"></datalist>
             </label>
             <button id="selectSearch" class="primary-button" type="button">Set Priority 1</button>
           </div>
+          <div id="suggestions" class="suggestions" aria-live="polite"></div>
 
           <div id="activePersona" class="active-persona"></div>
           <div id="recipeSummary" class="summary-strip"></div>

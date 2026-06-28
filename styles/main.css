@@ -326,6 +326,94 @@ h1 {
   box-shadow: 0 0 0 3px rgba(247, 211, 49, 0.2);
 }
 
+.suggestions {
+  display: none;
+  margin-top: 12px;
+  border: 1px solid rgba(255, 235, 104, 0.3);
+  background:
+    linear-gradient(135deg, rgba(247, 211, 49, 0.11), transparent 36%),
+    rgba(0, 0, 0, 0.72);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.42);
+}
+
+.suggestions.is-open {
+  display: block;
+  animation: trayIn 180ms ease both;
+}
+
+.suggestion-title {
+  padding: 10px 12px;
+  color: var(--gold-2);
+  font-size: 12px;
+  font-weight: 1000;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.suggestion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+  max-height: 320px;
+  overflow: auto;
+  padding: 10px;
+}
+
+.suggestion-card {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  min-height: 62px;
+  padding: 8px;
+  border: 1px solid rgba(255, 235, 104, 0.28);
+  color: white;
+  background: rgba(0, 0, 0, 0.55);
+  text-align: left;
+  animation: suggestionIn 220ms ease both;
+  animation-delay: min(calc(var(--i, 0) * 28ms), 280ms);
+}
+
+.suggestion-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold-2);
+  background: rgba(247, 211, 49, 0.16);
+}
+
+.suggestion-card img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 3px rgba(0, 0, 0, 0.62));
+}
+
+.suggestion-card strong,
+.suggestion-card em {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggestion-card strong {
+  color: var(--gold-2);
+  font-size: 14px;
+  font-style: normal;
+}
+
+.suggestion-card em {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.suggestion-empty {
+  padding: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .queue-list {
   display: grid;
   gap: 10px;
@@ -790,6 +878,16 @@ h1 {
 @keyframes itemIn {
   from { opacity: 0; transform: translateX(-8px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes trayIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes suggestionIn {
+  from { opacity: 0; transform: translateY(8px) rotate(-1deg); }
+  to { opacity: 1; transform: translateY(0) rotate(0); }
 }
 
 @keyframes cardIn {
