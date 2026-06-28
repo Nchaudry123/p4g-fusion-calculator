@@ -39,6 +39,10 @@ body {
     linear-gradient(135deg, #050505 0%, #141207 42%, #070707 100%);
 }
 
+body.intro-active {
+  overflow: hidden;
+}
+
 body::before {
   position: fixed;
   inset: 0;
@@ -174,6 +178,185 @@ button:focus-visible,
 input:focus-visible {
   outline: 2px solid rgba(255, 235, 104, 0.9);
   outline-offset: 3px;
+}
+
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  color: white;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(255, 235, 104, 0.18), transparent 19rem),
+    linear-gradient(124deg, #050505 0 36%, #f4ce25 36.2% 48%, #090909 48.2% 100%);
+  isolation: isolate;
+  overflow: hidden;
+  animation: introArrive 520ms var(--ease-out) both;
+}
+
+.intro-screen[hidden] {
+  display: none;
+}
+
+.intro-screen.is-leaving {
+  pointer-events: none;
+  animation: introLeave 580ms var(--ease-out) both;
+}
+
+.intro-static,
+.intro-slash {
+  position: absolute;
+  pointer-events: none;
+}
+
+.intro-static {
+  inset: -20%;
+  z-index: -1;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.2) 0 1px, transparent 1.4px);
+  background-size: 42px 42px, 42px 42px, 34px 34px;
+  transform: rotate(-8deg);
+  opacity: 0.36;
+  animation: introStatic 1.2s steps(3) infinite;
+}
+
+.intro-slash {
+  width: 64vw;
+  height: 18vh;
+  background: rgba(255, 235, 104, 0.18);
+  box-shadow: 0 0 32px rgba(255, 235, 104, 0.12);
+  transform: rotate(-13deg);
+}
+
+.slash-one {
+  left: -18vw;
+  top: 18vh;
+  animation: introSlash 900ms var(--ease-out) 120ms both;
+}
+
+.slash-two {
+  right: -24vw;
+  bottom: 16vh;
+  animation: introSlash 900ms var(--ease-out) 220ms both reverse;
+}
+
+.intro-content {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  width: min(720px, 100%);
+  text-align: center;
+}
+
+.intro-logo {
+  width: clamp(160px, 28vw, 280px);
+  filter: drop-shadow(8px 10px 0 rgba(0, 0, 0, 0.78));
+  transform: rotate(-5deg);
+  animation: introLogoIn 720ms var(--ease-snap) 180ms both;
+}
+
+.intro-copy {
+  display: grid;
+  gap: 4px;
+  animation: introCopyIn 620ms var(--ease-out) 420ms both;
+}
+
+.intro-copy p,
+.intro-copy h2,
+.intro-copy span {
+  margin: 0;
+}
+
+.intro-copy p {
+  color: var(--gold-2);
+  font-family: var(--display-font);
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.intro-copy h2 {
+  font-family: var(--display-font);
+  font-size: clamp(54px, 11vw, 112px);
+  font-weight: 900;
+  line-height: 0.86;
+  text-shadow:
+    5px 5px 0 var(--ink),
+    0 18px 28px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+}
+
+.intro-copy span {
+  color: var(--paper);
+  font-size: clamp(15px, 2vw, 18px);
+  font-weight: 600;
+}
+
+.intro-deck {
+  position: relative;
+  width: min(360px, 78vw);
+  height: 132px;
+  margin: 4px 0 2px;
+  perspective: 800px;
+}
+
+.intro-card {
+  position: absolute;
+  left: calc(50% - 42px);
+  top: 8px;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 118px;
+  border: 3px solid var(--ink);
+  border-radius: 5px;
+  color: var(--ink);
+  background:
+    linear-gradient(135deg, white 0 20%, var(--paper) 20% 58%, var(--gold-2));
+  box-shadow: 5px 6px 0 rgba(0, 0, 0, 0.74);
+  font-family: var(--display-font);
+  font-size: 26px;
+  font-weight: 900;
+  animation: introCardFan 720ms var(--ease-snap) both;
+}
+
+.intro-card:nth-child(1) { --fan: -78px; --rot: -16deg; animation-delay: 620ms; }
+.intro-card:nth-child(2) { --fan: -26px; --rot: -6deg; animation-delay: 700ms; }
+.intro-card:nth-child(3) { --fan: 28px; --rot: 7deg; animation-delay: 780ms; }
+.intro-card:nth-child(4) { --fan: 84px; --rot: 17deg; animation-delay: 860ms; }
+
+.intro-card.chosen {
+  color: white;
+  background:
+    linear-gradient(135deg, var(--ink), #1a1a12 52%, #2d2400);
+  border-color: var(--gold-2);
+}
+
+.intro-enter {
+  min-height: 46px;
+  padding: 0 24px;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), transparent 48%),
+    linear-gradient(135deg, var(--gold), var(--gold-2));
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.9);
+  font-family: var(--display-font);
+  font-size: 22px;
+  font-weight: 900;
+  text-transform: uppercase;
+  animation: introButtonIn 560ms var(--ease-snap) 1.12s both;
+}
+
+.intro-enter:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0 rgba(0, 0, 0, 0.9);
 }
 
 .shell {
@@ -1482,6 +1665,25 @@ h1 {
   .scene-card {
     opacity: 0.5;
   }
+
+  .intro-screen {
+    padding: 18px;
+  }
+
+  .intro-deck {
+    height: 112px;
+  }
+
+  .intro-card {
+    width: 72px;
+    height: 102px;
+    left: calc(50% - 36px);
+  }
+
+  .intro-card:nth-child(1) { --fan: -58px; }
+  .intro-card:nth-child(2) { --fan: -20px; }
+  .intro-card:nth-child(3) { --fan: 22px; }
+  .intro-card:nth-child(4) { --fan: 60px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1498,6 +1700,58 @@ h1 {
 @keyframes scanPulse {
   0%, 100% { transform: translateY(0); opacity: 0.76; }
   50% { transform: translateY(2px); opacity: 0.92; }
+}
+
+@keyframes introArrive {
+  from { opacity: 0; filter: blur(8px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+@keyframes introLeave {
+  from { opacity: 1; transform: scale(1); filter: blur(0); }
+  to { opacity: 0; transform: scale(1.025); filter: blur(8px); }
+}
+
+@keyframes introStatic {
+  0% { transform: rotate(-8deg) translate3d(0, 0, 0); }
+  50% { transform: rotate(-8deg) translate3d(12px, -8px, 0); }
+  100% { transform: rotate(-8deg) translate3d(-6px, 9px, 0); }
+}
+
+@keyframes introSlash {
+  from { opacity: 0; transform: translateX(-18vw) rotate(-13deg) scaleX(0.82); }
+  to { opacity: 1; transform: translateX(0) rotate(-13deg) scaleX(1); }
+}
+
+@keyframes introLogoIn {
+  from { opacity: 0; transform: translateY(18px) rotate(-12deg) scale(0.82); }
+  70% { opacity: 1; transform: translateY(-4px) rotate(-3deg) scale(1.06); }
+  to { opacity: 1; transform: translateY(0) rotate(-5deg) scale(1); }
+}
+
+@keyframes introCopyIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes introCardFan {
+  from {
+    opacity: 0;
+    transform: translateX(0) translateY(30px) rotateY(70deg) rotate(0deg) scale(0.76);
+  }
+  68% {
+    opacity: 1;
+    transform: translateX(calc(var(--fan) * 1.08)) translateY(-6px) rotateY(-8deg) rotate(var(--rot)) scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(var(--fan)) translateY(0) rotateY(0) rotate(var(--rot)) scale(1);
+  }
+}
+
+@keyframes introButtonIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes staticDrift {

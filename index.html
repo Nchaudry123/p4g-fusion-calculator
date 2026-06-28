@@ -9,7 +9,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter+Tight:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
   </head>
-  <body>
+  <body class="intro-active">
+    <section id="introScreen" class="intro-screen" aria-label="Persona 4 Golden Fusion Calculator intro">
+      <div class="intro-static" aria-hidden="true"></div>
+      <div class="intro-slash slash-one" aria-hidden="true"></div>
+      <div class="intro-slash slash-two" aria-hidden="true"></div>
+      <div class="intro-content">
+        <img class="intro-logo" src="assets/p4g-logo-transparent.png" alt="Persona 4 Golden">
+        <div class="intro-copy">
+          <p>Velvet Room Access</p>
+          <h2>Fusion Queue</h2>
+          <span>Reverse recipes, Persona data, and crafting paths.</span>
+        </div>
+        <div class="intro-deck" aria-hidden="true">
+          <span class="intro-card">I</span>
+          <span class="intro-card">II</span>
+          <span class="intro-card">III</span>
+          <span class="intro-card chosen">IV</span>
+        </div>
+        <button id="introEnter" class="intro-enter" type="button">Enter Calculator</button>
+      </div>
+    </section>
     <div class="scene" aria-hidden="true">
       <div class="scene-grid"></div>
       <div class="scene-card card-one"></div>

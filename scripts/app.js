@@ -1,5 +1,6 @@
 const RESIST_LABELS = ["Phy", "Fire", "Ice", "Elec", "Wind", "Light", "Dark", "Alm"];
 const STAT_LABELS = ["St", "Ma", "En", "Ag", "Lu"];
+const INTRO_SEEN_KEY = "p4g-fusion-intro-seen";
 const SOCIAL_LINK_UNLOCKS = {
   Loki: "Fool",
   Mada: "Magician",
@@ -52,6 +53,8 @@ const state = {
 };
 
 const $ = (selector) => document.querySelector(selector);
+
+setupIntro();
 
 Promise.all([
   fetch("data/personas.json").then((res) => res.json()),
@@ -131,6 +134,42 @@ function setupSearch() {
     state.queue = [];
     renderQueue();
   });
+}
+
+function setupIntro() {
+  const intro = $("#introScreen");
+  const enter = $("#introEnter");
+  if (!intro || !enter) return;
+
+  const dismissIntro = () => {
+    intro.classList.add("is-leaving");
+    document.body.classList.remove("intro-active");
+    try {
+      sessionStorage.setItem(INTRO_SEEN_KEY, "true");
+    } catch {
+      // Session storage is a convenience only.
+    }
+    window.setTimeout(() => {
+      intro.hidden = true;
+    }, 620);
+  };
+
+  try {
+    if (sessionStorage.getItem(INTRO_SEEN_KEY) === "true") {
+      intro.hidden = true;
+      document.body.classList.remove("intro-active");
+      return;
+    }
+  } catch {
+    // Keep showing the intro if storage is unavailable.
+  }
+
+  enter.addEventListener("click", dismissIntro);
+  window.addEventListener("keydown", (event) => {
+    if (intro.hidden) return;
+    if (event.key === "Enter" || event.key === "Escape") dismissIntro();
+  });
+  window.setTimeout(() => enter.focus({ preventScroll: true }), 1600);
 }
 
 function renderInitialState() {
