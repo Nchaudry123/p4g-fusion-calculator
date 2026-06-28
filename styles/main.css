@@ -13,12 +13,18 @@
   --pink: #ea5b91;
   --display-font: "Barlow Condensed", Impact, "Arial Narrow", sans-serif;
   --body-font: "Inter Tight", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-snap: cubic-bezier(.18, .88, .26, 1.16);
   color-scheme: dark;
   font-family: var(--body-font);
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -155,7 +161,19 @@ input {
 
 button {
   cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease, background 160ms ease;
+  transition:
+    transform 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out),
+    filter 220ms var(--ease-out),
+    background 220ms var(--ease-out),
+    border-color 220ms var(--ease-out),
+    color 220ms var(--ease-out);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid rgba(255, 235, 104, 0.9);
+  outline-offset: 3px;
 }
 
 .shell {
@@ -180,6 +198,12 @@ button {
   filter: drop-shadow(7px 9px 0 rgba(0, 0, 0, 0.74)) drop-shadow(0 0 18px rgba(255, 231, 106, 0.08));
   transform: rotate(-3deg);
   animation: markPop 2.8s ease-in-out infinite;
+  transition: transform 360ms var(--ease-snap), filter 360ms var(--ease-out);
+}
+
+.brand-logo:hover {
+  filter: drop-shadow(9px 11px 0 rgba(0, 0, 0, 0.74)) drop-shadow(0 0 22px rgba(255, 231, 106, 0.18));
+  transform: rotate(-4deg) scale(1.035);
 }
 
 .kicker {
@@ -232,6 +256,11 @@ h1 {
     5px 5px 0 rgba(0, 0, 0, 0.34);
   backdrop-filter: blur(18px);
   overflow: hidden;
+  animation: panelLift 560ms var(--ease-out) both;
+  transition:
+    border-color 260ms var(--ease-out),
+    box-shadow 260ms var(--ease-out),
+    transform 260ms var(--ease-out);
 }
 
 .panel::before {
@@ -250,10 +279,12 @@ h1 {
   position: sticky;
   top: 18px;
   padding: 16px;
+  animation-delay: 80ms;
 }
 
 .calculator-panel {
   padding: 18px;
+  animation-delay: 150ms;
 }
 
 .panel-title,
@@ -349,11 +380,17 @@ h1 {
     linear-gradient(90deg, rgba(255, 235, 104, 0.08), transparent 38%),
     rgba(0, 0, 0, 0.56);
   outline: none;
+  transition:
+    border-color 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out),
+    background 220ms var(--ease-out),
+    transform 220ms var(--ease-out);
 }
 
 .search-box input:focus {
   border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(247, 211, 49, 0.2);
+  transform: translateY(-1px);
 }
 
 .suggestions {
@@ -370,7 +407,7 @@ h1 {
 
 .suggestions.is-open {
   display: block;
-  animation: trayIn 180ms ease both;
+  animation: trayIn 260ms var(--ease-out) both;
 }
 
 .suggestion-title {
@@ -403,14 +440,20 @@ h1 {
   color: white;
   background: rgba(10, 10, 10, 0.48);
   text-align: left;
-  animation: suggestionIn 220ms ease both;
-  animation-delay: min(calc(var(--i, 0) * 28ms), 280ms);
+  transition:
+    transform 220ms var(--ease-out),
+    border-color 220ms var(--ease-out),
+    background 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out);
+  animation: suggestionIn 320ms var(--ease-out) both;
+  animation-delay: min(calc(var(--i, 0) * 34ms), 320ms);
 }
 
 .suggestion-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.01);
   border-color: var(--gold-2);
   background: rgba(247, 211, 49, 0.12);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
 }
 
 .suggestion-card img {
@@ -495,7 +538,7 @@ h1 {
 .deck-stage.is-visible,
 .deck-stage.is-running {
   display: grid;
-  animation: trayIn 160ms ease both;
+  animation: deckStageIn 340ms var(--ease-out) both;
 }
 
 .deck-stage.is-running::after {
@@ -753,7 +796,20 @@ h1 {
     linear-gradient(90deg, rgba(255, 235, 104, 0.13), rgba(255, 255, 255, 0.045)),
     rgba(0, 0, 0, 0.2);
   border-left: 4px solid var(--gold);
-  animation: itemIn 240ms ease both;
+  transition:
+    transform 220ms var(--ease-out),
+    background 220ms var(--ease-out),
+    border-color 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out);
+  animation: itemIn 340ms var(--ease-out) both;
+}
+
+.queue-item:hover {
+  transform: translateX(3px);
+  background:
+    linear-gradient(90deg, rgba(255, 235, 104, 0.18), rgba(255, 255, 255, 0.055)),
+    rgba(0, 0, 0, 0.24);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
 }
 
 .queue-rank {
@@ -799,6 +855,7 @@ h1 {
 
 .active-persona {
   margin-top: 18px;
+  animation: contentRise 360ms var(--ease-out) both;
 }
 
 .persona-card {
@@ -816,7 +873,18 @@ h1 {
   box-shadow:
     inset 4px 0 0 var(--gold),
     0 18px 44px rgba(0, 0, 0, 0.28);
-  animation: cardIn 260ms ease both;
+  animation: cardIn 460ms var(--ease-out) both;
+  transition:
+    transform 260ms var(--ease-out),
+    border-color 260ms var(--ease-out),
+    box-shadow 260ms var(--ease-out);
+}
+
+.persona-card:hover {
+  border-color: rgba(255, 231, 106, 0.32);
+  box-shadow:
+    inset 4px 0 0 var(--gold),
+    0 22px 52px rgba(0, 0, 0, 0.34);
 }
 
 .persona-visual {
@@ -839,6 +907,13 @@ h1 {
   max-height: 230px;
   object-fit: contain;
   filter: drop-shadow(0 18px 10px rgba(0, 0, 0, 0.72));
+  animation: personaFloatIn 560ms var(--ease-snap) both;
+  transition: transform 320ms var(--ease-out), filter 320ms var(--ease-out);
+}
+
+.persona-card:hover .persona-visual img {
+  filter: drop-shadow(0 22px 12px rgba(0, 0, 0, 0.76));
+  transform: translateY(-4px) scale(1.025);
 }
 
 .persona-info {
@@ -860,6 +935,7 @@ h1 {
   box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.7);
   text-align: center;
   transform: rotate(3deg);
+  animation: badgePop 520ms var(--ease-snap) 120ms both;
 }
 
 .arcana-badge span {
@@ -903,7 +979,13 @@ h1 {
   font-size: 12px;
   font-weight: 800;
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.56);
+  animation: smallChipIn 300ms var(--ease-out) both;
 }
+
+.stat:nth-child(2) { animation-delay: 40ms; }
+.stat:nth-child(3) { animation-delay: 80ms; }
+.stat:nth-child(4) { animation-delay: 120ms; }
+.stat:nth-child(5) { animation-delay: 160ms; }
 
 .detail-block {
   margin-top: 14px;
@@ -936,6 +1018,16 @@ h1 {
   border-radius: 4px;
   color: var(--muted);
   font-size: 12px;
+  transition:
+    transform 200ms var(--ease-out),
+    border-color 200ms var(--ease-out),
+    background 200ms var(--ease-out);
+  animation: smallChipIn 300ms var(--ease-out) both;
+}
+
+.resist:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.09);
 }
 
 .resist strong {
@@ -969,6 +1061,20 @@ h1 {
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.38);
   border-left: 3px solid var(--gold);
+  transition:
+    transform 220ms var(--ease-out),
+    background 220ms var(--ease-out),
+    border-color 220ms var(--ease-out);
+  animation: skillIn 340ms var(--ease-out) both;
+}
+
+.skill-row:nth-child(2n) { animation-delay: 45ms; }
+.skill-row:nth-child(3n) { animation-delay: 90ms; }
+
+.skill-row:hover {
+  transform: translateX(4px);
+  background: rgba(0, 0, 0, 0.5);
+  border-color: var(--gold-2);
 }
 
 .skill-name {
@@ -997,6 +1103,7 @@ h1 {
   background: linear-gradient(135deg, rgba(247, 211, 49, 0.13), rgba(0, 0, 0, 0.46));
   font-size: 12px;
   font-weight: 800;
+  animation: smallChipIn 300ms var(--ease-out) both;
 }
 
 .recipes {
@@ -1011,9 +1118,20 @@ h1 {
   background:
     linear-gradient(90deg, rgba(255, 235, 104, 0.055), transparent 34%),
     rgba(0, 0, 0, 0.52);
-  animation: recipeIn 260ms ease both;
-  animation-delay: min(calc(var(--i, 0) * 26ms), 360ms);
+  animation: recipeIn 420ms var(--ease-out) both;
+  animation-delay: min(calc(var(--i, 0) * 34ms), 420ms);
   overflow: hidden;
+  transition:
+    transform 240ms var(--ease-out),
+    border-color 240ms var(--ease-out),
+    box-shadow 240ms var(--ease-out),
+    background 240ms var(--ease-out);
+}
+
+.recipe:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 235, 104, 0.28);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
 }
 
 .recipe::before {
@@ -1022,6 +1140,8 @@ h1 {
   width: 4px;
   content: "";
   background: var(--gold);
+  transform-origin: top;
+  animation: lineGrow 460ms var(--ease-out) both;
 }
 
 .recipe.is-special-fusion {
@@ -1068,6 +1188,7 @@ h1 {
   border: 1px solid rgba(255, 235, 104, 0.22);
   border-radius: 5px;
   background: rgba(255, 235, 104, 0.08);
+  animation: noteIn 360ms var(--ease-out) 80ms both;
 }
 
 .special-fusion-note span {
@@ -1106,6 +1227,11 @@ h1 {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.32), transparent 48%),
     linear-gradient(135deg, var(--gold), #fff174);
+  transition:
+    transform 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out),
+    filter 220ms var(--ease-out),
+    background 220ms var(--ease-out);
 }
 
 .persona-button.special-ingredient {
@@ -1143,6 +1269,12 @@ h1 {
   height: 52px;
   object-fit: contain;
   filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.45));
+  transition: transform 240ms var(--ease-out), filter 240ms var(--ease-out);
+}
+
+.persona-button:hover img {
+  filter: drop-shadow(0 9px 6px rgba(0, 0, 0, 0.5));
+  transform: translateY(-2px) scale(1.06);
 }
 
 .persona-button::after {
@@ -1316,7 +1448,12 @@ h1 {
 }
 
 @keyframes pageIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(14px); filter: blur(3px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes panelLift {
+  from { opacity: 0; transform: translateY(18px) scale(0.99); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -1331,18 +1468,23 @@ h1 {
 }
 
 @keyframes itemIn {
-  from { opacity: 0; transform: translateX(-8px); }
+  from { opacity: 0; transform: translateX(-12px) scale(0.98); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes trayIn {
-  from { opacity: 0; transform: translateY(-6px); }
+  from { opacity: 0; transform: translateY(-8px) scale(0.99); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes suggestionIn {
-  from { opacity: 0; transform: translateY(8px) rotate(-1deg); }
+  from { opacity: 0; transform: translateY(12px) rotate(-1.5deg) scale(0.98); }
   to { opacity: 1; transform: translateY(0) rotate(0); }
+}
+
+@keyframes deckStageIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.985); filter: blur(2px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
 @keyframes deckScanner {
@@ -1424,16 +1566,54 @@ h1 {
 }
 
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(18px) scale(0.985); filter: blur(3px); }
+  65% { filter: blur(0); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes recipeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(16px) scale(0.985); filter: blur(2px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pulseX {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.16); }
+}
+
+@keyframes contentRise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes personaFloatIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.94); }
+  70% { opacity: 1; transform: translateY(-4px) scale(1.03); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes badgePop {
+  from { opacity: 0; transform: rotate(-8deg) scale(0.86); }
+  70% { opacity: 1; transform: rotate(5deg) scale(1.05); }
+  to { opacity: 1; transform: rotate(3deg) scale(1); }
+}
+
+@keyframes smallChipIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes skillIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes lineGrow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+@keyframes noteIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
