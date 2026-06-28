@@ -94,46 +94,117 @@ body::after {
 .scene-card,
 .signal-band {
   position: absolute;
-  border: 3px solid rgba(0, 0, 0, 0.78);
+}
+
+.scene-card {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 12px;
+  border: 2px solid rgba(255, 231, 106, 0.64);
+  border-radius: 5px;
+  color: rgba(255, 247, 194, 0.9);
   background:
-    linear-gradient(135deg, rgba(255, 235, 104, 0.16), rgba(255, 235, 104, 0.02)),
-    rgba(0, 0, 0, 0.28);
-  box-shadow: 7px 7px 0 rgba(0, 0, 0, 0.34);
-  opacity: 0.82;
+    linear-gradient(145deg, rgba(255, 246, 164, 0.16), rgba(0, 0, 0, 0.72) 44%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 8px),
+    rgba(9, 9, 6, 0.68);
+  box-shadow:
+    7px 9px 0 rgba(0, 0, 0, 0.36),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  opacity: 0.72;
+  transform-style: preserve-3d;
+}
+
+.scene-card::before,
+.scene-card::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
 }
 
 .scene-card::before {
-  position: absolute;
-  inset: 12px;
-  content: "";
-  border: 2px solid rgba(255, 235, 104, 0.34);
+  inset: 10px;
+  border: 1px solid rgba(255, 235, 104, 0.28);
+}
+
+.scene-card::after {
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255, 235, 104, 0.2), transparent 28%),
+    linear-gradient(110deg, transparent 24%, rgba(255, 255, 255, 0.12), transparent 42%);
+  opacity: 0.55;
+}
+
+.scene-card span,
+.scene-card strong {
+  position: relative;
+  z-index: 1;
+  font-family: var(--display-font);
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.86);
+}
+
+.scene-card span {
+  align-self: start;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.scene-card strong {
+  align-self: end;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: white;
+  font-size: 16px;
+  line-height: 0.92;
+}
+
+.arcana-card {
+  animation: floatArcana 9s ease-in-out infinite;
 }
 
 .card-one {
-  width: 136px;
-  height: 194px;
-  right: 8vw;
-  top: 62px;
+  width: 126px;
+  height: 178px;
+  right: 6vw;
+  top: 70px;
   transform: rotate(15deg);
-  animation: floatCard 6.5s ease-in-out infinite;
+  animation-delay: -1.2s;
 }
 
 .card-two {
-  width: 96px;
-  height: 138px;
-  left: 3vw;
-  bottom: 80px;
+  width: 104px;
+  height: 148px;
+  left: 4vw;
+  bottom: 96px;
   transform: rotate(-13deg);
-  animation: floatCard 7.4s ease-in-out infinite reverse;
+  animation-delay: -4s;
 }
 
 .card-three {
-  width: 70px;
-  height: 104px;
-  right: 24vw;
-  bottom: 28px;
+  width: 82px;
+  height: 118px;
+  right: 23vw;
+  bottom: 38px;
   transform: rotate(8deg);
-  animation: floatCard 8.2s ease-in-out infinite;
+  animation-delay: -6.4s;
+}
+
+.card-four {
+  width: 92px;
+  height: 132px;
+  left: 18vw;
+  top: 18vh;
+  transform: rotate(11deg);
+  animation-delay: -2.7s;
+}
+
+.card-five {
+  width: 112px;
+  height: 158px;
+  right: 2vw;
+  bottom: 20vh;
+  transform: rotate(-9deg);
+  animation-delay: -7.8s;
 }
 
 .signal-band {
@@ -1799,9 +1870,19 @@ h1 {
   to { transform: rotate(-9deg) translate3d(-54px, 54px, 0); }
 }
 
-@keyframes floatCard {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -18px; }
+@keyframes floatArcana {
+  0%, 100% {
+    translate: 0 0;
+    filter: saturate(0.92);
+  }
+  35% {
+    translate: 10px -18px;
+    filter: saturate(1.08);
+  }
+  68% {
+    translate: -6px -8px;
+    filter: saturate(1);
+  }
 }
 
 @keyframes signalSweep {

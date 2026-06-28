@@ -32,9 +32,26 @@
     </section>
     <div class="scene" aria-hidden="true">
       <div class="scene-grid"></div>
-      <div class="scene-card card-one"></div>
-      <div class="scene-card card-two"></div>
-      <div class="scene-card card-three"></div>
+      <div class="scene-card arcana-card card-one">
+        <span>0</span>
+        <strong>Fool</strong>
+      </div>
+      <div class="scene-card arcana-card card-two">
+        <span>I</span>
+        <strong>Magician</strong>
+      </div>
+      <div class="scene-card arcana-card card-three">
+        <span>VI</span>
+        <strong>Lovers</strong>
+      </div>
+      <div class="scene-card arcana-card card-four">
+        <span>X</span>
+        <strong>Fortune</strong>
+      </div>
+      <div class="scene-card arcana-card card-five">
+        <span>XX</span>
+        <strong>Judgement</strong>
+      </div>
       <div class="signal-band band-one"></div>
       <div class="signal-band band-two"></div>
     </div>
@@ -61,8 +78,7 @@
           <div class="search-row">
             <label class="search-box">
               <span>Persona search</span>
-              <input id="personaSearch" list="personaOptions" type="search" autocomplete="off" placeholder="Try Alice, Trumpeter, Jack Frost, or Tower...">
-              <datalist id="personaOptions"></datalist>
+              <input id="personaSearch" type="search" autocomplete="off" placeholder="Try Alice, Trumpeter, Jack Frost, or Tower...">
             </label>
             <button id="selectSearch" class="primary-button" type="button">Set Priority 1</button>
           </div>

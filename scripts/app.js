@@ -121,8 +121,6 @@ function buildRaceLevels() {
 }
 
 function setupSearch() {
-  const datalist = $("#personaOptions");
-  datalist.innerHTML = state.names.concat(state.arcanas).map((name) => `<option value="${escapeHtml(name)}"></option>`).join("");
   $("#selectSearch").addEventListener("click", () => selectPersonaFromInput());
   $("#personaSearch").addEventListener("input", () => handleSearchInput($("#personaSearch").value));
   $("#personaSearch").addEventListener("focus", () => handleSearchInput($("#personaSearch").value));
