@@ -1024,6 +1024,17 @@ h1 {
   background: var(--gold);
 }
 
+.recipe.is-special-fusion {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(86, 191, 232, 0.12), transparent 16rem),
+    linear-gradient(90deg, rgba(255, 235, 104, 0.08), transparent 42%),
+    rgba(0, 0, 0, 0.56);
+}
+
+.recipe.is-special-fusion::before {
+  background: linear-gradient(180deg, var(--gold), var(--blue));
+}
+
 .recipe-head {
   padding: 10px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
@@ -1036,10 +1047,48 @@ h1 {
 }
 
 .ingredients {
+  padding: 12px;
+}
+
+.fusion-equation {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 10px;
-  padding: 12px;
+  align-items: center;
+}
+
+.special-fusion-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 9px 10px;
+  border: 1px solid rgba(255, 235, 104, 0.22);
+  border-radius: 5px;
+  background: rgba(255, 235, 104, 0.08);
+}
+
+.special-fusion-note span {
+  color: var(--gold-2);
+  font-family: var(--display-font);
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.special-fusion-note strong {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.special-fusion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
+  gap: 10px;
 }
 
 .persona-button {
@@ -1059,8 +1108,37 @@ h1 {
     linear-gradient(135deg, var(--gold), #fff174);
 }
 
+.persona-button.special-ingredient {
+  display: grid;
+  grid-template-columns: auto 52px minmax(0, 1fr);
+  grid-template-areas:
+    "step image text"
+    "step image action";
+  align-items: center;
+  min-height: 84px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 48%),
+    linear-gradient(135deg, #fff6a4, var(--gold));
+}
+
+.ingredient-step {
+  grid-area: step;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  color: var(--paper);
+  background: var(--ink);
+  font-family: var(--display-font);
+  font-size: 18px;
+  font-weight: 900;
+}
+
 .persona-button img {
   flex: 0 0 52px;
+  grid-area: image;
   width: 52px;
   height: 52px;
   object-fit: contain;
@@ -1083,6 +1161,17 @@ h1 {
 
 .persona-button span {
   display: block;
+}
+
+.persona-button.special-ingredient > span:not(.ingredient-step) {
+  grid-area: text;
+  min-width: 0;
+}
+
+.persona-button .action-copy {
+  grid-area: action;
+  justify-self: start;
+  text-transform: uppercase;
 }
 
 .persona-button .mini {

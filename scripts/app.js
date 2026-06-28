@@ -467,30 +467,49 @@ function renderRecipes() {
 }
 
 function renderRecipe(recipe, index) {
-  const buttons = recipe.ingredients.map((name, i) => {
-    const persona = state.personas[name];
-    const spacer = i < recipe.ingredients.length - 1 ? `<div class="fusion-x">x</div>` : "";
-    return `
-      <button class="persona-button" type="button" data-persona="${escapeAttr(name)}">
-        <img src="${escapeAttr(personaImage(name))}" alt="" loading="lazy">
-        <span>
-          <strong>${escapeHtml(name)}</strong>
-          <span class="mini">Lv ${persona?.lvl ?? "?"} ${escapeHtml(persona?.race ?? "")}</span>
-        </span>
-        <span class="mini">queue +</span>
-      </button>
-      ${spacer}
+  const isSpecialLayout = recipe.ingredients.length > 2;
+  const ingredients = isSpecialLayout
+    ? `
+      <div class="special-fusion-note">
+        <span>${recipe.ingredients.length}-Persona special fusion</span>
+        <strong>Use every ingredient below</strong>
+      </div>
+      <div class="special-fusion-grid">
+        ${recipe.ingredients.map((name, i) => renderIngredientButton(name, i, true)).join("")}
+      </div>
+    `
+    : `
+      <div class="fusion-equation">
+        ${recipe.ingredients.map((name, i) => `
+          ${renderIngredientButton(name, i, false)}
+          ${i < recipe.ingredients.length - 1 ? `<div class="fusion-x">x</div>` : ""}
+        `).join("")}
+      </div>
     `;
-  }).join("");
 
   return `
-    <article class="recipe" style="--i: ${index}">
+    <article class="recipe ${isSpecialLayout ? "is-special-fusion" : ""}" style="--i: ${index}">
       <div class="recipe-head">
         <span class="recipe-title">Recipe ${index + 1}</span>
         <span class="recipe-meta">${recipe.type}${recipe.score ? ` / Lv sum ${recipe.score}` : ""}</span>
       </div>
-      <div class="ingredients">${buttons}</div>
+      <div class="ingredients">${ingredients}</div>
     </article>
+  `;
+}
+
+function renderIngredientButton(name, index, showStep) {
+  const persona = state.personas[name];
+  return `
+    <button class="persona-button ${showStep ? "special-ingredient" : ""}" type="button" data-persona="${escapeAttr(name)}">
+      ${showStep ? `<span class="ingredient-step">${index + 1}</span>` : ""}
+      <img src="${escapeAttr(personaImage(name))}" alt="" loading="lazy">
+      <span>
+        <strong>${escapeHtml(name)}</strong>
+        <span class="mini">Lv ${persona?.lvl ?? "?"} ${escapeHtml(persona?.race ?? "")}</span>
+      </span>
+      <span class="mini action-copy">${showStep ? "plan" : "queue +"}</span>
+    </button>
   `;
 }
 
