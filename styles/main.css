@@ -576,7 +576,7 @@ h1 {
 .persona-visual {
   display: grid;
   place-items: center;
-  min-height: 310px;
+  min-height: 230px;
   background:
     radial-gradient(circle at 50% 52%, rgba(255, 235, 104, 0.34), transparent 46%),
     linear-gradient(135deg, rgba(255, 235, 104, 0.08), rgba(255, 255, 255, 0.03));
@@ -586,8 +586,10 @@ h1 {
 
 .persona-visual img {
   display: block;
+  width: min(92%, 230px);
+  height: auto;
   max-width: 100%;
-  max-height: 310px;
+  max-height: 230px;
   object-fit: contain;
   filter: drop-shadow(0 18px 10px rgba(0, 0, 0, 0.72));
 }
@@ -891,11 +893,12 @@ h1 {
   }
 
   .persona-visual {
-    min-height: 230px;
+    min-height: 210px;
   }
 
   .persona-visual img {
-    max-height: 230px;
+    width: min(92%, 210px);
+    max-height: 210px;
   }
 
   .scene-card {
