@@ -1,6 +1,32 @@
 const RESIST_LABELS = ["Phy", "Fire", "Ice", "Elec", "Wind", "Light", "Dark", "Alm"];
 const STAT_LABELS = ["St", "Ma", "En", "Ag", "Lu"];
 const INTRO_SEEN_KEY = "p4g-fusion-intro-seen";
+const ARCANA_CARD_IMAGES = {
+  Fool: "fool",
+  Magician: "magician",
+  Priestess: "priestess",
+  Empress: "empress",
+  Emperor: "emperor",
+  Hierophant: "hierophant",
+  Lovers: "lovers",
+  Chariot: "chariot",
+  Justice: "justice",
+  Hermit: "hermit",
+  Fortune: "fortune",
+  Strength: "strength",
+  Hanged: "hanged",
+  Death: "death",
+  Temperance: "temperance",
+  Devil: "devil",
+  Tower: "tower",
+  Star: "star",
+  Moon: "moon",
+  Sun: "sun",
+  Judgement: "judgement",
+  World: "world",
+  Aeon: "extra-22",
+  Jester: "extra-23"
+};
 const SOCIAL_LINK_UNLOCKS = {
   Loki: "Fool",
   Mada: "Magician",
@@ -375,8 +401,8 @@ function renderDrawCard(cardName, index, total, isTarget, mode) {
   const rotation = (index - total / 2) * 5.5;
   return `
     <div class="draw-card ${isTarget ? "is-target" : ""}" data-mode="${mode}" style="--i: ${index}; --r: ${rotation}deg; --spread: ${index - (total - 1) / 2};">
-      <span class="card-corner">P4G</span>
-      <img src="${escapeAttr(personaImage(cardName))}" alt="">
+      <img class="draw-arcana" src="${escapeAttr(arcanaCardImage(persona.race))}" alt="">
+      <span class="card-corner">${escapeHtml(persona.race)}</span>
       <span class="card-name">${escapeHtml(cardName)}</span>
     </div>
   `;
@@ -397,7 +423,10 @@ function renderSelectedDraw(name, fallback, chosen) {
   return `
     <div class="selected-draw ${chosen ? "is-chosen" : ""}">
       <span>${chosen ? "Chosen card" : "Current draw"}</span>
-      <img src="${escapeAttr(personaImage(persona.name))}" alt="">
+      <div class="selected-card-stack" aria-hidden="true">
+        <img class="selected-arcana" src="${escapeAttr(arcanaCardImage(persona.race))}" alt="">
+        <img class="selected-persona" src="${escapeAttr(personaImage(persona.name))}" alt="">
+      </div>
       <strong>${escapeHtml(persona.name)}</strong>
       <em>Lv ${persona.lvl} / ${escapeHtml(persona.race)}</em>
     </div>
@@ -508,6 +537,10 @@ function renderActivePersona() {
 
 function personaImage(name) {
   return state.personaImages[name] || "assets/personas/taowu.png";
+}
+
+function arcanaCardImage(arcana) {
+  return `assets/arcana/${ARCANA_CARD_IMAGES[arcana] || "world"}.png`;
 }
 
 function renderSkills(persona) {
