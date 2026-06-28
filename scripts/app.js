@@ -11,7 +11,8 @@ const state = {
   skills: {},
   active: "",
   queue: [],
-  drawTimer: 0
+  drawTimer: 0,
+  searchTimer: 0
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -84,8 +85,8 @@ function setupSearch() {
   const datalist = $("#personaOptions");
   datalist.innerHTML = state.names.concat(state.arcanas).map((name) => `<option value="${escapeHtml(name)}"></option>`).join("");
   $("#selectSearch").addEventListener("click", () => selectPersonaFromInput());
-  $("#personaSearch").addEventListener("input", () => renderSuggestions($("#personaSearch").value));
-  $("#personaSearch").addEventListener("focus", () => renderSuggestions($("#personaSearch").value));
+  $("#personaSearch").addEventListener("input", () => handleSearchInput($("#personaSearch").value));
+  $("#personaSearch").addEventListener("focus", () => handleSearchInput($("#personaSearch").value));
   $("#personaSearch").addEventListener("keydown", (event) => {
     if (event.key === "Enter") selectPersonaFromInput();
     if (event.key === "Escape") clearSuggestions();
@@ -94,6 +95,11 @@ function setupSearch() {
     state.queue = [];
     renderQueue();
   });
+}
+
+function handleSearchInput(value) {
+  renderSuggestions(value);
+  playDeckSearch(value);
 }
 
 function selectPersonaFromInput() {
@@ -185,39 +191,133 @@ function clearSuggestions() {
   $("#suggestions").innerHTML = "";
 }
 
+function playDeckSearch(value) {
+  const stage = $("#deckStage");
+  const query = value.trim();
+  if (!stage) return;
+
+  clearTimeout(state.searchTimer);
+  clearTimeout(state.drawTimer);
+  if (!query) {
+    stage.className = "deck-stage";
+    stage.innerHTML = "";
+    return;
+  }
+
+  const normalized = query.toLowerCase();
+  const exactPersona = state.names.find((name) => name.toLowerCase() === normalized);
+  const arcana = findArcana(query);
+  const personaMatches = state.names
+    .filter((name) => name.toLowerCase().includes(normalized))
+    .slice(0, 7);
+  const arcanaMatches = arcana
+    ? Object.values(state.personas)
+      .filter((persona) => persona.race === arcana)
+      .sort((a, b) => a.lvl - b.lvl || a.name.localeCompare(b.name))
+      .map((persona) => persona.name)
+      .slice(0, 7)
+    : [];
+  const previewNames = exactPersona
+    ? [exactPersona]
+    : personaMatches.length
+      ? personaMatches
+      : arcanaMatches;
+  const targetName = exactPersona || previewNames[0] || "";
+  const target = state.personas[targetName];
+  const deckNames = buildDeckNames(targetName, previewNames);
+  const modeLabel = exactPersona
+    ? "Exact Persona locked"
+    : arcana && !personaMatches.length
+      ? `${arcana} Arcana sweep`
+      : "Searching the compendium";
+
+  stage.innerHTML = `
+    <div class="deck-copy">
+      <span>Velvet deck</span>
+      <strong>${escapeHtml(modeLabel)}</strong>
+      <em>${target ? `Top draw: ${escapeHtml(target.name)} / Lv ${target.lvl} ${escapeHtml(target.race)}` : `No draw yet for "${escapeHtml(query)}"`}</em>
+    </div>
+    <div class="draw-table" aria-hidden="true">
+      ${deckNames.map((cardName, index) => renderDrawCard(cardName, index, deckNames.length, cardName === targetName && Boolean(targetName), "search")).join("")}
+    </div>
+    ${renderSelectedDraw(targetName, query, false)}
+  `;
+  stage.className = "deck-stage is-visible is-searching is-running";
+  state.searchTimer = setTimeout(() => {
+    stage.classList.remove("is-running");
+  }, 850);
+}
+
 function playDeckDraw(name) {
   const stage = $("#deckStage");
   const target = state.personas[name];
   if (!stage || !target) return;
 
   clearTimeout(state.drawTimer);
-  const randomNames = state.names
-    .filter((item) => item !== name)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 7);
-  const cards = randomNames.concat(name).map((cardName, index, all) => {
-    const persona = state.personas[cardName];
-    const isTarget = cardName === name;
-    const rotation = (index - all.length / 2) * 5;
-    return `
-      <div class="draw-card ${isTarget ? "is-target" : ""}" style="--i: ${index}; --r: ${rotation}deg;">
-        <img src="${escapeAttr(personaImage(cardName))}" alt="">
-        <span>${escapeHtml(cardName)}</span>
-      </div>
-    `;
-  }).join("");
+  clearTimeout(state.searchTimer);
+  const deckNames = buildDeckNames(name);
 
   stage.innerHTML = `
-    <div class="draw-title">Shuffling the Velvet deck...</div>
-    <div class="draw-table">${cards}</div>
-    <div class="draw-result">${escapeHtml(target.name)} / Lv ${target.lvl} ${escapeHtml(target.race)}</div>
+    <div class="deck-copy">
+      <span>Selected draw</span>
+      <strong>${escapeHtml(target.name)}</strong>
+      <em>Priority ${state.queue.indexOf(name) + 1 || 1} / Lv ${target.lvl} ${escapeHtml(target.race)}</em>
+    </div>
+    <div class="draw-table" aria-hidden="true">
+      ${deckNames.map((cardName, index) => renderDrawCard(cardName, index, deckNames.length, cardName === name, "draw")).join("")}
+    </div>
+    ${renderSelectedDraw(name, target.name, true)}
   `;
-  stage.classList.remove("is-running");
+  stage.className = "deck-stage is-visible is-chosen";
   void stage.offsetWidth;
   stage.classList.add("is-running");
   state.drawTimer = setTimeout(() => {
     stage.classList.remove("is-running");
   }, 2400);
+}
+
+function buildDeckNames(targetName, preferred = []) {
+  const preferredSet = preferred.filter((name) => state.personas[name] && name !== targetName);
+  const randomNames = state.names
+    .filter((item) => item !== targetName && !preferredSet.includes(item))
+    .sort(() => Math.random() - 0.5)
+    .slice(0, Math.max(0, 7 - preferredSet.length));
+  return preferredSet.concat(randomNames, targetName).filter(Boolean).slice(-8);
+}
+
+function renderDrawCard(cardName, index, total, isTarget, mode) {
+  const persona = state.personas[cardName];
+  if (!persona) return "";
+  const rotation = (index - total / 2) * 5.5;
+  return `
+    <div class="draw-card ${isTarget ? "is-target" : ""}" data-mode="${mode}" style="--i: ${index}; --r: ${rotation}deg; --spread: ${index - (total - 1) / 2};">
+      <span class="card-corner">P4G</span>
+      <img src="${escapeAttr(personaImage(cardName))}" alt="">
+      <span class="card-name">${escapeHtml(cardName)}</span>
+    </div>
+  `;
+}
+
+function renderSelectedDraw(name, fallback, chosen) {
+  const persona = state.personas[name];
+  if (!persona) {
+    return `
+      <div class="selected-draw is-empty">
+        <span>Input</span>
+        <strong>${escapeHtml(fallback)}</strong>
+        <em>Keep typing to reveal a matching Persona or Arcana.</em>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="selected-draw ${chosen ? "is-chosen" : ""}">
+      <span>${chosen ? "Chosen card" : "Current draw"}</span>
+      <img src="${escapeAttr(personaImage(persona.name))}" alt="">
+      <strong>${escapeHtml(persona.name)}</strong>
+      <em>Lv ${persona.lvl} / ${escapeHtml(persona.race)}</em>
+    </div>
+  `;
 }
 
 function selectPersona(name, primary = false) {

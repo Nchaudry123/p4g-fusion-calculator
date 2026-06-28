@@ -416,60 +416,185 @@ h1 {
 
 .deck-stage {
   display: none;
+  position: relative;
+  grid-template-columns: minmax(180px, 0.32fr) minmax(260px, 1fr) minmax(140px, 0.26fr);
+  gap: 16px;
+  align-items: center;
+  min-height: 244px;
   margin-top: 14px;
-  padding: 14px;
+  padding: 18px;
   border: 1px solid rgba(255, 235, 104, 0.3);
   background:
-    radial-gradient(circle at 50% 52%, rgba(255, 235, 104, 0.18), transparent 16rem),
-    rgba(0, 0, 0, 0.7);
+    radial-gradient(circle at 58% 48%, rgba(255, 235, 104, 0.2), transparent 15rem),
+    linear-gradient(120deg, rgba(255, 235, 104, 0.08), transparent 38%),
+    rgba(0, 0, 0, 0.76);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    8px 8px 0 rgba(0, 0, 0, 0.34);
   overflow: hidden;
 }
 
+.deck-stage::before,
+.deck-stage::after {
+  position: absolute;
+  pointer-events: none;
+  content: "";
+}
+
+.deck-stage::before {
+  inset: -44% 36% auto auto;
+  width: 230px;
+  height: 230px;
+  border: 1px solid rgba(255, 235, 104, 0.2);
+  transform: rotate(18deg);
+  opacity: 0.75;
+}
+
+.deck-stage::after {
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.07), transparent),
+    repeating-linear-gradient(90deg, transparent 0 20px, rgba(255, 235, 104, 0.035) 20px 21px);
+  transform: translateX(-100%);
+}
+
+.deck-stage.is-visible,
 .deck-stage.is-running {
-  display: block;
+  display: grid;
   animation: trayIn 160ms ease both;
 }
 
-.draw-title {
+.deck-stage.is-running::after {
+  animation: deckScanner 820ms ease both;
+}
+
+.deck-copy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 6px;
+  align-content: center;
+}
+
+.deck-copy span {
   color: var(--gold-2);
   font-size: 12px;
   font-weight: 1000;
+  letter-spacing: 0;
   text-transform: uppercase;
+}
+
+.deck-copy strong {
+  max-width: 220px;
+  color: white;
+  font-size: clamp(22px, 3vw, 34px);
+  line-height: 1;
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.86);
+}
+
+.deck-copy em {
+  max-width: 230px;
+  color: var(--muted);
+  font-size: 13px;
+  font-style: normal;
+  line-height: 1.4;
 }
 
 .draw-table {
   position: relative;
-  height: 184px;
-  margin-top: 8px;
+  z-index: 1;
+  min-height: 198px;
+  perspective: 900px;
+  transform-style: preserve-3d;
+}
+
+.draw-table::before {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  width: min(74%, 420px);
+  height: 24px;
+  content: "";
+  background: rgba(0, 0, 0, 0.56);
+  border-radius: 999px;
+  filter: blur(14px);
+  transform: translateX(-50%);
 }
 
 .draw-card {
   position: absolute;
-  left: calc(50% - 48px);
-  top: 10px;
+  left: calc(50% - 50px);
+  top: 28px;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  width: 96px;
-  height: 144px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: 100px;
+  height: 148px;
   padding: 8px;
   color: var(--ink);
   background:
-    linear-gradient(135deg, white, var(--gold-2) 54%, var(--gold));
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), var(--paper) 50%, var(--gold-2));
   border: 3px solid var(--ink);
-  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.72);
-  transform-origin: 50% 120%;
-  animation: shuffleCard 1.55s cubic-bezier(.2,.9,.2,1) both;
-  animation-delay: calc(var(--i) * 58ms);
+  box-shadow:
+    6px 6px 0 rgba(0, 0, 0, 0.72),
+    0 0 22px rgba(255, 235, 104, 0.08);
+  transform: translateX(calc(var(--spread) * 30px)) rotate(var(--r)) scale(0.9);
+  transform-origin: 50% 130%;
+  animation: cardIdle 3.4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -180ms);
+  will-change: transform, filter;
+}
+
+.deck-stage.is-running .draw-card {
+  animation: shuffleCard 850ms cubic-bezier(.2,.9,.2,1) both;
+  animation-delay: calc(var(--i) * 38ms);
+}
+
+.deck-stage.is-chosen.is-running .draw-card {
+  animation-duration: 1.35s;
+  animation-delay: calc(var(--i) * 54ms);
+}
+
+.draw-card::before {
+  position: absolute;
+  inset: 9px;
+  content: "";
+  border: 1px solid rgba(8, 8, 8, 0.28);
+}
+
+.draw-card::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(110deg, transparent 24%, rgba(255, 255, 255, 0.7) 44%, transparent 58%);
+  transform: translateX(-130%) skewX(-18deg);
+  opacity: 0;
+}
+
+.deck-stage.is-running .draw-card::after {
+  animation: cardGleam 700ms ease both;
+  animation-delay: calc(var(--i) * 44ms);
+}
+
+.card-corner {
+  position: relative;
+  z-index: 1;
+  font-size: 9px;
+  font-weight: 1000;
+  text-transform: uppercase;
 }
 
 .draw-card img {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  height: 92px;
+  height: 86px;
   object-fit: contain;
   filter: drop-shadow(0 5px 3px rgba(0, 0, 0, 0.35));
 }
 
-.draw-card span {
+.draw-card .card-name {
+  position: relative;
+  z-index: 1;
   display: block;
   min-width: 0;
   overflow: hidden;
@@ -483,17 +608,87 @@ h1 {
 
 .draw-card.is-target {
   z-index: 4;
+  filter: saturate(1.08);
+}
+
+.deck-stage.is-chosen.is-running .draw-card.is-target {
   animation-name: chosenCard;
 }
 
-.draw-result {
-  color: white;
-  font-size: 14px;
-  font-weight: 1000;
+.selected-draw {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  min-height: 188px;
+  padding: 13px 10px 12px;
+  color: var(--ink);
+  background:
+    linear-gradient(135deg, white 0 18%, var(--paper) 18% 58%, var(--gold-2));
+  border: 3px solid var(--ink);
+  box-shadow:
+    8px 8px 0 rgba(0, 0, 0, 0.76),
+    0 0 34px rgba(255, 235, 104, 0.18);
   text-align: center;
+  transform: rotate(2deg);
+  transform-origin: 50% 100%;
+}
+
+.deck-stage.is-running .selected-draw {
+  animation: selectedFlip 840ms cubic-bezier(.18,.88,.26,1.16) both;
+  animation-delay: 280ms;
+}
+
+.deck-stage.is-chosen.is-running .selected-draw {
+  animation-duration: 1.15s;
+  animation-delay: 760ms;
+}
+
+.selected-draw span {
+  align-self: start;
+  font-size: 10px;
+  font-weight: 1000;
   text-transform: uppercase;
-  opacity: 0;
-  animation: resultPop 520ms ease 1.55s both;
+}
+
+.selected-draw img {
+  width: min(100%, 104px);
+  height: 92px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 5px rgba(0, 0, 0, 0.3));
+}
+
+.selected-draw strong {
+  max-width: 128px;
+  font-size: 18px;
+  line-height: 1;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.selected-draw em {
+  color: rgba(8, 8, 8, 0.72);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.selected-draw.is-empty {
+  color: white;
+  background:
+    linear-gradient(135deg, rgba(255, 235, 104, 0.14), rgba(0, 0, 0, 0.72)),
+    rgba(0, 0, 0, 0.72);
+  border-color: rgba(255, 235, 104, 0.36);
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.5);
+}
+
+.selected-draw.is-empty em {
+  color: var(--muted);
+}
+
+.selected-draw.is-chosen {
+  transform: rotate(-1deg);
 }
 
 .queue-list {
@@ -877,6 +1072,25 @@ h1 {
     width: 100%;
   }
 
+  .deck-stage {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .deck-copy strong,
+  .deck-copy em {
+    max-width: none;
+  }
+
+  .draw-table {
+    min-height: 180px;
+  }
+
+  .selected-draw {
+    justify-self: center;
+    width: min(180px, 100%);
+  }
+
   .persona-card {
     grid-template-columns: 1fr;
   }
@@ -975,23 +1189,82 @@ h1 {
   to { opacity: 1; transform: translateY(0) rotate(0); }
 }
 
+@keyframes deckScanner {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes cardIdle {
+  0%, 100% {
+    transform: translateX(calc(var(--spread) * 28px)) translateY(0) rotate(var(--r)) scale(0.9);
+  }
+  50% {
+    transform: translateX(calc(var(--spread) * 30px)) translateY(-5px) rotate(calc(var(--r) + 1deg)) scale(0.92);
+  }
+}
+
+@keyframes cardGleam {
+  0%, 20% { opacity: 0; transform: translateX(-130%) skewX(-18deg); }
+  45% { opacity: 0.7; }
+  100% { opacity: 0; transform: translateX(130%) skewX(-18deg); }
+}
+
 @keyframes shuffleCard {
-  0% { opacity: 0; transform: translateX(-160px) rotate(-28deg) scale(0.86); }
-  28% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
-  62% { transform: translateX(calc((var(--i) - 3.5) * 35px)) rotate(var(--r)) scale(0.95); }
-  100% { transform: translateX(calc((var(--i) - 3.5) * 25px)) rotate(var(--r)) scale(0.9); opacity: 0.72; }
+  0% {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateX(calc(var(--spread) * -70px - 120px)) translateY(18px) rotate(-34deg) rotateY(72deg) scale(0.82);
+  }
+  34% {
+    opacity: 1;
+    filter: blur(1px);
+    transform: translateX(calc(var(--spread) * 42px)) translateY(-16px) rotate(calc(var(--r) * -1)) rotateY(-28deg) scale(1);
+  }
+  68% {
+    filter: blur(2px);
+    transform: translateX(calc(var(--spread) * -36px)) translateY(12px) rotate(calc(var(--r) + 9deg)) rotateY(32deg) scale(0.94);
+  }
+  100% {
+    opacity: 0.78;
+    filter: blur(0);
+    transform: translateX(calc(var(--spread) * 30px)) translateY(0) rotate(var(--r)) rotateY(0) scale(0.9);
+  }
 }
 
 @keyframes chosenCard {
-  0% { opacity: 0; transform: translateX(170px) rotate(24deg) scale(0.86); }
-  28% { opacity: 1; transform: translateX(0) rotate(0deg) scale(1); }
-  62% { transform: translateX(calc((var(--i) - 3.5) * 35px)) rotate(var(--r)) scale(0.95); }
-  100% { transform: translateX(0) rotate(0deg) scale(1.18); opacity: 1; }
+  0% {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateX(190px) translateY(18px) rotate(26deg) rotateY(-76deg) scale(0.82);
+  }
+  36% {
+    opacity: 1;
+    filter: blur(1px);
+    transform: translateX(calc(var(--spread) * 42px)) translateY(-18px) rotate(var(--r)) rotateY(22deg) scale(1);
+  }
+  70% {
+    transform: translateX(calc(var(--spread) * 22px)) translateY(4px) rotate(calc(var(--r) * 0.5)) rotateY(0) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateX(0) translateY(-10px) rotate(0deg) rotateY(0) scale(1.12);
+  }
 }
 
-@keyframes resultPop {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes selectedFlip {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) rotateX(76deg) rotate(-8deg) scale(0.82);
+  }
+  54% {
+    opacity: 1;
+    transform: translateY(-10px) rotateX(-12deg) rotate(3deg) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0) rotate(2deg) scale(1);
+  }
 }
 
 @keyframes cardIn {
