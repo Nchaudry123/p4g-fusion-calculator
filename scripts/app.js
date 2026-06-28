@@ -33,7 +33,7 @@ Promise.all([
   state.skills = skills;
   buildRaceLevels();
   setupSearch();
-  selectPersona("Yoshitsune", true);
+  renderInitialState();
 }).catch((error) => {
   $("#recipes").innerHTML = `<div class="empty">Could not load fusion data: ${escapeHtml(error.message)}</div>`;
 });
@@ -95,6 +95,16 @@ function setupSearch() {
     state.queue = [];
     renderQueue();
   });
+}
+
+function renderInitialState() {
+  $("#personaSearch").value = "";
+  $("#activePersona").innerHTML = `<div class="empty">Search a Persona or Arcana to begin planning a fusion.</div>`;
+  $("#recipeSummary").innerHTML = "";
+  $("#recipes").innerHTML = "";
+  $("#deckStage").className = "deck-stage";
+  $("#deckStage").innerHTML = "";
+  renderQueue();
 }
 
 function handleSearchInput(value) {
