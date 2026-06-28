@@ -10,7 +10,8 @@ const state = {
   personaImages: {},
   skills: {},
   active: "",
-  queue: []
+  queue: [],
+  drawTimer: 0
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -184,12 +185,48 @@ function clearSuggestions() {
   $("#suggestions").innerHTML = "";
 }
 
+function playDeckDraw(name) {
+  const stage = $("#deckStage");
+  const target = state.personas[name];
+  if (!stage || !target) return;
+
+  clearTimeout(state.drawTimer);
+  const randomNames = state.names
+    .filter((item) => item !== name)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 7);
+  const cards = randomNames.concat(name).map((cardName, index, all) => {
+    const persona = state.personas[cardName];
+    const isTarget = cardName === name;
+    const rotation = (index - all.length / 2) * 5;
+    return `
+      <div class="draw-card ${isTarget ? "is-target" : ""}" style="--i: ${index}; --r: ${rotation}deg;">
+        <img src="${escapeAttr(personaImage(cardName))}" alt="">
+        <span>${escapeHtml(cardName)}</span>
+      </div>
+    `;
+  }).join("");
+
+  stage.innerHTML = `
+    <div class="draw-title">Shuffling the Velvet deck...</div>
+    <div class="draw-table">${cards}</div>
+    <div class="draw-result">${escapeHtml(target.name)} / Lv ${target.lvl} ${escapeHtml(target.race)}</div>
+  `;
+  stage.classList.remove("is-running");
+  void stage.offsetWidth;
+  stage.classList.add("is-running");
+  state.drawTimer = setTimeout(() => {
+    stage.classList.remove("is-running");
+  }, 2400);
+}
+
 function selectPersona(name, primary = false) {
   state.active = name;
   $("#personaSearch").value = name;
   if (primary) state.queue = [name];
   else addToQueue(name);
   clearSuggestions();
+  playDeckDraw(name);
   renderActivePersona();
   renderRecipes();
   renderQueue();
