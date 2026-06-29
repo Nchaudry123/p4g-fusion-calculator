@@ -28,10 +28,15 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Prepare static artifact
+        run: |
+          mkdir _site
+          rsync -a index.html .nojekyll assets data scripts styles _site/
+
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
