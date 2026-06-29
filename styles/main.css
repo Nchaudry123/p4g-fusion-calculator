@@ -1043,16 +1043,16 @@ h1 {
   white-space: nowrap;
 }
 
-.draw-card .draw-arcana {
+.draw-card .draw-persona {
   position: absolute;
-  inset: 5px 6px auto;
+  inset: 30px 8px auto;
   z-index: 1;
-  width: calc(100% - 12px);
-  height: 120px;
+  width: calc(100% - 16px);
+  height: 82px;
   object-fit: contain;
-  filter: saturate(1.08) drop-shadow(0 7px 5px rgba(0, 0, 0, 0.5));
+  filter: saturate(1.08) drop-shadow(0 9px 5px rgba(0, 0, 0, 0.58));
   transform-origin: 50% 58%;
-  animation: drawArcanaBreathe 5.8s ease-in-out infinite;
+  animation: drawPersonaBreathe 5.8s ease-in-out infinite;
   animation-delay: calc(var(--i) * -260ms);
 }
 
@@ -2278,9 +2278,9 @@ h1 {
   }
 }
 
-@keyframes drawArcanaBreathe {
-  0%, 100% { transform: rotateY(-5deg) rotateZ(-1deg) scale(0.98); }
-  50% { transform: rotateY(7deg) rotateZ(1deg) scale(1.03); }
+@keyframes drawPersonaBreathe {
+  0%, 100% { transform: translateY(0) rotateY(-5deg) scale(0.98); }
+  50% { transform: translateY(-3px) rotateY(7deg) scale(1.04); }
 }
 
 @keyframes cardGleam {

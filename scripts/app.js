@@ -402,7 +402,7 @@ function renderDrawCard(cardName, index, total, isTarget, mode) {
   const rotation = (index - total / 2) * 5.5;
   return `
     <div class="draw-card ${isTarget ? "is-target" : ""}" data-mode="${mode}" style="--i: ${index}; --r: ${rotation}deg; --spread: ${index - (total - 1) / 2};">
-      <img class="draw-arcana" src="${escapeAttr(arcanaCardImage(persona.race))}" alt="">
+      <img class="draw-persona" src="${escapeAttr(personaImage(cardName))}" alt="">
       <span class="card-corner">${escapeHtml(persona.race)}</span>
       <span class="card-name">${escapeHtml(cardName)}</span>
     </div>
