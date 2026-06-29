@@ -425,7 +425,7 @@ function renderSelectedDraw(name, fallback, chosen) {
     <div class="selected-draw ${chosen ? "is-chosen" : ""}">
       <span>${chosen ? "Chosen card" : "Current draw"}</span>
       <div class="selected-card-stack" aria-hidden="true">
-        <img class="selected-arcana" src="${escapeAttr(arcanaCardImage(persona.race))}" alt="">
+        <img class="selected-card-persona" src="${escapeAttr(personaImage(persona.name))}" alt="">
         <img class="selected-persona" src="${escapeAttr(personaImage(persona.name))}" alt="">
       </div>
       <strong>${escapeHtml(persona.name)}</strong>
@@ -527,7 +527,7 @@ function renderActivePersona() {
             ${badges ? `<div class="persona-badges">${badges}</div>` : ""}
           </div>
           <div class="arcana-badge">
-            <img src="${escapeAttr(arcanaCardImage(persona.race))}" alt="">
+            <img src="${escapeAttr(personaImage(persona.name))}" alt="">
             <span>Lv ${persona.lvl}</span>
             <strong>${escapeHtml(persona.race)}</strong>
           </div>

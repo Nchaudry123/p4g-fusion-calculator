@@ -1141,12 +1141,13 @@ h1 {
   transform-style: preserve-3d;
 }
 
-.selected-card-stack .selected-arcana {
+.selected-card-stack .selected-card-persona {
   position: absolute;
   left: 10px;
   top: -8px;
   width: 76px;
-  height: auto;
+  height: 82px;
+  object-fit: contain;
   padding: 4px;
   background: linear-gradient(135deg, var(--gold-2), var(--gold));
   border: 2px solid var(--ink);
@@ -1388,9 +1389,11 @@ h1 {
 }
 
 .arcana-badge img {
-  width: 42px;
+  width: 54px;
+  max-height: 46px;
   height: auto;
   margin-bottom: 4px;
+  object-fit: contain;
   filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.34));
 }
 
