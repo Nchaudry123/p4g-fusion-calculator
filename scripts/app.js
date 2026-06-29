@@ -74,6 +74,7 @@ const state = {
   skills: {},
   active: "",
   queue: [],
+  selectedRecipe: null,
   drawTimer: 0,
   searchTimer: 0
 };
@@ -433,11 +434,16 @@ function renderSelectedDraw(name, fallback, chosen) {
   `;
 }
 
-function selectPersona(name, primary = false) {
+function selectPersona(name, primary = false, recipeContext = null) {
   state.active = name;
   $("#personaSearch").value = name;
-  if (primary) state.queue = [name];
-  else addToQueue(name);
+  if (primary) {
+    state.queue = [name];
+    state.selectedRecipe = null;
+  } else {
+    if (recipeContext) state.selectedRecipe = recipeContext;
+    addToQueue(name);
+  }
   clearSuggestions();
   playDeckDraw(name);
   renderActivePersona();
@@ -494,11 +500,9 @@ function renderQueue() {
 
 function renderActivePersona() {
   const persona = state.personas[state.active];
-  const stats = (persona.stats || []).map((value, index) => (
-    `<span class="stat">${STAT_LABELS[index]} ${value}</span>`
-  )).join("");
+  const stats = renderStats(persona);
   const resists = decodeResists(persona.resists).map((item) => (
-    `<span class="resist ${item.kind}"><strong>${item.label}</strong>${item.value}</span>`
+    `<span class="resist ${item.kind}"><strong>${item.label}</strong><em>${item.value}</em></span>`
   )).join("");
   const skills = renderSkills(persona);
   const image = personaImage(persona.name);
@@ -507,32 +511,57 @@ function renderActivePersona() {
   $("#activePersona").innerHTML = `
     <article class="persona-card">
       <div class="persona-visual">
+        <img class="persona-arcana-card" src="${escapeAttr(arcanaCardImage(persona.race))}" alt="">
         <img src="${escapeAttr(image)}" alt="${escapeAttr(persona.name)} artwork" loading="lazy">
       </div>
       <div class="persona-info">
         <div class="persona-heading">
           <div>
+            <span class="compendium-label">Compendium File</span>
             <h2 class="persona-name">${escapeHtml(persona.name)}</h2>
-            <div class="persona-meta">Level ${persona.lvl} / ${escapeHtml(persona.race)} / ${escapeHtml(persona.inherits || "inheritance")} type</div>
+            <div class="persona-meta">
+              <span>Level ${persona.lvl}</span>
+              <span>${escapeHtml(persona.race)} Arcana</span>
+              <span>${escapeHtml(persona.inherits || "inheritance")} type</span>
+            </div>
             ${badges ? `<div class="persona-badges">${badges}</div>` : ""}
           </div>
           <div class="arcana-badge">
+            <img src="${escapeAttr(arcanaCardImage(persona.race))}" alt="">
             <span>Lv ${persona.lvl}</span>
             <strong>${escapeHtml(persona.race)}</strong>
           </div>
         </div>
-        <div class="stats">${stats}</div>
-        <section class="detail-block">
-          <h3>Resistances</h3>
-          <div class="resist-grid">${resists}</div>
-        </section>
-        <section class="detail-block">
-          <h3>Moves</h3>
+        <div class="persona-profile">
+          <section class="detail-block stat-block">
+            <h3>Stats</h3>
+            <div class="stats">${stats}</div>
+          </section>
+          <section class="detail-block resist-block">
+            <h3>Resistances</h3>
+            <div class="resist-grid">${resists}</div>
+          </section>
+        </div>
+        <section class="detail-block moves-block">
+          <h3>Moveset</h3>
           <div class="skill-list">${skills}</div>
         </section>
       </div>
     </article>
   `;
+}
+
+function renderStats(persona) {
+  return (persona.stats || []).map((value, index) => {
+    const percentage = Math.max(8, Math.min(100, Number(value) || 0));
+    return `
+      <span class="stat" style="--stat: ${percentage}%">
+        <strong>${STAT_LABELS[index]}</strong>
+        <em>${value}</em>
+        <i aria-hidden="true"></i>
+      </span>
+    `;
+  }).join("");
 }
 
 function personaImage(name) {
@@ -547,10 +576,11 @@ function renderSkills(persona) {
   return Object.entries(persona.skills || {}).map(([skill, learned]) => {
     const detail = state.skills[skill] || {};
     const learnedText = learned < 1 ? "Innate" : `Lv ${learned}`;
+    const element = detail.element || "skill";
     return `
-      <div class="skill-row">
+      <div class="skill-row" data-element="${escapeAttr(element.toLowerCase())}">
         <span class="skill-name">${escapeHtml(skill)}</span>
-        <span class="skill-meta">${escapeHtml(learnedText)} / ${escapeHtml(detail.element || "skill")} / ${escapeHtml(detail.target || "self")}</span>
+        <span class="skill-meta">${escapeHtml(learnedText)} / ${escapeHtml(element)} / ${escapeHtml(detail.target || "self")}</span>
       </div>
     `;
   }).join("") || `<div class="empty mini-empty">No learned moves listed.</div>`;
@@ -559,11 +589,13 @@ function renderSkills(persona) {
 function renderRecipes() {
   const recipes = getRecipes(state.active);
   const specialCount = recipes.filter((recipe) => recipe.type === "Special").length;
+  const selectedPath = renderSelectedRecipePath();
   $("#recipeSummary").innerHTML = [
+    selectedPath,
     `<span class="chip">${recipes.length} recipes</span>`,
     `<span class="chip">${specialCount} special</span>`,
     `<span class="chip">${Math.max(0, recipes.length - specialCount)} normal</span>`
-  ].join("");
+  ].filter(Boolean).join("");
 
   if (!recipes.length) {
     $("#recipes").innerHTML = `<div class="empty">No reverse fusion recipes were found for ${escapeHtml(state.active)}.</div>`;
@@ -572,13 +604,37 @@ function renderRecipes() {
 
   $("#recipes").innerHTML = recipes.map((recipe, index) => renderRecipe(recipe, index)).join("");
   $("#recipes").querySelectorAll("[data-persona]").forEach((button) => {
-    button.addEventListener("click", () => selectPersona(button.dataset.persona, false));
+    button.addEventListener("click", () => {
+      const recipeIndex = Number(button.dataset.recipeIndex);
+      const recipe = recipes[recipeIndex];
+      selectPersona(button.dataset.persona, false, {
+        target: state.active,
+        index: recipeIndex,
+        type: recipe.type,
+        score: recipe.score,
+        ingredients: recipe.ingredients,
+        chosen: button.dataset.persona
+      });
+    });
   });
+}
+
+function renderSelectedRecipePath() {
+  const selected = state.selectedRecipe;
+  if (!selected) return "";
+  return `
+    <div class="selected-path">
+      <span>Selected path</span>
+      <strong>${escapeHtml(selected.target)} Recipe ${selected.index + 1}</strong>
+      <em>${selected.ingredients.map((name) => name === selected.chosen ? `<b>${escapeHtml(name)}</b>` : escapeHtml(name)).join(" + ")}</em>
+    </div>
+  `;
 }
 
 function renderRecipe(recipe, index) {
   const isSpecialLayout = recipe.ingredients.length > 2;
   const targetBadges = renderPersonaBadges(state.active, "recipe");
+  const isSelectedRecipe = state.selectedRecipe?.target === state.active && state.selectedRecipe.index === index;
   const ingredients = isSpecialLayout
     ? `
       <div class="special-fusion-note">
@@ -586,22 +642,22 @@ function renderRecipe(recipe, index) {
         <strong>Use every ingredient below</strong>
       </div>
       <div class="special-fusion-grid">
-        ${recipe.ingredients.map((name, i) => renderIngredientButton(name, i, true)).join("")}
+        ${recipe.ingredients.map((name, i) => renderIngredientButton(name, i, true, index)).join("")}
       </div>
     `
     : `
       <div class="fusion-equation">
         ${recipe.ingredients.map((name, i) => `
-          ${renderIngredientButton(name, i, false)}
+          ${renderIngredientButton(name, i, false, index)}
           ${i < recipe.ingredients.length - 1 ? `<div class="fusion-x">x</div>` : ""}
         `).join("")}
       </div>
     `;
 
   return `
-    <article class="recipe ${isSpecialLayout ? "is-special-fusion" : ""}" style="--i: ${index}">
+    <article class="recipe ${isSpecialLayout ? "is-special-fusion" : ""} ${isSelectedRecipe ? "is-selected-recipe" : ""}" style="--i: ${index}">
       <div class="recipe-head">
-        <span class="recipe-title">Recipe ${index + 1}</span>
+        <span class="recipe-title">${isSelectedRecipe ? "Exploring" : "Recipe"} ${index + 1}</span>
         <span class="recipe-meta">${recipe.type}${recipe.score ? ` / Lv sum ${recipe.score}` : ""}</span>
       </div>
       ${targetBadges ? `<div class="recipe-flags">${targetBadges}</div>` : ""}
@@ -610,10 +666,11 @@ function renderRecipe(recipe, index) {
   `;
 }
 
-function renderIngredientButton(name, index, showStep) {
+function renderIngredientButton(name, index, showStep, recipeIndex) {
   const persona = state.personas[name];
+  const isChosen = state.selectedRecipe?.chosen === name && state.selectedRecipe?.index === recipeIndex;
   return `
-    <button class="persona-button ${showStep ? "special-ingredient" : ""}" type="button" data-persona="${escapeAttr(name)}">
+    <button class="persona-button ${showStep ? "special-ingredient" : ""} ${isChosen ? "is-selected-ingredient" : ""}" type="button" data-persona="${escapeAttr(name)}" data-recipe-index="${recipeIndex}">
       ${showStep ? `<span class="ingredient-step">${index + 1}</span>` : ""}
       <img src="${escapeAttr(personaImage(name))}" alt="" loading="lazy">
       <span>

@@ -1313,6 +1313,7 @@ h1 {
 }
 
 .persona-visual {
+  position: relative;
   display: grid;
   place-items: center;
   min-height: 230px;
@@ -1324,7 +1325,32 @@ h1 {
   overflow: hidden;
 }
 
-.persona-visual img {
+.persona-visual::before {
+  position: absolute;
+  inset: 20px;
+  content: "";
+  border: 1px solid rgba(255, 235, 104, 0.16);
+  transform: rotate(-5deg);
+}
+
+.persona-visual .persona-arcana-card {
+  position: absolute;
+  right: 14px;
+  top: 12px;
+  width: 72px;
+  height: auto;
+  padding: 4px;
+  background: linear-gradient(135deg, var(--gold-2), var(--gold));
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  opacity: 0.9;
+  filter: drop-shadow(5px 6px 0 rgba(0, 0, 0, 0.58));
+  transform: rotate(9deg);
+}
+
+.persona-visual img:not(.persona-arcana-card) {
+  position: relative;
+  z-index: 1;
   display: block;
   width: min(92%, 230px);
   height: auto;
@@ -1336,7 +1362,7 @@ h1 {
   transition: transform 320ms var(--ease-out), filter 320ms var(--ease-out);
 }
 
-.persona-card:hover .persona-visual img {
+.persona-card:hover .persona-visual img:not(.persona-arcana-card) {
   filter: drop-shadow(0 22px 12px rgba(0, 0, 0, 0.76));
   transform: translateY(-4px) scale(1.025);
 }
@@ -1361,6 +1387,13 @@ h1 {
   text-align: center;
   transform: rotate(3deg);
   animation: badgePop 520ms var(--ease-snap) 120ms both;
+}
+
+.arcana-badge img {
+  width: 42px;
+  height: auto;
+  margin-bottom: 4px;
+  filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.34));
 }
 
 .arcana-badge span {
@@ -1389,22 +1422,96 @@ h1 {
   text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.9);
 }
 
-.stats {
+.compendium-label {
+  display: inline-block;
+  margin-bottom: 4px;
+  padding: 3px 8px;
+  color: var(--ink);
+  background: var(--gold);
+  border: 1px solid rgba(0, 0, 0, 0.86);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.74);
+  font-family: var(--display-font);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.persona-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
-  margin-top: 10px;
+}
+
+.persona-meta span {
+  padding: 4px 7px;
+  color: var(--paper);
+  background: rgba(0, 0, 0, 0.34);
+  border: 1px solid rgba(255, 235, 104, 0.18);
+  border-radius: 2px;
+  font-weight: 800;
+}
+
+.persona-profile {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.42fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  margin-top: 14px;
+}
+
+.stats {
+  display: grid;
+  gap: 8px;
 }
 
 .stat {
-  padding: 4px 8px;
-  border-radius: 3px;
-  color: var(--ink);
-  background: linear-gradient(135deg, var(--paper), white);
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 28px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 7px;
+  border: 1px solid rgba(255, 235, 104, 0.2);
+  border-radius: 2px;
+  color: white;
+  background:
+    linear-gradient(90deg, rgba(255, 235, 104, 0.1), rgba(38, 174, 234, 0.04)),
+    rgba(0, 0, 0, 0.42);
   font-size: 12px;
   font-weight: 800;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.56);
   animation: smallChipIn 300ms var(--ease-out) both;
+}
+
+.stat strong,
+.stat em {
+  position: relative;
+  z-index: 1;
+  font-style: normal;
+}
+
+.stat strong {
+  color: var(--gold-2);
+  font-family: var(--display-font);
+  font-size: 15px;
+}
+
+.stat i {
+  position: relative;
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 235, 104, 0.16);
+}
+
+.stat i::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--stat);
+  content: "";
+  background: linear-gradient(90deg, var(--gold), var(--gold-2));
+  box-shadow: 0 0 14px rgba(255, 235, 104, 0.24);
 }
 
 .stat:nth-child(2) { animation-delay: 40ms; }
@@ -1414,6 +1521,13 @@ h1 {
 
 .detail-block {
   margin-top: 14px;
+}
+
+.persona-profile .detail-block {
+  margin-top: 0;
+  padding: 10px;
+  border: 1px solid rgba(255, 235, 104, 0.18);
+  background: rgba(0, 0, 0, 0.28);
 }
 
 .detail-block h3 {
@@ -1448,6 +1562,12 @@ h1 {
     border-color 200ms var(--ease-out),
     background 200ms var(--ease-out);
   animation: smallChipIn 300ms var(--ease-out) both;
+}
+
+.resist em {
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .resist:hover {
@@ -1493,6 +1613,14 @@ h1 {
   animation: skillIn 340ms var(--ease-out) both;
 }
 
+.moves-block {
+  padding: 10px;
+  border: 1px solid rgba(255, 235, 104, 0.18);
+  background:
+    linear-gradient(135deg, rgba(255, 235, 104, 0.05), transparent 34%),
+    rgba(0, 0, 0, 0.22);
+}
+
 .skill-row:nth-child(2n) { animation-delay: 45ms; }
 .skill-row:nth-child(3n) { animation-delay: 90ms; }
 
@@ -1518,6 +1646,49 @@ h1 {
   flex-wrap: wrap;
   gap: 8px;
   margin: 14px 0;
+}
+
+.selected-path {
+  display: grid;
+  gap: 2px;
+  flex: 1 1 100%;
+  padding: 10px 12px 10px 14px;
+  color: white;
+  background:
+    linear-gradient(90deg, rgba(255, 235, 104, 0.18), rgba(38, 174, 234, 0.08)),
+    rgba(0, 0, 0, 0.52);
+  border: 2px solid rgba(255, 235, 104, 0.36);
+  border-left-width: 7px;
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.42);
+  animation: selectedPathIn 300ms var(--ease-out) both;
+}
+
+.selected-path span {
+  color: var(--gold-2);
+  font-family: var(--display-font);
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.selected-path strong {
+  font-family: var(--display-font);
+  font-size: 22px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.selected-path em {
+  color: var(--muted);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.selected-path b {
+  color: white;
+  background: rgba(255, 235, 104, 0.16);
+  padding: 1px 4px;
 }
 
 .chip {
@@ -1557,6 +1728,33 @@ h1 {
   transform: translateY(-3px);
   border-color: rgba(255, 235, 104, 0.28);
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
+}
+
+.recipe.is-selected-recipe {
+  border-color: rgba(255, 235, 104, 0.72);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(38, 174, 234, 0.18), transparent 15rem),
+    linear-gradient(90deg, rgba(255, 235, 104, 0.17), transparent 44%),
+    rgba(0, 0, 0, 0.7);
+  box-shadow:
+    0 0 0 2px rgba(255, 235, 104, 0.16),
+    0 18px 36px rgba(0, 0, 0, 0.34);
+}
+
+.recipe.is-selected-recipe::after {
+  position: absolute;
+  right: 12px;
+  top: 52px;
+  padding: 4px 8px;
+  content: "Selected path";
+  color: var(--ink);
+  background: var(--gold);
+  border: 1px solid var(--ink);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.7);
+  font-family: var(--display-font);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .recipe::before {
@@ -1672,6 +1870,12 @@ h1 {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 48%),
     linear-gradient(135deg, #fff6a4, var(--gold));
+}
+
+.persona-button.is-selected-ingredient {
+  outline: 3px solid rgba(86, 191, 232, 0.78);
+  outline-offset: 2px;
+  filter: saturate(1.12);
 }
 
 .ingredient-step {
@@ -1831,9 +2035,24 @@ h1 {
     min-height: 210px;
   }
 
-  .persona-visual img {
+  .persona-visual img:not(.persona-arcana-card) {
     width: min(92%, 210px);
     max-height: 210px;
+  }
+
+  .persona-profile {
+    grid-template-columns: 1fr;
+  }
+
+  .selected-path {
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.42);
+  }
+
+  .recipe.is-selected-recipe::after {
+    position: static;
+    display: inline-block;
+    width: fit-content;
+    margin: 0 12px 10px;
   }
 
   .scene-card {
@@ -1937,6 +2156,11 @@ h1 {
 
 @keyframes introButtonIn {
   from { opacity: 0; transform: translateY(16px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes selectedPathIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.99); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
