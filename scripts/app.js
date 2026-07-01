@@ -85,6 +85,7 @@ const state = {
 const $ = (selector) => document.querySelector(selector);
 
 setupIntro();
+setupInstallSupport();
 
 Promise.all([
   fetch("data/personas.json").then((res) => res.json()),
@@ -108,6 +109,15 @@ Promise.all([
 }).catch((error) => {
   $("#recipes").innerHTML = `<div class="empty">Could not load fusion data: ${escapeHtml(error.message)}</div>`;
 });
+
+function setupInstallSupport() {
+  if (!("serviceWorker" in navigator)) return;
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js").catch(() => {
+      // Install support is progressive enhancement.
+    });
+  });
+}
 
 function normalizePersonas(raw) {
   return Object.fromEntries(Object.entries(raw).map(([name, persona]) => [
