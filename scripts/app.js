@@ -77,6 +77,10 @@ const state = {
   queue: [],
   selectedRecipe: null,
   userLevels: {},
+  ownedPersonas: new Set(),
+  logQuery: "",
+  logArcana: "All",
+  logOwnedFilter: "all",
   useCurrentLevels: false,
   drawTimer: 0,
   searchTimer: 0
@@ -188,16 +192,37 @@ function setupUserData() {
     if (event.key === "Enter") saveLevelFromEditor();
   });
   $("#personaLevelList").innerHTML = state.names.map((name) => `<option value="${escapeAttr(name)}"></option>`).join("");
+  $("#personaLogArcana").innerHTML = [
+    `<option value="All">All Arcana</option>`,
+    ...state.arcanas.map((arcana) => `<option value="${escapeAttr(arcana)}">${escapeHtml(arcana)}</option>`)
+  ].join("");
+  $("#personaLogSearch").addEventListener("input", (event) => {
+    state.logQuery = event.target.value;
+    renderPersonaLog();
+  });
+  $("#personaLogArcana").addEventListener("change", (event) => {
+    state.logArcana = event.target.value;
+    renderPersonaLog();
+  });
+  document.querySelectorAll("[data-owned-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.logOwnedFilter = button.dataset.ownedFilter;
+      renderPersonaLog();
+    });
+  });
   renderLevelData();
+  renderPersonaLog();
 }
 
 function loadUserData() {
   try {
     const saved = JSON.parse(localStorage.getItem(USER_DATA_KEY) || "{}");
     state.userLevels = sanitizeUserLevels(saved.levels || {});
+    state.ownedPersonas = new Set((saved.owned || []).filter((name) => state.personas[name]));
     state.useCurrentLevels = Boolean(saved.useCurrentLevels);
   } catch {
     state.userLevels = {};
+    state.ownedPersonas = new Set();
     state.useCurrentLevels = false;
   }
 }
@@ -206,7 +231,8 @@ function persistUserData() {
   try {
     localStorage.setItem(USER_DATA_KEY, JSON.stringify({
       useCurrentLevels: state.useCurrentLevels,
-      levels: state.userLevels
+      levels: state.userLevels,
+      owned: [...state.ownedPersonas].sort((a, b) => a.localeCompare(b))
     }));
   } catch {
     // The calculator still works if storage is unavailable.
@@ -236,8 +262,7 @@ function syncLevelEditor() {
   const value = $("#levelPersonaInput").value.trim().toLowerCase();
   const name = state.names.find((personaName) => personaName.toLowerCase() === value);
   if (!name) return;
-  $("#levelPersonaInput").value = name;
-  $("#levelValueInput").value = getPersonaLevel(name);
+  populatePersonaLogEditor(name);
 }
 
 function saveLevelFromEditor() {
@@ -256,9 +281,11 @@ function saveLevelFromEditor() {
   } else {
     state.userLevels[name] = currentLevel;
   }
+  setPersonaOwned(name, $("#ownedPersonaInput").checked);
   state.useCurrentLevels = true;
   persistUserData();
   renderLevelData();
+  renderPersonaLog();
   refreshActiveViews();
 }
 
@@ -266,7 +293,37 @@ function removeUserLevel(name) {
   delete state.userLevels[name];
   persistUserData();
   renderLevelData();
+  renderPersonaLog();
   refreshActiveViews();
+}
+
+function populatePersonaLogEditor(name) {
+  const persona = state.personas[name];
+  if (!persona) return;
+  $("#levelPersonaInput").value = name;
+  $("#levelValueInput").value = state.userLevels[name] || persona.lvl;
+  $("#ownedPersonaInput").checked = state.ownedPersonas.has(name);
+}
+
+function setPersonaOwned(name, owned) {
+  if (owned) {
+    state.ownedPersonas.add(name);
+  } else {
+    state.ownedPersonas.delete(name);
+  }
+}
+
+function togglePersonaOwned(name) {
+  setPersonaOwned(name, !state.ownedPersonas.has(name));
+  persistUserData();
+  renderLevelData();
+  renderPersonaLog();
+  refreshActiveViews();
+}
+
+function viewLogPersona(name) {
+  populatePersonaLogEditor(name);
+  selectPersona(name, true);
 }
 
 function renderLevelData() {
@@ -276,6 +333,7 @@ function renderLevelData() {
   const entries = Object.entries(state.userLevels)
     .filter(([name]) => state.personas[name])
     .sort((a, b) => a[0].localeCompare(b[0]));
+  const ownedCount = state.ownedPersonas.size;
   const modeCopy = state.useCurrentLevels
     ? "Recipes are checking your saved current levels."
     : "Recipes are using Persona base levels.";
@@ -291,11 +349,68 @@ function renderLevelData() {
 
   $("#levelDataSummary").innerHTML = `
     <div class="level-mode-copy">${escapeHtml(modeCopy)}</div>
+    <div class="level-mode-copy">${ownedCount} owned / ${entries.length} custom levels saved</div>
     <div class="level-chip-row">${chips}</div>
   `;
   $("#levelDataSummary").querySelectorAll("[data-remove-level]").forEach((button) => {
     button.addEventListener("click", () => removeUserLevel(button.dataset.removeLevel));
   });
+}
+
+function renderPersonaLog() {
+  const query = state.logQuery.trim().toLowerCase();
+  const cards = Object.values(state.personas)
+    .filter((persona) => !query || persona.name.toLowerCase().includes(query) || persona.race.toLowerCase().includes(query))
+    .filter((persona) => state.logArcana === "All" || persona.race === state.logArcana)
+    .filter((persona) => {
+      if (state.logOwnedFilter === "owned") return state.ownedPersonas.has(persona.name);
+      if (state.logOwnedFilter === "missing") return !state.ownedPersonas.has(persona.name);
+      return true;
+    })
+    .sort((a, b) => a.race.localeCompare(b.race) || getPersonaLevel(a.name) - getPersonaLevel(b.name) || a.name.localeCompare(b.name));
+  const ownedCount = state.ownedPersonas.size;
+  const customCount = Object.keys(state.userLevels).length;
+
+  document.querySelectorAll("[data-owned-filter]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.ownedFilter === state.logOwnedFilter);
+  });
+  $("#personaLogStats").innerHTML = `
+    <span><strong>${ownedCount}</strong> owned</span>
+    <span><strong>${state.names.length - ownedCount}</strong> missing</span>
+    <span><strong>${customCount}</strong> leveled</span>
+    <span><strong>${cards.length}</strong> shown</span>
+  `;
+  $("#personaLogList").innerHTML = cards.length
+    ? cards.slice(0, 80).map(renderPersonaLogCard).join("")
+    : `<div class="empty mini-empty">No Personas match this log filter.</div>`;
+  $("#personaLogList").querySelectorAll("[data-log-view]").forEach((button) => {
+    button.addEventListener("click", () => viewLogPersona(button.dataset.logView));
+  });
+  $("#personaLogList").querySelectorAll("[data-log-owned]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      togglePersonaOwned(button.dataset.logOwned);
+    });
+  });
+}
+
+function renderPersonaLogCard(persona) {
+  const owned = state.ownedPersonas.has(persona.name);
+  const customLevel = state.userLevels[persona.name];
+  return `
+    <article class="persona-log-card ${owned ? "is-owned" : ""}">
+      <button class="persona-log-main" type="button" data-log-view="${escapeAttr(persona.name)}">
+        <img src="${escapeAttr(personaImage(persona.name))}" alt="" loading="lazy">
+        <span>
+          <strong>${escapeHtml(persona.name)}</strong>
+          <em>${escapeHtml(levelLabel(persona.name))} / ${escapeHtml(persona.race)}${customLevel ? ` / base ${persona.lvl}` : ""}</em>
+        </span>
+      </button>
+      <button class="owned-state ${owned ? "is-owned" : ""}" type="button" data-log-owned="${escapeAttr(persona.name)}">
+        ${owned ? "Owned" : "Missing"}
+      </button>
+    </article>
+  `;
 }
 
 function refreshActiveViews() {
@@ -809,6 +924,8 @@ function renderRecipe(recipe, index) {
       ? "is-large-special"
       : "";
   const targetBadges = renderPersonaBadges(state.active, "recipe");
+  const ownedCount = recipe.ingredients.filter((name) => state.ownedPersonas.has(name)).length;
+  const missingIngredients = recipe.ingredients.filter((name) => !state.ownedPersonas.has(name));
   const isSelectedRecipe = state.selectedRecipe?.target === state.active && state.selectedRecipe.index === index;
   const ingredients = isSpecialLayout
     ? `
@@ -835,6 +952,10 @@ function renderRecipe(recipe, index) {
         <span class="recipe-title">${isSelectedRecipe ? "Exploring" : "Recipe"} ${index + 1}</span>
         <span class="recipe-meta">${recipe.type}${recipe.score ? ` / ${state.useCurrentLevels ? "Current" : "Base"} Lv sum ${recipe.score}` : ""}</span>
       </div>
+      <div class="recipe-owned-line ${missingIngredients.length ? "" : "is-complete"}">
+        <strong>${ownedCount}/${recipe.ingredients.length} owned</strong>
+        <span>${missingIngredients.length ? `Missing: ${missingIngredients.map(escapeHtml).join(", ")}` : "Ready from your logged Personas"}</span>
+      </div>
       ${targetBadges ? `<div class="recipe-flags">${targetBadges}</div>` : ""}
       <div class="ingredients">${ingredients}</div>
     </article>
@@ -844,14 +965,16 @@ function renderRecipe(recipe, index) {
 function renderIngredientButton(name, index, showStep, recipeIndex) {
   const persona = state.personas[name];
   const isChosen = state.selectedRecipe?.chosen === name && state.selectedRecipe?.index === recipeIndex;
+  const owned = state.ownedPersonas.has(name);
   return `
-    <button class="persona-button ${showStep ? "special-ingredient" : ""} ${isChosen ? "is-selected-ingredient" : ""}" type="button" data-persona="${escapeAttr(name)}" data-recipe-index="${recipeIndex}">
+    <button class="persona-button ${showStep ? "special-ingredient" : ""} ${owned ? "is-owned" : ""} ${isChosen ? "is-selected-ingredient" : ""}" type="button" data-persona="${escapeAttr(name)}" data-recipe-index="${recipeIndex}">
       ${showStep ? `<span class="ingredient-step">${index + 1}</span>` : ""}
       <img src="${escapeAttr(personaImage(name))}" alt="" loading="lazy">
       <span class="ingredient-copy">
         <strong>${escapeHtml(name)}</strong>
         <span class="mini ingredient-meta">${escapeHtml(levelLabel(name))} ${escapeHtml(persona?.race ?? "")}</span>
         ${levelDetail(name) ? `<span class="mini level-detail">${escapeHtml(levelDetail(name))}</span>` : ""}
+        ${owned ? `<span class="mini owned-mini">Owned</span>` : ""}
         ${renderPersonaBadges(name, "mini")}
       </span>
       <span class="mini action-copy">${showStep ? "plan" : "queue +"}</span>
