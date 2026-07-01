@@ -77,6 +77,31 @@
             </label>
             <button id="selectSearch" class="primary-button" type="button">Set Priority 1</button>
           </div>
+          <section class="user-data-panel" aria-labelledby="user-data-title">
+            <div class="user-data-head">
+              <div>
+                <span class="compendium-label" id="user-data-title">Player Data</span>
+                <h2>Current Level Ledger</h2>
+              </div>
+              <div class="level-mode" role="group" aria-label="Fusion level mode">
+                <button id="baseLevelMode" class="mode-button is-active" type="button">Base levels</button>
+                <button id="currentLevelMode" class="mode-button" type="button">My levels</button>
+              </div>
+            </div>
+            <div class="level-editor">
+              <label class="search-box level-persona-field">
+                <span>Persona</span>
+                <input id="levelPersonaInput" list="personaLevelList" autocomplete="off" placeholder="Add a Persona level...">
+                <datalist id="personaLevelList"></datalist>
+              </label>
+              <label class="search-box level-number-field">
+                <span>Current level</span>
+                <input id="levelValueInput" type="number" min="1" max="99" inputmode="numeric" placeholder="Lv">
+              </label>
+              <button id="saveLevelData" class="primary-button compact-button" type="button">Save Level</button>
+            </div>
+            <div id="levelDataSummary" class="level-data-summary" aria-live="polite"></div>
+          </section>
           <div id="suggestions" class="suggestions" aria-live="polite"></div>
           <div id="deckStage" class="deck-stage" aria-live="polite"></div>
 

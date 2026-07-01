@@ -1,6 +1,7 @@
 const RESIST_LABELS = ["Phy", "Fire", "Ice", "Elec", "Wind", "Light", "Dark", "Alm"];
 const STAT_LABELS = ["St", "Ma", "En", "Ag", "Lu"];
 const INTRO_SEEN_KEY = "p4g-fusion-intro-seen";
+const USER_DATA_KEY = "p4g-fusion-user-levels";
 const ARCANA_CARD_IMAGES = {
   Fool: "fool",
   Magician: "magician",
@@ -75,6 +76,8 @@ const state = {
   active: "",
   queue: [],
   selectedRecipe: null,
+  userLevels: {},
+  useCurrentLevels: false,
   drawTimer: 0,
   searchTimer: 0
 };
@@ -97,8 +100,10 @@ Promise.all([
   state.specialRecipes = specialRecipes;
   state.personaImages = personaImages;
   state.skills = skills;
+  loadUserData();
   buildRaceLevels();
   setupSearch();
+  setupUserData();
   renderInitialState();
 }).catch((error) => {
   $("#recipes").innerHTML = `<div class="empty">Could not load fusion data: ${escapeHtml(error.message)}</div>`;
@@ -159,6 +164,136 @@ function setupSearch() {
     state.queue = [];
     renderQueue();
   });
+}
+
+function setupUserData() {
+  $("#baseLevelMode").addEventListener("click", () => setLevelMode(false));
+  $("#currentLevelMode").addEventListener("click", () => setLevelMode(true));
+  $("#saveLevelData").addEventListener("click", saveLevelFromEditor);
+  $("#levelPersonaInput").addEventListener("input", syncLevelEditor);
+  $("#levelPersonaInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") saveLevelFromEditor();
+  });
+  $("#levelValueInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") saveLevelFromEditor();
+  });
+  $("#personaLevelList").innerHTML = state.names.map((name) => `<option value="${escapeAttr(name)}"></option>`).join("");
+  renderLevelData();
+}
+
+function loadUserData() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(USER_DATA_KEY) || "{}");
+    state.userLevels = sanitizeUserLevels(saved.levels || {});
+    state.useCurrentLevels = Boolean(saved.useCurrentLevels);
+  } catch {
+    state.userLevels = {};
+    state.useCurrentLevels = false;
+  }
+}
+
+function persistUserData() {
+  try {
+    localStorage.setItem(USER_DATA_KEY, JSON.stringify({
+      useCurrentLevels: state.useCurrentLevels,
+      levels: state.userLevels
+    }));
+  } catch {
+    // The calculator still works if storage is unavailable.
+  }
+}
+
+function sanitizeUserLevels(levels) {
+  return Object.fromEntries(Object.entries(levels)
+    .filter(([name]) => state.personas[name])
+    .map(([name, level]) => [name, clampLevel(level, state.personas[name].lvl)]));
+}
+
+function clampLevel(level, fallback = 1) {
+  const numeric = Number(level);
+  if (!Number.isFinite(numeric)) return fallback;
+  return Math.max(1, Math.min(99, Math.round(numeric)));
+}
+
+function setLevelMode(useCurrentLevels) {
+  state.useCurrentLevels = useCurrentLevels;
+  persistUserData();
+  renderLevelData();
+  refreshActiveViews();
+}
+
+function syncLevelEditor() {
+  const value = $("#levelPersonaInput").value.trim().toLowerCase();
+  const name = state.names.find((personaName) => personaName.toLowerCase() === value);
+  if (!name) return;
+  $("#levelPersonaInput").value = name;
+  $("#levelValueInput").value = getPersonaLevel(name);
+}
+
+function saveLevelFromEditor() {
+  const name = findPersona($("#levelPersonaInput").value);
+  if (!name) {
+    $("#levelPersonaInput").setCustomValidity("Choose a Persona from the list.");
+    $("#levelPersonaInput").reportValidity();
+    return;
+  }
+
+  $("#levelPersonaInput").setCustomValidity("");
+  const baseLevel = state.personas[name].lvl;
+  const currentLevel = clampLevel($("#levelValueInput").value, baseLevel);
+  if (currentLevel <= baseLevel) {
+    delete state.userLevels[name];
+  } else {
+    state.userLevels[name] = currentLevel;
+  }
+  state.useCurrentLevels = true;
+  persistUserData();
+  renderLevelData();
+  refreshActiveViews();
+}
+
+function removeUserLevel(name) {
+  delete state.userLevels[name];
+  persistUserData();
+  renderLevelData();
+  refreshActiveViews();
+}
+
+function renderLevelData() {
+  $("#baseLevelMode").classList.toggle("is-active", !state.useCurrentLevels);
+  $("#currentLevelMode").classList.toggle("is-active", state.useCurrentLevels);
+
+  const entries = Object.entries(state.userLevels)
+    .filter(([name]) => state.personas[name])
+    .sort((a, b) => a[0].localeCompare(b[0]));
+  const modeCopy = state.useCurrentLevels
+    ? "Recipes are checking your saved current levels."
+    : "Recipes are using Persona base levels.";
+  const chips = entries.length
+    ? entries.map(([name, level]) => `
+      <button class="level-chip" type="button" data-remove-level="${escapeAttr(name)}" title="Remove saved level for ${escapeAttr(name)}">
+        <strong>${escapeHtml(name)}</strong>
+        <span>Lv ${level}</span>
+        <em>base ${state.personas[name].lvl}</em>
+      </button>
+    `).join("")
+    : `<span class="level-empty">No custom levels saved yet.</span>`;
+
+  $("#levelDataSummary").innerHTML = `
+    <div class="level-mode-copy">${escapeHtml(modeCopy)}</div>
+    <div class="level-chip-row">${chips}</div>
+  `;
+  $("#levelDataSummary").querySelectorAll("[data-remove-level]").forEach((button) => {
+    button.addEventListener("click", () => removeUserLevel(button.dataset.removeLevel));
+  });
+}
+
+function refreshActiveViews() {
+  if (state.active) {
+    renderActivePersona();
+    renderRecipes();
+  }
+  renderQueue();
 }
 
 function setupIntro() {
@@ -232,12 +367,14 @@ function selectPersonaFromInput() {
 
 function findPersona(value) {
   const normalized = value.trim().toLowerCase();
+  if (!normalized) return "";
   return state.names.find((name) => name.toLowerCase() === normalized)
     || state.names.find((name) => name.toLowerCase().includes(normalized));
 }
 
 function findArcana(value) {
   const normalized = value.trim().toLowerCase();
+  if (!normalized) return "";
   return state.arcanas.find((arcana) => arcana.toLowerCase() === normalized)
     || state.arcanas.find((arcana) => arcana.toLowerCase().includes(normalized));
 }
@@ -290,7 +427,7 @@ function renderSuggestionCard(persona, index) {
       <img src="${escapeAttr(personaImage(persona.name))}" alt="" loading="lazy">
       <span>
         <strong>${escapeHtml(persona.name)}</strong>
-        <em>Lv ${persona.lvl} / ${escapeHtml(persona.race)}</em>
+        <em>${escapeHtml(levelLabel(persona.name))} / ${escapeHtml(persona.race)}</em>
         ${renderPersonaBadges(persona.name, "mini")}
       </span>
     </button>
@@ -346,7 +483,7 @@ function playDeckSearch(value) {
     <div class="deck-copy">
       <span>Velvet deck</span>
       <strong>${escapeHtml(modeLabel)}</strong>
-      <em>${target ? `Top draw: ${escapeHtml(target.name)} / Lv ${target.lvl} ${escapeHtml(target.race)}` : `No draw yet for "${escapeHtml(query)}"`}</em>
+      <em>${target ? `Top draw: ${escapeHtml(target.name)} / ${escapeHtml(levelLabel(target.name))} ${escapeHtml(target.race)}` : `No draw yet for "${escapeHtml(query)}"`}</em>
     </div>
     <div class="draw-table" aria-hidden="true">
       ${deckNames.map((cardName, index) => renderDrawCard(cardName, index, deckNames.length, cardName === targetName && Boolean(targetName), "search")).join("")}
@@ -372,7 +509,7 @@ function playDeckDraw(name) {
     <div class="deck-copy">
       <span>Selected draw</span>
       <strong>${escapeHtml(target.name)}</strong>
-      <em>Priority ${state.queue.indexOf(name) + 1 || 1} / Lv ${target.lvl} ${escapeHtml(target.race)}</em>
+      <em>Priority ${state.queue.indexOf(name) + 1 || 1} / ${escapeHtml(levelLabel(target.name))} ${escapeHtml(target.race)}</em>
     </div>
     <div class="draw-table" aria-hidden="true">
       ${deckNames.map((cardName, index) => renderDrawCard(cardName, index, deckNames.length, cardName === name, "draw")).join("")}
@@ -429,7 +566,7 @@ function renderSelectedDraw(name, fallback, chosen) {
         <img class="selected-persona" src="${escapeAttr(personaImage(persona.name))}" alt="">
       </div>
       <strong>${escapeHtml(persona.name)}</strong>
-      <em>Lv ${persona.lvl} / ${escapeHtml(persona.race)}</em>
+      <em>${escapeHtml(levelLabel(persona.name))} / ${escapeHtml(persona.race)}</em>
     </div>
   `;
 }
@@ -482,7 +619,7 @@ function renderQueue() {
         <span class="queue-rank">${index + 1}</span>
         <button class="small-action queue-name" type="button" data-select="${escapeAttr(name)}">
           ${escapeHtml(name)}
-          <span class="queue-meta">Lv ${persona.lvl} ${escapeHtml(persona.race)}</span>
+          <span class="queue-meta">${escapeHtml(levelLabel(name))} ${escapeHtml(persona.race)}</span>
           ${renderPersonaBadges(name, "mini")}
         </button>
         <button class="small-action" type="button" aria-label="Remove ${escapeAttr(name)}" data-remove="${index}">x</button>
@@ -500,6 +637,7 @@ function renderQueue() {
 
 function renderActivePersona() {
   const persona = state.personas[state.active];
+  const currentLevel = getPersonaLevel(persona.name);
   const stats = renderStats(persona);
   const resists = decodeResists(persona.resists).map((item) => (
     `<span class="resist ${item.kind}"><strong>${item.label}</strong><em>${item.value}</em></span>`
@@ -520,7 +658,8 @@ function renderActivePersona() {
             <span class="compendium-label">Compendium File</span>
             <h2 class="persona-name">${escapeHtml(persona.name)}</h2>
             <div class="persona-meta">
-              <span>Level ${persona.lvl}</span>
+              <span>${escapeHtml(levelLabel(persona.name))}</span>
+              ${currentLevel !== persona.lvl ? `<span>Base level ${persona.lvl}</span>` : ""}
               <span>${escapeHtml(persona.race)} Arcana</span>
               <span>${escapeHtml(persona.inherits || "inheritance")} type</span>
             </div>
@@ -528,7 +667,7 @@ function renderActivePersona() {
           </div>
           <div class="arcana-badge">
             <img src="${escapeAttr(personaImage(persona.name))}" alt="">
-            <span>Lv ${persona.lvl}</span>
+            <span>${escapeHtml(levelLabel(persona.name))}</span>
             <strong>${escapeHtml(persona.race)}</strong>
           </div>
         </div>
@@ -568,6 +707,26 @@ function personaImage(name) {
   return state.personaImages[name] || "assets/personas/taowu.png";
 }
 
+function getPersonaLevel(name) {
+  const persona = state.personas[name];
+  if (!persona) return 1;
+  return state.useCurrentLevels ? state.userLevels[name] || persona.lvl : persona.lvl;
+}
+
+function levelLabel(name) {
+  const persona = state.personas[name];
+  if (!persona) return "Lv ?";
+  const currentLevel = getPersonaLevel(name);
+  return currentLevel === persona.lvl ? `Lv ${persona.lvl}` : `Lv ${currentLevel}`;
+}
+
+function levelDetail(name) {
+  const persona = state.personas[name];
+  if (!persona) return "";
+  const currentLevel = getPersonaLevel(name);
+  return currentLevel === persona.lvl ? "" : `Base ${persona.lvl}`;
+}
+
 function arcanaCardImage(arcana) {
   return `assets/arcana/${ARCANA_CARD_IMAGES[arcana] || "world"}.png`;
 }
@@ -594,7 +753,8 @@ function renderRecipes() {
     selectedPath,
     `<span class="chip">${recipes.length} recipes</span>`,
     `<span class="chip">${specialCount} special</span>`,
-    `<span class="chip">${Math.max(0, recipes.length - specialCount)} normal</span>`
+    `<span class="chip">${Math.max(0, recipes.length - specialCount)} normal</span>`,
+    state.useCurrentLevels ? `<span class="chip level-chip-active">My levels on</span>` : ""
   ].filter(Boolean).join("");
 
   if (!recipes.length) {
@@ -663,7 +823,7 @@ function renderRecipe(recipe, index) {
     <article class="recipe ${isSpecialLayout ? "is-special-fusion" : ""} ${recipeSizeClass} ${isSelectedRecipe ? "is-selected-recipe" : ""}" style="--i: ${index}; --ingredient-count: ${recipe.ingredients.length}">
       <div class="recipe-head">
         <span class="recipe-title">${isSelectedRecipe ? "Exploring" : "Recipe"} ${index + 1}</span>
-        <span class="recipe-meta">${recipe.type}${recipe.score ? ` / Lv sum ${recipe.score}` : ""}</span>
+        <span class="recipe-meta">${recipe.type}${recipe.score ? ` / ${state.useCurrentLevels ? "Current" : "Base"} Lv sum ${recipe.score}` : ""}</span>
       </div>
       ${targetBadges ? `<div class="recipe-flags">${targetBadges}</div>` : ""}
       <div class="ingredients">${ingredients}</div>
@@ -680,7 +840,8 @@ function renderIngredientButton(name, index, showStep, recipeIndex) {
       <img src="${escapeAttr(personaImage(name))}" alt="" loading="lazy">
       <span class="ingredient-copy">
         <strong>${escapeHtml(name)}</strong>
-        <span class="mini ingredient-meta">Lv ${persona?.lvl ?? "?"} ${escapeHtml(persona?.race ?? "")}</span>
+        <span class="mini ingredient-meta">${escapeHtml(levelLabel(name))} ${escapeHtml(persona?.race ?? "")}</span>
+        ${levelDetail(name) ? `<span class="mini level-detail">${escapeHtml(levelDetail(name))}</span>` : ""}
         ${renderPersonaBadges(name, "mini")}
       </span>
       <span class="mini action-copy">${showStep ? "plan" : "queue +"}</span>
@@ -741,7 +902,7 @@ function getSpecialRecipes(name) {
   return [{
     type: "Special",
     ingredients,
-    score: ingredients.reduce((sum, ingredient) => sum + (state.personas[ingredient]?.lvl || 0), 0)
+    score: ingredients.reduce((sum, ingredient) => sum + getPersonaLevel(ingredient), 0)
   }];
 }
 
@@ -758,15 +919,17 @@ function splitWithDiffRace(name) {
   const recipes = [];
 
   for (const [raceA, raceBs] of Object.entries(state.fissionChart[target.race] || {})) {
-    for (const lvlA of getIngredientLevels(raceA)) {
+    for (const ingredientA of getIngredientCandidates(raceA)) {
+      const lvlA = ingredientA.level;
       const minLvlB = minResultLvl - lvlA;
       const maxLvlB = maxResultLvl - lvlA;
       for (const raceB of raceBs) {
-        for (const lvlB of getIngredientLevels(raceB)) {
-          if (minLvlB < lvlB && lvlB <= maxLvlB && (raceA !== raceB || lvlA < lvlB)) {
+        for (const ingredientB of getIngredientCandidates(raceB)) {
+          const lvlB = ingredientB.level;
+          if (ingredientA.name !== ingredientB.name && minLvlB < lvlB && lvlB <= maxLvlB && shouldKeepIngredientPair(ingredientA, ingredientB)) {
             recipes.push({
               type: "Normal",
-              ingredients: [reverseLookup(raceA, lvlA), reverseLookup(raceB, lvlB)],
+              ingredients: [ingredientA.name, ingredientB.name],
               score: lvlA + lvlB
             });
           }
@@ -788,29 +951,17 @@ function splitWithSameRace(name) {
 
   const minResultLvl = 2 * (target.lvl - 1);
   const maxResultLvl = resultLvls[targetIndex + 1] ? 2 * (resultLvls[targetIndex + 1] - 1) : 200;
-  const nextResultLvl = resultLvls[targetIndex + 2] ? 2 * (resultLvls[targetIndex + 2] - 1) : 200;
-  const ingLvls = getIngredientLevels(target.race).filter((lvl) => lvl !== target.lvl);
-  const ingLvlM = maxResultLvl / 2 + 1;
+  const candidates = getIngredientCandidates(target.race).filter((ingredient) => ingredient.name !== target.name);
   const recipes = [];
 
-  for (const ingLvl2 of ingLvls) {
-    if (ingLvlM < ingLvl2 && ingLvlM + ingLvl2 < nextResultLvl) {
-      recipes.push({
-        type: "Same Arcana",
-        ingredients: [reverseLookup(target.race, ingLvlM), reverseLookup(target.race, ingLvl2)],
-        score: ingLvlM + ingLvl2
-      });
-    }
-  }
-
-  for (let i = 0; i < ingLvls.length; i++) {
-    for (let j = i + 1; j < ingLvls.length; j++) {
-      const lvl1 = ingLvls[i];
-      const lvl2 = ingLvls[j];
+  for (let i = 0; i < candidates.length; i++) {
+    for (let j = i + 1; j < candidates.length; j++) {
+      const lvl1 = candidates[i].level;
+      const lvl2 = candidates[j].level;
       if (minResultLvl <= lvl1 + lvl2 && lvl1 + lvl2 < maxResultLvl) {
         recipes.push({
           type: "Same Arcana",
-          ingredients: [reverseLookup(target.race, lvl1), reverseLookup(target.race, lvl2)],
+          ingredients: [candidates[i].name, candidates[j].name],
           score: lvl1 + lvl2
         });
       }
@@ -820,17 +971,26 @@ function splitWithSameRace(name) {
   return recipes;
 }
 
-function getIngredientLevels(race) {
-  return getResultLevels(race);
+function getIngredientCandidates(race) {
+  return Object.values(state.personas)
+    .filter((persona) => persona.race === race)
+    .map((persona) => ({
+      name: persona.name,
+      race: persona.race,
+      baseLevel: persona.lvl,
+      level: getPersonaLevel(persona.name)
+    }))
+    .sort((a, b) => a.level - b.level || a.baseLevel - b.baseLevel || a.name.localeCompare(b.name));
+}
+
+function shouldKeepIngredientPair(ingredientA, ingredientB) {
+  if (ingredientA.race !== ingredientB.race) return true;
+  if (ingredientA.level !== ingredientB.level) return ingredientA.level < ingredientB.level;
+  return ingredientA.name.localeCompare(ingredientB.name) < 0;
 }
 
 function getResultLevels(race) {
   return state.raceLevels.get(race) || [];
-}
-
-function reverseLookup(race, level) {
-  const match = Object.values(state.personas).find((persona) => persona.race === race && persona.lvl === level);
-  return match?.name || "";
 }
 
 function decodeResists(code = "") {
