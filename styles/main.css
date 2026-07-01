@@ -33,6 +33,22 @@
   box-sizing: border-box;
 }
 
+img {
+  max-width: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+.scene-card,
+.intro-card,
+.draw-card,
+.selected-draw,
+.persona-visual .persona-arcana-card,
+.arcana-badge img,
+.persona-button img {
+  backface-visibility: hidden;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -465,17 +481,25 @@ input:focus-visible {
 }
 
 .hero {
-  min-height: 22vh;
+  min-height: clamp(240px, 27vh, 340px);
   display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 24px 0 16px;
+  align-items: flex-start;
+  gap: clamp(24px, 3.6vw, 42px);
+  padding: clamp(34px, 5vw, 58px) 0 clamp(24px, 3.6vw, 40px);
+}
+
+.hero > div {
+  display: grid;
+  min-width: 0;
+  gap: clamp(10px, 1.4vw, 17px);
+  padding-top: clamp(6px, 1.4vw, 16px);
 }
 
 .brand-logo {
   flex: 0 0 clamp(128px, 18vw, 220px);
   width: clamp(128px, 18vw, 220px);
   height: auto;
+  margin: clamp(8px, 1.2vw, 16px) 0 0 clamp(8px, 1.2vw, 16px);
   filter: drop-shadow(7px 9px 0 rgba(0, 0, 0, 0.74)) drop-shadow(0 0 18px rgba(255, 231, 106, 0.08));
   transform: rotate(-3deg);
   animation: markPop 2.8s ease-in-out infinite;
@@ -488,23 +512,24 @@ input:focus-visible {
 }
 
 .kicker {
-  margin: 0 0 4px;
+  margin: 0;
   color: var(--gold-2);
   font-family: var(--display-font);
-  font-size: 18px;
+  font-size: clamp(16px, 1.45vw, 20px);
   font-weight: 800;
+  line-height: 1.05;
   letter-spacing: 0;
   text-transform: uppercase;
 }
 
 h1 {
   margin: 0;
-  max-width: 820px;
+  max-width: min(900px, 100%);
   padding-top: 0.04em;
   font-family: var(--display-font);
-  font-size: clamp(44px, 7vw, 82px);
+  font-size: clamp(42px, 6.8vw, 88px);
   font-weight: 900;
-  line-height: 0.88;
+  line-height: 0.96;
   letter-spacing: 0;
   text-shadow:
     4px 4px 0 var(--ink),
@@ -512,12 +537,12 @@ h1 {
 }
 
 .lede {
-  max-width: 680px;
-  margin: 12px 0 0;
+  max-width: min(760px, 100%);
+  margin: 0;
   color: var(--paper);
-  font-size: 17px;
+  font-size: clamp(16px, 1.55vw, 20px);
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.62;
 }
 
 .workspace {
@@ -1804,7 +1829,7 @@ h1 {
 
 .fusion-equation {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 10px;
   align-items: center;
 }
@@ -1842,7 +1867,17 @@ h1 {
 
 .special-fusion-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 238px), 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.recipe.is-large-special .special-fusion-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.recipe.is-ritual-fusion .special-fusion-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 184px), 1fr));
   gap: 10px;
 }
 
@@ -1870,12 +1905,15 @@ h1 {
 
 .persona-button.special-ingredient {
   display: grid;
-  grid-template-columns: auto 52px minmax(0, 1fr);
+  grid-template-columns: 38px minmax(0, 1fr) auto;
   grid-template-areas:
-    "step image text"
-    "step image action";
-  align-items: center;
-  min-height: 84px;
+    "step image action"
+    "text text text";
+  align-items: start;
+  min-height: 150px;
+  padding: 10px 12px 12px;
+  column-gap: 8px;
+  row-gap: 6px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 48%),
     linear-gradient(135deg, #fff6a4, var(--gold));
@@ -1891,8 +1929,8 @@ h1 {
   grid-area: step;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 2px solid var(--ink);
   border-radius: 50%;
   color: var(--paper);
@@ -1903,13 +1941,20 @@ h1 {
 }
 
 .persona-button img {
-  flex: 0 0 52px;
+  flex: 0 0 58px;
   grid-area: image;
-  width: 52px;
-  height: 52px;
+  width: 58px;
+  height: 58px;
   object-fit: contain;
   filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.45));
   transition: transform 240ms var(--ease-out), filter 240ms var(--ease-out);
+}
+
+.persona-button.special-ingredient img {
+  justify-self: center;
+  width: 84px;
+  height: 70px;
+  margin-top: 1px;
 }
 
 .persona-button:hover img {
@@ -1933,6 +1978,7 @@ h1 {
 
 .persona-button span {
   display: block;
+  min-width: 0;
 }
 
 .persona-button.special-ingredient > span:not(.ingredient-step) {
@@ -1940,20 +1986,67 @@ h1 {
   min-width: 0;
 }
 
+.persona-button .ingredient-copy {
+  min-width: 0;
+}
+
+.persona-button.special-ingredient .ingredient-copy {
+  align-self: start;
+  justify-self: stretch;
+  padding-top: 2px;
+  text-align: center;
+}
+
 .persona-button .info-badge {
   max-width: 100%;
 }
 
+.persona-button strong {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  line-height: 1.05;
+}
+
+.persona-button .info-badge strong,
+.persona-button .info-badge span {
+  white-space: normal;
+}
+
 .persona-button .action-copy {
   grid-area: action;
-  justify-self: start;
+  align-self: start;
+  justify-self: end;
+  width: fit-content;
+  padding: 2px 7px;
+  color: rgba(0, 0, 0, 0.74);
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  background: rgba(255, 255, 255, 0.25);
   text-transform: uppercase;
 }
 
 .persona-button .mini {
   font-size: 12px;
   font-weight: 700;
+  line-height: 1.22;
   opacity: 0.72;
+}
+
+.persona-button.special-ingredient strong {
+  font-size: 17px;
+  text-align: center;
+}
+
+.persona-button.special-ingredient .ingredient-meta {
+  margin-top: 3px;
+}
+
+.persona-button.special-ingredient .info-badge {
+  justify-content: center;
+  margin: 5px auto 0;
+  padding: 4px 7px;
+  line-height: 1.08;
+  text-align: center;
 }
 
 .fusion-x {
@@ -1985,12 +2078,23 @@ h1 {
   .hero {
     min-height: 24vh;
     align-items: flex-start;
-    gap: 14px;
+    gap: 16px;
+    padding-block: 26px 22px;
   }
 
   .brand-logo {
     flex-basis: 104px;
     width: 104px;
+  }
+
+  h1 {
+    font-size: clamp(38px, 12vw, 58px);
+    line-height: 0.98;
+  }
+
+  .lede {
+    font-size: 15px;
+    line-height: 1.5;
   }
 
   .workspace,
@@ -2051,6 +2155,15 @@ h1 {
 
   .persona-profile {
     grid-template-columns: 1fr;
+  }
+
+  .fusion-equation {
+    grid-template-columns: 1fr;
+  }
+
+  .fusion-x {
+    min-height: 24px;
+    line-height: 1;
   }
 
   .selected-path {

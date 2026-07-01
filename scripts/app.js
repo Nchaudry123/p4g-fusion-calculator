@@ -633,6 +633,11 @@ function renderSelectedRecipePath() {
 
 function renderRecipe(recipe, index) {
   const isSpecialLayout = recipe.ingredients.length > 2;
+  const recipeSizeClass = recipe.ingredients.length >= 10
+    ? "is-ritual-fusion"
+    : recipe.ingredients.length >= 5
+      ? "is-large-special"
+      : "";
   const targetBadges = renderPersonaBadges(state.active, "recipe");
   const isSelectedRecipe = state.selectedRecipe?.target === state.active && state.selectedRecipe.index === index;
   const ingredients = isSpecialLayout
@@ -655,7 +660,7 @@ function renderRecipe(recipe, index) {
     `;
 
   return `
-    <article class="recipe ${isSpecialLayout ? "is-special-fusion" : ""} ${isSelectedRecipe ? "is-selected-recipe" : ""}" style="--i: ${index}">
+    <article class="recipe ${isSpecialLayout ? "is-special-fusion" : ""} ${recipeSizeClass} ${isSelectedRecipe ? "is-selected-recipe" : ""}" style="--i: ${index}; --ingredient-count: ${recipe.ingredients.length}">
       <div class="recipe-head">
         <span class="recipe-title">${isSelectedRecipe ? "Exploring" : "Recipe"} ${index + 1}</span>
         <span class="recipe-meta">${recipe.type}${recipe.score ? ` / Lv sum ${recipe.score}` : ""}</span>
@@ -673,9 +678,9 @@ function renderIngredientButton(name, index, showStep, recipeIndex) {
     <button class="persona-button ${showStep ? "special-ingredient" : ""} ${isChosen ? "is-selected-ingredient" : ""}" type="button" data-persona="${escapeAttr(name)}" data-recipe-index="${recipeIndex}">
       ${showStep ? `<span class="ingredient-step">${index + 1}</span>` : ""}
       <img src="${escapeAttr(personaImage(name))}" alt="" loading="lazy">
-      <span>
+      <span class="ingredient-copy">
         <strong>${escapeHtml(name)}</strong>
-        <span class="mini">Lv ${persona?.lvl ?? "?"} ${escapeHtml(persona?.race ?? "")}</span>
+        <span class="mini ingredient-meta">Lv ${persona?.lvl ?? "?"} ${escapeHtml(persona?.race ?? "")}</span>
         ${renderPersonaBadges(name, "mini")}
       </span>
       <span class="mini action-copy">${showStep ? "plan" : "queue +"}</span>
