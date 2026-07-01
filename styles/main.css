@@ -2250,6 +2250,15 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .workspace {
+    gap: 14px;
+  }
+
+  .calculator-panel {
+    order: 1;
+    padding: 14px;
+  }
+
   .user-data-head,
   .level-editor {
     grid-template-columns: 1fr;
@@ -2265,7 +2274,9 @@ h1 {
   }
 
   .queue-panel {
+    order: 2;
     position: static;
+    padding: 14px;
   }
 
   .primary-button {
@@ -2361,6 +2372,206 @@ h1 {
   .intro-card:nth-child(2) { --fan: -20px; }
   .intro-card:nth-child(3) { --fan: 22px; }
   .intro-card:nth-child(4) { --fan: 60px; }
+}
+
+@media (max-width: 640px) {
+  body {
+    background:
+      linear-gradient(116deg, rgba(244, 206, 37, 0.95) 0 9%, transparent 9.2% 100%),
+      linear-gradient(116deg, transparent 0 68%, rgba(244, 206, 37, 0.22) 68.2% 77%, transparent 77.2% 100%),
+      linear-gradient(135deg, #050505 0%, #111006 48%, #070707 100%);
+  }
+
+  .shell {
+    width: min(100% - 14px, 1180px);
+    padding: 8px 0 28px;
+  }
+
+  .scene-card {
+    width: 86px;
+    opacity: 0.32;
+  }
+
+  .card-three,
+  .card-four {
+    display: none;
+  }
+
+  .hero {
+    min-height: auto;
+    display: grid;
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 12px;
+    padding: 18px 0 14px;
+  }
+
+  .brand-logo {
+    width: 86px;
+    flex-basis: 86px;
+    margin: 4px 0 0 4px;
+  }
+
+  .hero > div {
+    gap: 7px;
+    padding-top: 2px;
+  }
+
+  .kicker {
+    font-size: 13px;
+  }
+
+  h1 {
+    font-size: clamp(33px, 13vw, 48px);
+    line-height: 0.96;
+    text-shadow:
+      3px 3px 0 var(--ink),
+      0 7px 14px rgba(0, 0, 0, 0.26);
+  }
+
+  .lede {
+    font-size: 13px;
+    line-height: 1.42;
+  }
+
+  .panel {
+    box-shadow:
+      0 14px 30px rgba(0, 0, 0, 0.34),
+      4px 4px 0 rgba(0, 0, 0, 0.58);
+  }
+
+  .panel-title {
+    font-size: 19px;
+  }
+
+  .search-box input,
+  .level-editor input,
+  .primary-button {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .suggestion-grid {
+    grid-template-columns: 1fr;
+    max-height: 260px;
+  }
+
+  .suggestion-card {
+    min-height: 70px;
+  }
+
+  .user-data-panel {
+    padding: 10px;
+  }
+
+  .user-data-head h2 {
+    font-size: 22px;
+  }
+
+  .level-mode {
+    grid-template-columns: 1fr;
+  }
+
+  .level-chip-row {
+    max-height: 92px;
+    overflow: auto;
+    padding-right: 2px;
+  }
+
+  .deck-stage {
+    gap: 12px;
+    margin-top: 14px;
+    padding: 12px;
+  }
+
+  .deck-copy strong {
+    font-size: 28px;
+  }
+
+  .draw-table {
+    min-height: 145px;
+    transform: scale(0.86);
+    transform-origin: center;
+  }
+
+  .selected-draw {
+    min-height: 170px;
+  }
+
+  .active-persona {
+    margin-top: 14px;
+  }
+
+  .persona-card {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .persona-name {
+    font-size: clamp(34px, 13vw, 54px);
+  }
+
+  .persona-meta {
+    gap: 6px;
+  }
+
+  .persona-meta span,
+  .chip {
+    font-size: 11px;
+  }
+
+  .persona-visual {
+    min-height: 170px;
+  }
+
+  .persona-visual img:not(.persona-arcana-card) {
+    width: min(88%, 170px);
+    max-height: 170px;
+  }
+
+  .summary-strip {
+    gap: 7px;
+  }
+
+  .recipe-head,
+  .special-fusion-note {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .ingredients {
+    padding: 10px;
+  }
+
+  .special-fusion-grid,
+  .recipe.is-large-special .special-fusion-grid,
+  .recipe.is-ritual-fusion .special-fusion-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 148px), 1fr));
+    gap: 8px;
+  }
+
+  .persona-button.special-ingredient {
+    min-height: 138px;
+    padding: 9px;
+  }
+
+  .persona-button.special-ingredient img {
+    width: 74px;
+    height: 62px;
+  }
+
+  .persona-button.special-ingredient strong {
+    font-size: 15px;
+  }
+
+  .persona-button .action-copy {
+    padding: 2px 5px;
+    font-size: 10px;
+  }
+
+  .queue-item {
+    grid-template-columns: 34px minmax(0, 1fr) 32px;
+    padding: 9px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
