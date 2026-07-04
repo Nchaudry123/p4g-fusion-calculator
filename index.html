@@ -17,6 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/ui-polish.css">
+    <link rel="stylesheet" href="styles/needed-features.css">
   </head>
   <body class="intro-active is-loading">
     <div id="bootScreen" class="boot-screen" aria-live="polite" aria-busy="true">
@@ -70,6 +71,8 @@
         </div>
         <div class="hero-tools">
           <button id="focusModeToggle" class="ghost-button focus-toggle" type="button" aria-pressed="false" title="Hide deck chrome and tighten layout">Focus mode</button>
+          <button id="contrastToggle" class="ghost-button" type="button" aria-pressed="false" title="High contrast">Contrast</button>
+          <button id="offlinePackBtn" class="ghost-button" type="button" title="Cache Persona art offline">Offline pack</button>
         </div>
       </section>
 
@@ -83,6 +86,7 @@
         <div id="stripChips" class="strip-chips"></div>
         <div class="strip-actions">
           <button id="stripOwned" class="ghost-button" type="button">Mark owned</button>
+          <button id="stripBookmark" class="ghost-button" type="button">Bookmark</button>
           <button id="stripPath" class="ghost-button" type="button">Craft path</button>
           <button id="stripScrollRecipes" class="primary-button compact-button" type="button">Recipes</button>
         </div>
@@ -108,6 +112,8 @@
             <button id="forwardTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="forwardView" tabindex="-1" data-calculator-tab="forward"><i class="ui-ico ico-fuse" aria-hidden="true"></i><span>Fuse</span></button>
             <button id="playerDataTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="playerDataView" tabindex="-1" data-calculator-tab="player"><i class="ui-ico ico-log" aria-hidden="true"></i><span>Log</span></button>
             <button id="margaretTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="margaretView" tabindex="-1" data-calculator-tab="margaret"><i class="ui-ico ico-link" aria-hidden="true"></i><span>Margaret</span></button>
+            <button id="craftTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="craftView" tabindex="-1" data-calculator-tab="craft"><i class="ui-ico ico-fuse" aria-hidden="true"></i><span>Craft</span></button>
+            <button id="compareTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="compareView" tabindex="-1" data-calculator-tab="compare"><i class="ui-ico ico-log" aria-hidden="true"></i><span>Compare</span></button>
           </div>
 
           <section id="personaSearchView" class="calculator-tab-panel is-active" role="tabpanel" aria-labelledby="personaSearchTab" data-calculator-panel="search">
@@ -162,6 +168,7 @@
               <div id="desiredSkills" class="desired-skills" aria-live="polite"></div>
               <div id="inheritMatrix" class="inherit-matrix" aria-label="Inheritance affinity matrix"></div>
               <div id="inheritHint" class="inherit-hint"></div>
+              <div id="inheritProviders" class="inherit-providers" aria-live="polite"></div>
             </section>
 
             <div id="recipeSection" class="stage stage-recipes">
@@ -179,6 +186,7 @@
                       <option value="missing">Fewest missing</option>
                       <option value="score">Lowest level sum</option>
                       <option value="special">Special first</option>
+                      <option value="easiest">Easiest overall</option>
                     </select>
                   </label>
                   <div class="log-filter density-filter" role="group" aria-label="Recipe density">
@@ -255,6 +263,27 @@
 
               <div id="completionDashboard" class="completion-dashboard broadcast-dash" aria-live="polite"></div>
 
+              <section class="ultimates-panel" aria-labelledby="ultimates-title">
+                <div class="user-data-head compact-head">
+                  <div>
+                    <span class="compendium-label" id="ultimates-title">Social Links</span>
+                    <h2>Max-rank ultimate Personas</h2>
+                  </div>
+                </div>
+                <div id="ultimatesList" class="ultimates-list"></div>
+              </section>
+
+              <div class="recents-row">
+                <div>
+                  <span class="compendium-label">Recent</span>
+                  <div id="recentList" class="chip-row"></div>
+                </div>
+                <div>
+                  <span class="compendium-label">Bookmarks</span>
+                  <div id="bookmarkList" class="chip-row"></div>
+                </div>
+              </div>
+
               <div class="data-io" aria-label="Import and export">
                 <button id="exportData" class="ghost-button" type="button">Export JSON</button>
                 <label class="ghost-button file-button">
@@ -315,6 +344,48 @@
               <div id="margaretList" class="margaret-list" aria-live="polite"></div>
             </section>
           </section>
+
+          <section id="craftView" class="calculator-tab-panel" role="tabpanel" aria-labelledby="craftTab" hidden data-calculator-panel="craft">
+            <section class="user-data-panel" aria-labelledby="craft-title">
+              <div class="user-data-head">
+                <div>
+                  <span class="compendium-label" id="craft-title">Owned inventory</span>
+                  <h2>What can I fuse right now?</h2>
+                </div>
+              </div>
+              <p class="margaret-copy">Uses Personas marked owned in your Log. Special fusions first, then strong normal recipes with 0–1 missing ingredients.</p>
+              <div class="log-filter craft-filters" role="group" aria-label="Craft readiness filter">
+                <button class="mode-button is-active" type="button" data-craft-filter="ready">Ready now</button>
+                <button class="mode-button" type="button" data-craft-filter="one">1 missing</button>
+                <button class="mode-button" type="button" data-craft-filter="specials">Specials</button>
+              </div>
+              <div id="craftStats" class="persona-log-stats"></div>
+              <div id="craftList" class="craft-list" aria-live="polite"></div>
+            </section>
+          </section>
+
+          <section id="compareView" class="calculator-tab-panel" role="tabpanel" aria-labelledby="compareTab" hidden data-calculator-panel="compare">
+            <section class="user-data-panel" aria-labelledby="compare-title">
+              <div class="user-data-head">
+                <div>
+                  <span class="compendium-label" id="compare-title">Side-by-side</span>
+                  <h2>Compare Personas</h2>
+                </div>
+              </div>
+              <div class="compare-inputs">
+                <label class="search-box">
+                  <span>Persona A</span>
+                  <input id="compareA" list="personaLevelList" autocomplete="off" placeholder="Jack Frost">
+                </label>
+                <label class="search-box">
+                  <span>Persona B</span>
+                  <input id="compareB" list="personaLevelList" autocomplete="off" placeholder="Pyro Jack">
+                </label>
+                <button id="runCompare" class="primary-button" type="button">Compare</button>
+              </div>
+              <div id="compareResult" class="compare-result" aria-live="polite"></div>
+            </section>
+          </section>
         </section>
       </section>
     </main>
@@ -326,7 +397,28 @@
     </button>
     <div id="queueBackdrop" class="queue-backdrop" hidden></div>
 
+    <footer class="app-footer" role="contentinfo">
+      <span>Velvet Fusion Deck · P4G data</span>
+      <span id="appVersion">v2026.07 · fan tool, not affiliated with Atlus/SEGA</span>
+      <span class="footer-hint">Keys: / search · 1–6 tabs · c contrast · ? help</span>
+    </footer>
+
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <div id="helpModal" class="help-modal" hidden>
+      <div class="help-card" role="dialog" aria-labelledby="help-title">
+        <h2 id="help-title">Keyboard shortcuts</h2>
+        <ul>
+          <li><kbd>/</kbd> Focus Persona search</li>
+          <li><kbd>1</kbd>–<kbd>6</kbd> Switch tabs</li>
+          <li><kbd>c</kbd> Toggle high contrast</li>
+          <li><kbd>f</kbd> Toggle focus mode</li>
+          <li><kbd>Escape</kbd> Close queue / help</li>
+        </ul>
+        <button type="button" class="primary-button" id="closeHelp">Got it</button>
+      </div>
+    </div>
+
     <script src="scripts/app.js"></script>
+    <script src="scripts/needed-features.js"></script>
   </body>
 </html>
