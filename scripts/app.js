@@ -105,7 +105,14 @@ const state = {
   recipeCache: new Map(),
   recipeCacheKey: "",
   personasByRace: new Map(),
-  levelModeToken: "base"
+  levelModeToken: "base",
+  recentPersonas: [],
+  bookmarks: [],
+  pathChecklist: {},
+  craftFilter: "ready",
+  highContrast: false,
+  compareA: "",
+  compareB: ""
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -170,6 +177,7 @@ Promise.all([
   renderMargaret();
   renderInheritance();
   finishBoot();
+  document.dispatchEvent(new CustomEvent("p4g-ready", { detail: { state } }));
 }).catch((error) => {
   finishBoot();
   const host = $("#recipes") || $("#activePersona");
@@ -677,7 +685,7 @@ function setupCalculatorTabs() {
 }
 
 function setCalculatorTab(tab) {
-  const allowed = new Set(["search", "forward", "player", "margaret"]);
+  const allowed = new Set(["search", "forward", "player", "margaret", "craft", "compare"]);
   const nextTab = allowed.has(tab) ? tab : "search";
   state.activeCalculatorTab = nextTab;
   closeMobileQueue();
@@ -696,11 +704,14 @@ function setCalculatorTab(tab) {
   if (nextTab === "player") {
     renderCompletionDashboard();
     renderPersonaLog();
+    if (typeof window.p4gRenderLogExtras === "function") window.p4gRenderLogExtras();
   }
   if (nextTab === "forward") {
     renderForwardSlotCards();
     renderForwardPartners();
   }
+  if (nextTab === "craft" && typeof window.p4gRenderCraft === "function") window.p4gRenderCraft();
+  if (nextTab === "compare" && typeof window.p4gRenderCompare === "function") window.p4gRenderCompare();
   updateUrlState();
 }
 
@@ -1432,6 +1443,7 @@ function selectPersona(name, primary = false, recipeContext = null) {
   state.active = name;
   state.dossierTab = "stats";
   closeMobileQueue();
+  if (typeof window.p4gTrackRecent === "function") window.p4gTrackRecent(name);
   const tips = $("#starterTips");
   if (tips) tips.hidden = true;
   $("#personaSearch").value = name;
@@ -1752,6 +1764,7 @@ function renderInheritance() {
     <strong>${escapeHtml(persona.name)}</strong> inherits as <em>${escapeHtml(persona.inherits || "unknown")}</em>.
     Open cells can receive those skill types. Recipes below are scored by desired-skill coverage.
   `;
+  if (typeof window.p4gRenderInheritProviders === "function") window.p4gRenderInheritProviders();
 }
 
 function recipeOwnership(recipe) {
@@ -1795,6 +1808,12 @@ function getFilteredSortedRecipes(name) {
 
   const typeWeight = (type) => (type === "Special" ? 0 : type === "Same Arcana" ? 1 : 2);
 
+  recipes = recipes.map((recipe) => ({
+    ...recipe,
+    // Lower is better: missing ingredients dominate, then level sum, then ingredient count.
+    efficiency: recipe.missing * 1000 + (recipe.score || 0) + recipe.ingredients.length * 3 - recipe.skillHits * 40
+  }));
+
   recipes.sort((a, b) => {
     if (state.recipeSort === "missing") {
       return a.missing - b.missing || b.skillHits - a.skillHits || (a.score || 0) - (b.score || 0);
@@ -1805,12 +1824,20 @@ function getFilteredSortedRecipes(name) {
     if (state.recipeSort === "special") {
       return typeWeight(a.type) - typeWeight(b.type) || a.missing - b.missing || (a.score || 0) - (b.score || 0);
     }
+    if (state.recipeSort === "easiest") {
+      return a.efficiency - b.efficiency;
+    }
     // smart
     if (b.skillHits !== a.skillHits) return b.skillHits - a.skillHits;
     if (a.ready !== b.ready) return a.ready ? -1 : 1;
     if (a.missing !== b.missing) return a.missing - b.missing;
-    return typeWeight(a.type) - typeWeight(b.type) || (a.score || 0) - (b.score || 0);
+    return a.efficiency - b.efficiency || typeWeight(a.type) - typeWeight(b.type);
   });
+
+  if (recipes.length) {
+    const best = Math.min(...recipes.map((r) => r.efficiency));
+    recipes = recipes.map((r) => ({ ...r, isEasiest: r.efficiency === best }));
+  }
 
   return recipes;
 }
@@ -1917,7 +1944,8 @@ function renderRecipe(recipe, index) {
   const scorePct = Math.max(8, Math.min(100, 100 - Math.min(90, (recipe.score || 0) / 1.6)));
   const listLine = `<div class="recipe-list-line">${recipe.ingredients.map(escapeHtml).join(" + ")} → ${escapeHtml(state.active)} · ${recipe.missing} missing${recipe.skillTotal ? ` · skills ${recipe.skillHits}/${recipe.skillTotal}` : ""}</div>`;
   return `
-    <article class="recipe ${isSpecialLayout ? "is-special-fusion" : ""} ${recipeSizeClass} ${isSelectedRecipe ? "is-selected-recipe" : ""} ${recipe.ready ? "is-ready-recipe" : ""}" style="--i: ${index}; --ingredient-count: ${recipe.ingredients.length}">
+    <article class="recipe ${isSpecialLayout ? "is-special-fusion" : ""} ${recipeSizeClass} ${isSelectedRecipe ? "is-selected-recipe" : ""} ${recipe.ready ? "is-ready-recipe" : ""} ${recipe.isEasiest ? "is-easiest-recipe" : ""}" style="--i: ${index}; --ingredient-count: ${recipe.ingredients.length}">
+      ${recipe.isEasiest ? `<span class="easiest-stamp">Easiest</span>` : ""}
       <div class="recipe-head">
         <span class="recipe-title">${isSelectedRecipe ? "Exploring" : "Recipe"} ${index + 1}</span>
         <span class="recipe-meta">${recipe.type}${recipe.score ? ` / ${state.useCurrentLevels ? "Current" : "Base"} Lv sum ${recipe.score}` : ""}</span>
@@ -2317,27 +2345,30 @@ function findCraftPath(target, maxDepth = 3) {
     if (visited.has(`${name}@${depth}`)) return;
     visited.add(`${name}@${depth}`);
 
-    const recipes = getRecipes(name).slice().sort((a, b) => scoreRecipe(a) - scoreRecipe(b)).slice(0, 12);
+    const recipes = getRecipes(name).slice().sort((a, b) => scoreRecipe(a) - scoreRecipe(b)).slice(0, 8);
     if (!recipes.length) {
       bestQueue.push({ steps: [...trail], leaf: name, ownedLeaf: state.ownedPersonas.has(name) });
       return;
     }
 
-    const recipe = recipes[0];
-    const step = { result: name, type: recipe.type, ingredients: recipe.ingredients, missing: recipeOwnership(recipe).missing };
-    const nextTrail = [...trail, step];
+    // Explore top recipe options so owned-heavy paths can win.
+    const branchLimit = depth === 0 ? 3 : 2;
+    for (const recipe of recipes.slice(0, branchLimit)) {
+      const step = { result: name, type: recipe.type, ingredients: recipe.ingredients, missing: recipeOwnership(recipe).missing };
+      const nextTrail = [...trail, step];
 
-    if (recipeOwnership(recipe).ready || depth === maxDepth) {
-      bestQueue.push({ steps: nextTrail, leaf: name, ownedLeaf: recipeOwnership(recipe).ready });
-      return;
-    }
+      if (recipeOwnership(recipe).ready || depth === maxDepth) {
+        bestQueue.push({ steps: nextTrail, leaf: name, ownedLeaf: recipeOwnership(recipe).ready });
+        continue;
+      }
 
-    for (const ingredient of recipe.ingredients) {
-      if (trailSet.has(ingredient)) continue;
-      if (state.ownedPersonas.has(ingredient)) continue;
-      const nextSet = new Set(trailSet);
-      nextSet.add(ingredient);
-      search(ingredient, depth + 1, nextTrail, nextSet);
+      for (const ingredient of recipe.ingredients) {
+        if (trailSet.has(ingredient)) continue;
+        if (state.ownedPersonas.has(ingredient)) continue;
+        const nextSet = new Set(trailSet);
+        nextSet.add(ingredient);
+        search(ingredient, depth + 1, nextTrail, nextSet);
+      }
     }
   }
 
@@ -2385,21 +2416,33 @@ function renderPathPlan(target) {
         <span>${plan.steps.length} step${plan.steps.length === 1 ? "" : "s"} toward ${escapeHtml(target)}</span>
       </div>
       <ol class="path-steps">
-        ${plan.steps.map((step, index) => `
-          <li>
-            <span class="path-step-num">${index + 1}</span>
+        ${plan.steps.map((step, index) => {
+          const key = `${target}::${index}::${step.result}`;
+          const done = Boolean(state.pathChecklist[key]);
+          return `
+          <li class="${done ? "is-step-done" : ""}">
+            <button type="button" class="path-check" data-path-key="${escapeAttr(key)}" aria-pressed="${done}">${done ? "✓" : (index + 1)}</button>
             <div>
               <strong>${escapeHtml(step.result)}</strong>
               <em>${escapeHtml(step.type)} · ${step.missing === 0 ? "ready" : `${step.missing} missing`}</em>
               <span>${step.ingredients.map(escapeHtml).join(" + ")}</span>
             </div>
-          </li>
-        `).join("")}
+          </li>`;
+        }).join("")}
       </ol>
       <button type="button" class="ghost-button" id="dismissPath">Dismiss</button>
     </div>
   `;
   $("#dismissPath")?.addEventListener("click", () => { host.innerHTML = ""; });
+  host.querySelectorAll("[data-path-key]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.pathKey;
+      if (state.pathChecklist[key]) delete state.pathChecklist[key];
+      else state.pathChecklist[key] = true;
+      if (typeof window.p4gPersistPathChecklist === "function") window.p4gPersistPathChecklist();
+      renderPathPlan(target);
+    });
+  });
   showToast(`Craft path filled for ${target}`);
   updateUrlState();
 }
@@ -2507,9 +2550,33 @@ function escapeAttr(value) {
 if (typeof window !== "undefined") {
   window.__P4G_FUSION__ = {
     fusePersonas,
+    fusePersonasDirected,
     getRecipes,
+    getFilteredSortedRecipes,
     canInherit,
     findCraftPath,
-    state
+    recipeOwnership,
+    recipeSkillCoverage,
+    selectPersona,
+    setCalculatorTab,
+    addToQueue,
+    renderQueue,
+    renderRecipes,
+    renderPathPlan,
+    showToast,
+    personaImage,
+    levelLabel,
+    getPersonaLevel,
+    escapeHtml,
+    escapeAttr,
+    togglePersonaOwned,
+    setPersonaOwned,
+    persistUserData,
+    SOCIAL_LINK_UNLOCKS,
+    MARGARET_REQUESTS,
+    INHERIT_AFFINITY,
+    ELEMENT_LABELS,
+    state,
+    $
   };
 }
