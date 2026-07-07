@@ -77,65 +77,75 @@
         </aside>
 
         <section class="panel calculator-panel">
-          <div class="search-row">
-            <label class="search-box">
-              <span>Persona search</span>
-              <input id="personaSearch" type="search" autocomplete="off" placeholder="Try Alice, Trumpeter, Jack Frost, or Tower...">
-            </label>
-            <button id="selectSearch" class="primary-button" type="button">Set Priority 1</button>
+          <div class="calculator-tabs" role="tablist" aria-label="Calculator views">
+            <button id="personaSearchTab" class="calculator-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="personaSearchView" data-calculator-tab="search">Persona Search</button>
+            <button id="playerDataTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="playerDataView" tabindex="-1" data-calculator-tab="player">Player Data</button>
           </div>
-          <section class="user-data-panel" aria-labelledby="user-data-title">
-            <div class="user-data-head">
-              <div>
-                <span class="compendium-label" id="user-data-title">Player Data</span>
-                <h2>Persona Compendium Log</h2>
-              </div>
-              <div class="level-mode" role="group" aria-label="Fusion level mode">
-                <button id="baseLevelMode" class="mode-button is-active" type="button">Base levels</button>
-                <button id="currentLevelMode" class="mode-button" type="button">My levels</button>
-              </div>
-            </div>
-            <div class="level-editor">
-              <label class="search-box level-persona-field">
-                <span>Persona</span>
-                <input id="levelPersonaInput" list="personaLevelList" autocomplete="off" placeholder="Add a Persona level...">
-                <datalist id="personaLevelList"></datalist>
-              </label>
-              <label class="search-box level-number-field">
-                <span>Current level</span>
-                <input id="levelValueInput" type="number" min="1" max="99" inputmode="numeric" placeholder="Lv">
-              </label>
-              <label class="owned-toggle">
-                <input id="ownedPersonaInput" type="checkbox">
-                <span>Owned</span>
-              </label>
-              <button id="saveLevelData" class="primary-button compact-button" type="button">Save Level</button>
-            </div>
-            <div id="levelDataSummary" class="level-data-summary" aria-live="polite"></div>
-            <div class="persona-log-tools">
-              <label class="search-box">
-                <span>Find in log</span>
-                <input id="personaLogSearch" type="search" autocomplete="off" placeholder="Filter your compendium...">
-              </label>
-              <label class="search-box">
-                <span>Arcana</span>
-                <select id="personaLogArcana"></select>
-              </label>
-              <div class="log-filter" role="group" aria-label="Owned filter">
-                <button class="mode-button is-active" type="button" data-owned-filter="all">All</button>
-                <button class="mode-button" type="button" data-owned-filter="owned">Owned</button>
-                <button class="mode-button" type="button" data-owned-filter="missing">Missing</button>
-              </div>
-            </div>
-            <div id="personaLogStats" class="persona-log-stats"></div>
-            <div id="personaLogList" class="persona-log-list" aria-live="polite"></div>
-          </section>
-          <div id="suggestions" class="suggestions" aria-live="polite"></div>
-          <div id="deckStage" class="deck-stage" aria-live="polite"></div>
 
-          <div id="activePersona" class="active-persona"></div>
-          <div id="recipeSummary" class="summary-strip"></div>
-          <div id="recipes" class="recipes"></div>
+          <section id="personaSearchView" class="calculator-tab-panel is-active" role="tabpanel" aria-labelledby="personaSearchTab" data-calculator-panel="search">
+            <div class="search-row">
+              <label class="search-box">
+                <span>Persona search</span>
+                <input id="personaSearch" type="search" autocomplete="off" placeholder="Try Alice, Trumpeter, Jack Frost, or Tower...">
+              </label>
+              <button id="selectSearch" class="primary-button" type="button">Set Priority 1</button>
+            </div>
+            <div id="suggestions" class="suggestions" aria-live="polite"></div>
+            <div id="deckStage" class="deck-stage" aria-live="polite"></div>
+
+            <div id="activePersona" class="active-persona"></div>
+            <div id="recipeSummary" class="summary-strip"></div>
+            <div id="recipes" class="recipes"></div>
+          </section>
+
+          <section id="playerDataView" class="calculator-tab-panel" role="tabpanel" aria-labelledby="playerDataTab" hidden data-calculator-panel="player">
+            <section class="user-data-panel" aria-labelledby="user-data-title">
+              <div class="user-data-head">
+                <div>
+                  <span class="compendium-label" id="user-data-title">Player Data</span>
+                  <h2>Persona Compendium Log</h2>
+                </div>
+                <div class="level-mode" role="group" aria-label="Fusion level mode">
+                  <button id="baseLevelMode" class="mode-button is-active" type="button">Base levels</button>
+                  <button id="currentLevelMode" class="mode-button" type="button">My levels</button>
+                </div>
+              </div>
+              <div class="level-editor">
+                <label class="search-box level-persona-field">
+                  <span>Persona</span>
+                  <input id="levelPersonaInput" list="personaLevelList" autocomplete="off" placeholder="Add a Persona level...">
+                  <datalist id="personaLevelList"></datalist>
+                </label>
+                <label class="search-box level-number-field">
+                  <span>Current level</span>
+                  <input id="levelValueInput" type="number" min="1" max="99" inputmode="numeric" placeholder="Lv">
+                </label>
+                <label class="owned-toggle">
+                  <input id="ownedPersonaInput" type="checkbox">
+                  <span>Owned</span>
+                </label>
+                <button id="saveLevelData" class="primary-button compact-button" type="button">Save Level</button>
+              </div>
+              <div id="levelDataSummary" class="level-data-summary" aria-live="polite"></div>
+              <div class="persona-log-tools">
+                <label class="search-box">
+                  <span>Find in log</span>
+                  <input id="personaLogSearch" type="search" autocomplete="off" placeholder="Filter your compendium...">
+                </label>
+                <label class="search-box">
+                  <span>Arcana</span>
+                  <select id="personaLogArcana"></select>
+                </label>
+                <div class="log-filter" role="group" aria-label="Owned filter">
+                  <button class="mode-button is-active" type="button" data-owned-filter="all">All</button>
+                  <button class="mode-button" type="button" data-owned-filter="owned">Owned</button>
+                  <button class="mode-button" type="button" data-owned-filter="missing">Missing</button>
+                </div>
+              </div>
+              <div id="personaLogStats" class="persona-log-stats"></div>
+              <div id="personaLogList" class="persona-log-list" aria-live="polite"></div>
+            </section>
+          </section>
         </section>
       </section>
     </main>

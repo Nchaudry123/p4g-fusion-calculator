@@ -82,6 +82,7 @@ const state = {
   logArcana: "All",
   logOwnedFilter: "all",
   useCurrentLevels: false,
+  activeCalculatorTab: "search",
   drawTimer: 0,
   searchTimer: 0
 };
@@ -109,6 +110,7 @@ Promise.all([
   buildRaceLevels();
   setupSearch();
   setupUserData();
+  setupCalculatorTabs();
   renderInitialState();
 }).catch((error) => {
   $("#recipes").innerHTML = `<div class="empty">Could not load fusion data: ${escapeHtml(error.message)}</div>`;
@@ -212,6 +214,43 @@ function setupUserData() {
   });
   renderLevelData();
   renderPersonaLog();
+}
+
+function setupCalculatorTabs() {
+  const tabs = [...document.querySelectorAll("[data-calculator-tab]")];
+  tabs.forEach((button, index) => {
+    button.addEventListener("click", () => setCalculatorTab(button.dataset.calculatorTab));
+    button.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      const direction = event.key === "ArrowLeft" ? -1 : 1;
+      const nextIndex = event.key === "Home"
+        ? 0
+        : event.key === "End"
+          ? tabs.length - 1
+          : (index + direction + tabs.length) % tabs.length;
+      setCalculatorTab(tabs[nextIndex].dataset.calculatorTab);
+      tabs[nextIndex].focus();
+    });
+  });
+
+  setCalculatorTab(state.activeCalculatorTab);
+}
+
+function setCalculatorTab(tab) {
+  const nextTab = tab === "player" ? "player" : "search";
+  state.activeCalculatorTab = nextTab;
+  document.querySelectorAll("[data-calculator-tab]").forEach((button) => {
+    const isActive = button.dataset.calculatorTab === nextTab;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+    button.tabIndex = isActive ? 0 : -1;
+  });
+  document.querySelectorAll("[data-calculator-panel]").forEach((panel) => {
+    const isActive = panel.dataset.calculatorPanel === nextTab;
+    panel.classList.toggle("is-active", isActive);
+    panel.hidden = !isActive;
+  });
 }
 
 function loadUserData() {
@@ -323,6 +362,7 @@ function togglePersonaOwned(name) {
 
 function viewLogPersona(name) {
   populatePersonaLogEditor(name);
+  setCalculatorTab("search");
   selectPersona(name, true);
 }
 
