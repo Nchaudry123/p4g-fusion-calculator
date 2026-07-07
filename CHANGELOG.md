@@ -8,3 +8,4 @@
 - Multi-branch craft pathfinder prefers owned-heavy recipes
 - Path checklist with per-step completion persistence
 - Offline Persona art pack button
+- High contrast mode for readability
