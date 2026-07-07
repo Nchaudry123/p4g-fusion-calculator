@@ -9,3 +9,7 @@
 - Path checklist with per-step completion persistence
 - Offline Persona art pack button
 - High contrast mode for readability
+
+## 2026-07-07
+- Keyboard shortcuts (/, 1-6, c, f, ?)
+- Side-by-side Persona compare
