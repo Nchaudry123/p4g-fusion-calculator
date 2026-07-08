@@ -9,11 +9,16 @@ A **Persona 4 Golden** fusion planner with reverse recipes, skill inheritance hi
 - **Reverse fusion** — search a Persona and see every way to craft it (normal, same Arcana, special)
 - **Priority queue** — click ingredients to build an ordered craft list
 - **Owned-aware recipes** — filter ready / partial recipes and sort by missing ingredients
-- **Skill inheritance planner** — track desired skills and score recipes by parent coverage
-- **Auto craft path** — depth-limited reverse planner that fills the queue
+- **Easiest recipe stamp** — efficiency score from missing ingredients + level sum
+- **Craft tab** — what you can fuse from owned Personas (ready / 1 missing / specials)
+- **Skill inheritance planner** — desired skills, affinity matrix, and parent skill sources
+- **Auto craft path** — multi-branch reverse planner with checklist progress
 - **Forward fusion** — A + B result lookup, plus owned-partner previews
-- **Player data** — mark owned Personas, save current levels, completion dashboard
+- **Compare** — side-by-side stats and skill diffs
+- **Player data** — owned log, levels, completion dashboard, ultimates, recents, bookmarks
 - **Margaret checklist** — ranks 2–10 requests with skill requirements
+- **Offline pack** — precache Persona art for offline use
+- **Accessibility** — high contrast mode, keyboard shortcuts, mobile queue sheet
 - **Share links** — URL encodes persona, queue, tab, and tracked skills
 - **Export / import** — portable JSON for your log
 - **PWA** — installable, offline app shell + cached images
