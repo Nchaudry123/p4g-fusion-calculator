@@ -260,6 +260,10 @@ assert(same.length >= 0, "same arcana query runs"); // may be empty depending on
 assert(getRecipes("Alice").every((r) => r.type === "Special"), "Alice only special recipes");
 assert(getRecipes("Izanagi-no-Okami").every((r) => r.type === "Special"), "Izanagi-no-Okami only special");
 
+// Efficiency scoring sanity: special Alice ingredients exist
+assert(getRecipes("Alice").some((r) => r.type === "Special"), "Alice special still works after ranking changes");
+assert(fusePersonas("Belial", "Nebiros")?.name === "Alice", "Alice special fuse still works");
+
 console.log(`Fusion tests: ${passed} passed, ${failed} failed`);
 if (failures.length) {
   for (const failure of failures) console.error(" -", failure);
