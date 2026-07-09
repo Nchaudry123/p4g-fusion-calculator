@@ -13,3 +13,7 @@
 ## 2026-07-07
 - Keyboard shortcuts (/, 1-6, c, f, ?)
 - Side-by-side Persona compare
+
+## 2026-07-08
+- Fusion test coverage for ranking changes
+- README feature list refresh
