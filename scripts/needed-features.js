@@ -297,7 +297,7 @@
     const target = api.state.active;
     const skills = api.state.desiredSkills;
     if (!skills.length) {
-      host.innerHTML = `<div class="empty mini-empty">Add desired skills to see which parents can supply them for ${api.escapeHtml(target)}.</div>`;
+      host.innerHTML = `<div class="empty mini-empty">Track desired skills above to see which parents can supply them for ${api.escapeHtml(target)}.</div>`;
       return;
     }
 
