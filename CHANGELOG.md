@@ -21,3 +21,7 @@
 ## 2026-07-09
 - Mobile craft action layout polish
 - Inheritance provider empty-state copy
+
+## 2026-07-10
+- Footer version stamp on boot
+- Skip link for keyboard users
