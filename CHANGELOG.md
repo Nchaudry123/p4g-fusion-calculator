@@ -17,3 +17,7 @@
 ## 2026-07-08
 - Fusion test coverage for ranking changes
 - README feature list refresh
+
+## 2026-07-09
+- Mobile craft action layout polish
+- Inheritance provider empty-state copy
