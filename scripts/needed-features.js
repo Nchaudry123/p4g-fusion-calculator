@@ -32,6 +32,8 @@
     window.p4gRenderInheritProviders = renderInheritProviders;
     renderLogExtras();
     if (api.state.highContrast) document.body.classList.add("high-contrast");
+    const ver = document.getElementById("appVersion");
+    if (ver) ver.textContent = "v2026.07 · fan tool, not affiliated with Atlus/SEGA";
   }
 
   function loadPersisted() {
