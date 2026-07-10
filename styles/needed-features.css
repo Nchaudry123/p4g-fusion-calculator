@@ -1,3 +1,17 @@
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 8px;
+  z-index: 100;
+  padding: 8px 12px;
+  background: var(--gold);
+  color: #111;
+  font-weight: 800;
+}
+.skip-link:focus {
+  left: 8px;
+}
+
 /* Needed feature styles — Craft, Compare, Ultimates, a11y, etc. */
 
 .channel-tabs.calculator-tabs {
