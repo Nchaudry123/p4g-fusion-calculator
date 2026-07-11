@@ -25,3 +25,8 @@
 ## 2026-07-10
 - Footer version stamp on boot
 - Skip link for keyboard users
+
+
+## 2026-07-11
+- Live Craft refresh on owned toggles
+- Final July planner integration pass
