@@ -2,57 +2,27 @@ const RESIST_LABELS = ["Phy", "Fire", "Ice", "Elec", "Wind", "Light", "Dark", "A
 const STAT_LABELS = ["St", "Ma", "En", "Ag", "Lu"];
 const INTRO_SEEN_KEY = "p4g-fusion-intro-seen";
 const USER_DATA_KEY = "p4g-fusion-user-levels";
+const DESIRED_SKILLS_KEY = "p4g-fusion-desired-skills";
+const MARGARET_DONE_KEY = "p4g-fusion-margaret-done";
+
 const ARCANA_CARD_IMAGES = {
-  Fool: "fool",
-  Magician: "magician",
-  Priestess: "priestess",
-  Empress: "empress",
-  Emperor: "emperor",
-  Hierophant: "hierophant",
-  Lovers: "lovers",
-  Chariot: "chariot",
-  Justice: "justice",
-  Hermit: "hermit",
-  Fortune: "fortune",
-  Strength: "strength",
-  Hanged: "hanged",
-  Death: "death",
-  Temperance: "temperance",
-  Devil: "devil",
-  Tower: "tower",
-  Star: "star",
-  Moon: "moon",
-  Sun: "sun",
-  Judgement: "judgement",
-  World: "world",
-  Aeon: "extra-22",
-  Jester: "extra-23"
+  Fool: "fool", Magician: "magician", Priestess: "priestess", Empress: "empress",
+  Emperor: "emperor", Hierophant: "hierophant", Lovers: "lovers", Chariot: "chariot",
+  Justice: "justice", Hermit: "hermit", Fortune: "fortune", Strength: "strength",
+  Hanged: "hanged", Death: "death", Temperance: "temperance", Devil: "devil",
+  Tower: "tower", Star: "star", Moon: "moon", Sun: "sun", Judgement: "judgement",
+  World: "world", Aeon: "extra-22", Jester: "extra-23"
 };
+
 const SOCIAL_LINK_UNLOCKS = {
-  Loki: "Fool",
-  Mada: "Magician",
-  Scathach: "Priestess",
-  Isis: "Empress",
-  Odin: "Emperor",
-  Kohryu: "Hierophant",
-  Ishtar: "Lovers",
-  Futsunushi: "Chariot",
-  Sraosha: "Justice",
-  "Ongyo-Ki": "Hermit",
-  Norn: "Fortune",
-  "Zaou-Gongen": "Strength",
-  Attis: "Hanged",
-  Mahakala: "Death",
-  Vishnu: "Temperance",
-  Beelzebub: "Devil",
-  Shiva: "Tower",
-  Helel: "Star",
-  Sandalphon: "Moon",
-  Asura: "Sun",
-  Lucifer: "Judgement",
-  Kaguya: "Aeon",
-  "Magatsu-Izanagi": "Jester"
+  Loki: "Fool", Mada: "Magician", Scathach: "Priestess", Isis: "Empress",
+  Odin: "Emperor", Kohryu: "Hierophant", Ishtar: "Lovers", Futsunushi: "Chariot",
+  Sraosha: "Justice", "Ongyo-Ki": "Hermit", Norn: "Fortune", "Zaou-Gongen": "Strength",
+  Attis: "Hanged", Mahakala: "Death", Vishnu: "Temperance", Beelzebub: "Devil",
+  Shiva: "Tower", Helel: "Star", Sandalphon: "Moon", Asura: "Sun",
+  Lucifer: "Judgement", Kaguya: "Aeon", "Magatsu-Izanagi": "Jester"
 };
+
 const MARGARET_REQUESTS = {
   "Ippon-Datara": { rank: 2, skill: "Sukukaja" },
   Matador: { rank: 3, skill: "Mahama" },
@@ -64,27 +34,57 @@ const MARGARET_REQUESTS = {
   Ganesha: { rank: 9, skill: "Tetrakarn" },
   Trumpeter: { rank: 10, skill: "Mind Charge" }
 };
+
+/** P4G-style inherit affinity: result type → skill elements it can receive. */
+const INHERIT_AFFINITY = {
+  phys: { phy: true, fir: false, ice: false, ele: false, win: false, lig: false, dar: false, alm: false, ail: true, rec: false, sup: true, pas: true },
+  fire: { phy: false, fir: true, ice: false, ele: false, win: false, lig: false, dar: false, alm: false, ail: false, rec: false, sup: true, pas: true },
+  ice: { phy: false, fir: false, ice: true, ele: false, win: false, lig: false, dar: false, alm: false, ail: false, rec: false, sup: true, pas: true },
+  elec: { phy: false, fir: false, ice: false, ele: true, win: false, lig: false, dar: false, alm: false, ail: false, rec: false, sup: true, pas: true },
+  wind: { phy: false, fir: false, ice: false, ele: false, win: true, lig: false, dar: false, alm: false, ail: false, rec: false, sup: true, pas: true },
+  light: { phy: false, fir: false, ice: false, ele: false, win: false, lig: true, dar: false, alm: false, ail: false, rec: true, sup: true, pas: true },
+  dark: { phy: false, fir: false, ice: false, ele: false, win: false, lig: false, dar: true, alm: false, ail: true, rec: false, sup: true, pas: true },
+  almighty: { phy: false, fir: false, ice: false, ele: false, win: false, lig: false, dar: false, alm: true, ail: false, rec: false, sup: true, pas: true },
+  ailment: { phy: false, fir: false, ice: false, ele: false, win: false, lig: false, dar: false, alm: false, ail: true, rec: false, sup: true, pas: true },
+  recovery: { phy: false, fir: false, ice: false, ele: false, win: false, lig: true, dar: false, alm: false, ail: false, rec: true, sup: true, pas: true },
+  support: { phy: false, fir: false, ice: false, ele: false, win: false, lig: false, dar: false, alm: false, ail: false, rec: false, sup: true, pas: true }
+};
+
+const ELEMENT_LABELS = {
+  phy: "Physical", fir: "Fire", ice: "Ice", ele: "Elec", win: "Wind",
+  lig: "Light", dar: "Dark", alm: "Almighty", ail: "Ailment", rec: "Recovery",
+  sup: "Support", pas: "Passive"
+};
+
 const state = {
   personas: {},
   names: [],
   arcanas: [],
   raceLevels: new Map(),
+  fusionTable: {},
   fissionChart: {},
   specialRecipes: {},
+  specialTargets: new Set(),
   personaImages: {},
   skills: {},
+  skillNames: [],
   active: "",
   queue: [],
   selectedRecipe: null,
   userLevels: {},
   ownedPersonas: new Set(),
+  desiredSkills: [],
+  margaretDone: new Set(),
   logQuery: "",
   logArcana: "All",
   logOwnedFilter: "all",
+  recipeFilter: "all",
+  recipeSort: "smart",
   useCurrentLevels: false,
   activeCalculatorTab: "search",
   drawTimer: 0,
-  searchTimer: 0
+  searchTimer: 0,
+  toastTimer: 0
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -101,17 +101,41 @@ Promise.all([
 ]).then(([personas, chart, specialRecipes, personaImages, skills]) => {
   state.personas = normalizePersonas(personas);
   state.names = Object.keys(state.personas).sort((a, b) => a.localeCompare(b));
-  state.arcanas = [...new Set(Object.values(state.personas).map((persona) => persona.race))].sort((a, b) => a.localeCompare(b));
+  state.arcanas = [...new Set(Object.values(state.personas).map((persona) => persona.race))]
+    .sort((a, b) => a.localeCompare(b));
+  state.fusionTable = buildFusionTable(chart);
   state.fissionChart = buildFissionChart(chart);
   state.specialRecipes = specialRecipes;
+  state.specialTargets = new Set(Object.keys(specialRecipes));
   state.personaImages = personaImages;
   state.skills = skills;
+  state.skillNames = Object.keys(skills).sort((a, b) => a.localeCompare(b));
   loadUserData();
+  loadDesiredSkills();
+  loadMargaretDone();
   buildRaceLevels();
   setupSearch();
   setupUserData();
+  setupRecipeControls();
+  setupInheritance();
+  setupForwardFusion();
+  setupMargaret();
+  setupShareAndPath();
+  setupStarterTips();
+  applyUrlState();
   setupCalculatorTabs();
   renderInitialState();
+  if (state.active) {
+    const tips = $("#starterTips");
+    if (tips) tips.hidden = true;
+    renderActivePersona();
+    renderRecipes();
+    renderInheritance();
+    playDeckDraw(state.active);
+  }
+  renderQueue();
+  renderMargaret();
+  renderInheritance();
 }).catch((error) => {
   $("#recipes").innerHTML = `<div class="empty">Could not load fusion data: ${escapeHtml(error.message)}</div>`;
 });
@@ -119,9 +143,7 @@ Promise.all([
 function setupInstallSupport() {
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("service-worker.js").catch(() => {
-      // Install support is progressive enhancement.
-    });
+    navigator.serviceWorker.register("service-worker.js").catch(() => {});
   });
 }
 
@@ -132,21 +154,36 @@ function normalizePersonas(raw) {
   ]));
 }
 
+function buildFusionTable(chart) {
+  const { races, table } = chart;
+  const map = {};
+  for (let row = 0; row < table.length; row++) {
+    const raceA = races[row] === "Hang" ? "Hanged" : races[row];
+    map[raceA] = {};
+    for (let col = 0; col < table[row].length; col++) {
+      const raceB = races[col] === "Hang" ? "Hanged" : races[col];
+      const result = table[row][col] === "Hang" ? "Hanged" : table[row][col];
+      map[raceA][raceB] = result;
+    }
+  }
+  return map;
+}
+
 function buildFissionChart(chart) {
   const fissions = {};
   const { races, table } = chart;
 
+  // Keep directed pairs only (table[row][col] is not always symmetric in this dataset).
+  // Reverse recipes therefore match forward lookups of table[raceA][raceB].
   for (let row = 0; row < table.length; row++) {
-    const raceA = races[row];
+    const raceA = races[row] === "Hang" ? "Hanged" : races[row];
     for (let col = 0; col < table[row].length; col++) {
-      const raceB = races[col];
+      const raceB = races[col] === "Hang" ? "Hanged" : races[col];
       const resultRace = table[row][col] === "Hang" ? "Hanged" : table[row][col];
       if (!resultRace || resultRace === "-") continue;
       fissions[resultRace] ||= {};
       fissions[resultRace][raceA] ||= new Set();
       fissions[resultRace][raceA].add(raceB);
-      fissions[resultRace][raceB] ||= new Set();
-      fissions[resultRace][raceB].add(raceA);
     }
   }
 
@@ -161,10 +198,8 @@ function buildRaceLevels() {
     if (!state.raceLevels.has(persona.race)) state.raceLevels.set(persona.race, []);
     state.raceLevels.get(persona.race).push(persona.lvl);
   }
-
   for (const [race, levels] of state.raceLevels) {
-    const unique = [...new Set(levels)].sort((a, b) => a - b);
-    state.raceLevels.set(race, unique);
+    state.raceLevels.set(race, [...new Set(levels)].sort((a, b) => a - b));
   }
 }
 
@@ -178,7 +213,87 @@ function setupSearch() {
   });
   $("#clearQueue").addEventListener("click", () => {
     state.queue = [];
+    $("#pathPlan").innerHTML = "";
     renderQueue();
+    updateUrlState();
+  });
+}
+
+function setupRecipeControls() {
+  document.querySelectorAll("[data-recipe-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.recipeFilter = button.dataset.recipeFilter;
+      document.querySelectorAll("[data-recipe-filter]").forEach((btn) => {
+        btn.classList.toggle("is-active", btn.dataset.recipeFilter === state.recipeFilter);
+      });
+      renderRecipes();
+    });
+  });
+  $("#recipeSort").addEventListener("change", (event) => {
+    state.recipeSort = event.target.value;
+    renderRecipes();
+  });
+}
+
+function setupInheritance() {
+  $("#skillOptions").innerHTML = state.skillNames
+    .map((name) => `<option value="${escapeAttr(name)}"></option>`).join("");
+  $("#addDesiredSkill").addEventListener("click", addDesiredSkillFromInput);
+  $("#desiredSkillInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addDesiredSkillFromInput();
+    }
+  });
+  $("#clearDesiredSkills").addEventListener("click", () => {
+    state.desiredSkills = [];
+    persistDesiredSkills();
+    renderInheritance();
+    renderRecipes();
+  });
+}
+
+function setupForwardFusion() {
+  $("#runForward").addEventListener("click", runForwardFusion);
+  $("#forwardA").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") runForwardFusion();
+  });
+  $("#forwardB").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") runForwardFusion();
+  });
+  $("#forwardA").addEventListener("change", renderForwardPartners);
+  $("#forwardA").addEventListener("blur", renderForwardPartners);
+}
+
+function setupMargaret() {
+  // rendered on data load / updates
+}
+
+function setupShareAndPath() {
+  $("#shareQueue").addEventListener("click", () => {
+    copyText(buildShareUrl()).then(() => showToast("Share link copied")).catch(() => showToast("Could not copy link"));
+  });
+  $("#copyShareLink")?.addEventListener("click", () => {
+    copyText(buildShareUrl()).then(() => showToast("Page link copied")).catch(() => showToast("Could not copy link"));
+  });
+  $("#planPath").addEventListener("click", () => {
+    if (!state.active) {
+      showToast("Select a Persona first");
+      return;
+    }
+    renderPathPlan(state.active);
+  });
+}
+
+function setupStarterTips() {
+  document.querySelectorAll("[data-demo-persona]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setCalculatorTab("search");
+      selectPersona(button.dataset.demoPersona, true);
+    });
+  });
+  document.querySelectorAll("[data-open-tab]").forEach((button) => {
+    button.addEventListener("click", () => setCalculatorTab(button.dataset.openTab));
   });
 }
 
@@ -193,7 +308,8 @@ function setupUserData() {
   $("#levelValueInput").addEventListener("keydown", (event) => {
     if (event.key === "Enter") saveLevelFromEditor();
   });
-  $("#personaLevelList").innerHTML = state.names.map((name) => `<option value="${escapeAttr(name)}"></option>`).join("");
+  $("#personaLevelList").innerHTML = state.names
+    .map((name) => `<option value="${escapeAttr(name)}"></option>`).join("");
   $("#personaLogArcana").innerHTML = [
     `<option value="All">All Arcana</option>`,
     ...state.arcanas.map((arcana) => `<option value="${escapeAttr(arcana)}">${escapeHtml(arcana)}</option>`)
@@ -212,8 +328,12 @@ function setupUserData() {
       renderPersonaLog();
     });
   });
+  $("#exportData").addEventListener("click", exportUserData);
+  $("#importData").addEventListener("change", importUserData);
+  $("#resetData").addEventListener("click", resetUserData);
   renderLevelData();
   renderPersonaLog();
+  renderCompletionDashboard();
 }
 
 function setupCalculatorTabs() {
@@ -223,22 +343,21 @@ function setupCalculatorTabs() {
     button.addEventListener("keydown", (event) => {
       if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
       event.preventDefault();
-      const direction = event.key === "ArrowLeft" ? -1 : 1;
       const nextIndex = event.key === "Home"
         ? 0
         : event.key === "End"
           ? tabs.length - 1
-          : (index + direction + tabs.length) % tabs.length;
+          : (index + (event.key === "ArrowLeft" ? -1 : 1) + tabs.length) % tabs.length;
       setCalculatorTab(tabs[nextIndex].dataset.calculatorTab);
       tabs[nextIndex].focus();
     });
   });
-
   setCalculatorTab(state.activeCalculatorTab);
 }
 
 function setCalculatorTab(tab) {
-  const nextTab = tab === "player" ? "player" : "search";
+  const allowed = new Set(["search", "forward", "player", "margaret"]);
+  const nextTab = allowed.has(tab) ? tab : "search";
   state.activeCalculatorTab = nextTab;
   document.querySelectorAll("[data-calculator-tab]").forEach((button) => {
     const isActive = button.dataset.calculatorTab === nextTab;
@@ -251,6 +370,13 @@ function setCalculatorTab(tab) {
     panel.classList.toggle("is-active", isActive);
     panel.hidden = !isActive;
   });
+  if (nextTab === "margaret") renderMargaret();
+  if (nextTab === "player") {
+    renderCompletionDashboard();
+    renderPersonaLog();
+  }
+  if (nextTab === "forward") renderForwardPartners();
+  updateUrlState();
 }
 
 function loadUserData() {
@@ -274,7 +400,41 @@ function persistUserData() {
       owned: [...state.ownedPersonas].sort((a, b) => a.localeCompare(b))
     }));
   } catch {
-    // The calculator still works if storage is unavailable.
+    // storage may be unavailable
+  }
+}
+
+function loadDesiredSkills() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(DESIRED_SKILLS_KEY) || "[]");
+    state.desiredSkills = saved.filter((skill) => typeof skill === "string");
+  } catch {
+    state.desiredSkills = [];
+  }
+}
+
+function persistDesiredSkills() {
+  try {
+    localStorage.setItem(DESIRED_SKILLS_KEY, JSON.stringify(state.desiredSkills));
+  } catch {
+    // ignore
+  }
+}
+
+function loadMargaretDone() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MARGARET_DONE_KEY) || "[]");
+    state.margaretDone = new Set(saved.filter((name) => MARGARET_REQUESTS[name]));
+  } catch {
+    state.margaretDone = new Set();
+  }
+}
+
+function persistMargaretDone() {
+  try {
+    localStorage.setItem(MARGARET_DONE_KEY, JSON.stringify([...state.margaretDone]));
+  } catch {
+    // ignore
   }
 }
 
@@ -311,21 +471,19 @@ function saveLevelFromEditor() {
     $("#levelPersonaInput").reportValidity();
     return;
   }
-
   $("#levelPersonaInput").setCustomValidity("");
   const baseLevel = state.personas[name].lvl;
   const currentLevel = clampLevel($("#levelValueInput").value, baseLevel);
-  if (currentLevel <= baseLevel) {
-    delete state.userLevels[name];
-  } else {
-    state.userLevels[name] = currentLevel;
-  }
+  if (currentLevel <= baseLevel) delete state.userLevels[name];
+  else state.userLevels[name] = currentLevel;
   setPersonaOwned(name, $("#ownedPersonaInput").checked);
   state.useCurrentLevels = true;
   persistUserData();
   renderLevelData();
   renderPersonaLog();
+  renderCompletionDashboard();
   refreshActiveViews();
+  showToast(`Saved ${name}`);
 }
 
 function removeUserLevel(name) {
@@ -345,11 +503,8 @@ function populatePersonaLogEditor(name) {
 }
 
 function setPersonaOwned(name, owned) {
-  if (owned) {
-    state.ownedPersonas.add(name);
-  } else {
-    state.ownedPersonas.delete(name);
-  }
+  if (owned) state.ownedPersonas.add(name);
+  else state.ownedPersonas.delete(name);
 }
 
 function togglePersonaOwned(name) {
@@ -357,6 +512,7 @@ function togglePersonaOwned(name) {
   persistUserData();
   renderLevelData();
   renderPersonaLog();
+  renderCompletionDashboard();
   refreshActiveViews();
 }
 
@@ -364,6 +520,76 @@ function viewLogPersona(name) {
   populatePersonaLogEditor(name);
   setCalculatorTab("search");
   selectPersona(name, true);
+}
+
+function exportUserData() {
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    useCurrentLevels: state.useCurrentLevels,
+    levels: state.userLevels,
+    owned: [...state.ownedPersonas].sort((a, b) => a.localeCompare(b)),
+    desiredSkills: state.desiredSkills,
+    margaretDone: [...state.margaretDone]
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "velvet-fusion-deck-data.json";
+  link.click();
+  URL.revokeObjectURL(url);
+  showToast("Exported player data");
+}
+
+function importUserData(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(String(reader.result || "{}"));
+      state.userLevels = sanitizeUserLevels(data.levels || {});
+      state.ownedPersonas = new Set((data.owned || []).filter((name) => state.personas[name]));
+      state.useCurrentLevels = Boolean(data.useCurrentLevels);
+      if (Array.isArray(data.desiredSkills)) {
+        state.desiredSkills = data.desiredSkills.filter((skill) => typeof skill === "string");
+        persistDesiredSkills();
+      }
+      if (Array.isArray(data.margaretDone)) {
+        state.margaretDone = new Set(data.margaretDone.filter((name) => MARGARET_REQUESTS[name]));
+        persistMargaretDone();
+      }
+      persistUserData();
+      renderLevelData();
+      renderPersonaLog();
+      renderCompletionDashboard();
+      renderInheritance();
+      renderMargaret();
+      refreshActiveViews();
+      showToast("Imported player data");
+    } catch {
+      showToast("Import failed — invalid JSON");
+    }
+    event.target.value = "";
+  };
+  reader.readAsText(file);
+}
+
+function resetUserData() {
+  if (!window.confirm("Reset owned Personas, custom levels, and Margaret checks?")) return;
+  state.userLevels = {};
+  state.ownedPersonas = new Set();
+  state.useCurrentLevels = false;
+  state.margaretDone = new Set();
+  persistUserData();
+  persistMargaretDone();
+  renderLevelData();
+  renderPersonaLog();
+  renderCompletionDashboard();
+  renderMargaret();
+  refreshActiveViews();
+  showToast("Player log reset");
 }
 
 function renderLevelData() {
@@ -397,6 +623,68 @@ function renderLevelData() {
   });
 }
 
+function renderCompletionDashboard() {
+  const total = state.names.length;
+  const owned = state.ownedPersonas.size;
+  const pct = total ? Math.round((owned / total) * 100) : 0;
+  const byArcana = state.arcanas.map((arcana) => {
+    const members = Object.values(state.personas).filter((p) => p.race === arcana);
+    const ownedCount = members.filter((p) => state.ownedPersonas.has(p.name)).length;
+    return { arcana, ownedCount, total: members.length, pct: members.length ? Math.round((ownedCount / members.length) * 100) : 0 };
+  }).sort((a, b) => a.pct - b.pct || a.arcana.localeCompare(b.arcana));
+
+  const ultimates = Object.keys(SOCIAL_LINK_UNLOCKS);
+  const ownedUltimates = ultimates.filter((name) => state.ownedPersonas.has(name));
+  const specials = Object.keys(state.specialRecipes);
+  const ownedSpecials = specials.filter((name) => state.ownedPersonas.has(name));
+  const readySpecials = specials.filter((name) => {
+    const ingredients = state.specialRecipes[name] || [];
+    return ingredients.length && ingredients.every((item) => state.ownedPersonas.has(item));
+  });
+
+  $("#completionDashboard").innerHTML = `
+    <div class="dash-grid">
+      <div class="dash-card">
+        <span>Compendium</span>
+        <strong>${owned}/${total}</strong>
+        <em>${pct}% complete</em>
+        <div class="dash-bar"><i style="width:${pct}%"></i></div>
+      </div>
+      <div class="dash-card">
+        <span>Ultimates</span>
+        <strong>${ownedUltimates.length}/${ultimates.length}</strong>
+        <em>Max Social Link Personas</em>
+      </div>
+      <div class="dash-card">
+        <span>Special fusions</span>
+        <strong>${ownedSpecials.length}/${specials.length}</strong>
+        <em>${readySpecials.length} craftable from owned</em>
+      </div>
+      <div class="dash-card">
+        <span>Lowest arcana</span>
+        <strong>${escapeHtml(byArcana[0]?.arcana || "—")}</strong>
+        <em>${byArcana[0] ? `${byArcana[0].ownedCount}/${byArcana[0].total}` : ""}</em>
+      </div>
+    </div>
+    <div class="dash-arcana">
+      ${byArcana.slice(0, 8).map((row) => `
+        <button type="button" class="dash-arcana-chip" data-dash-arcana="${escapeAttr(row.arcana)}">
+          <strong>${escapeHtml(row.arcana)}</strong>
+          <span>${row.ownedCount}/${row.total}</span>
+          <i style="width:${row.pct}%"></i>
+        </button>
+      `).join("")}
+    </div>
+  `;
+  $("#completionDashboard").querySelectorAll("[data-dash-arcana]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.logArcana = button.dataset.dashArcana;
+      $("#personaLogArcana").value = state.logArcana;
+      renderPersonaLog();
+    });
+  });
+}
+
 function renderPersonaLog() {
   const query = state.logQuery.trim().toLowerCase();
   const cards = Object.values(state.personas)
@@ -408,20 +696,18 @@ function renderPersonaLog() {
       return true;
     })
     .sort((a, b) => a.race.localeCompare(b.race) || getPersonaLevel(a.name) - getPersonaLevel(b.name) || a.name.localeCompare(b.name));
-  const ownedCount = state.ownedPersonas.size;
-  const customCount = Object.keys(state.userLevels).length;
 
   document.querySelectorAll("[data-owned-filter]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.ownedFilter === state.logOwnedFilter);
   });
   $("#personaLogStats").innerHTML = `
-    <span><strong>${ownedCount}</strong> owned</span>
-    <span><strong>${state.names.length - ownedCount}</strong> missing</span>
-    <span><strong>${customCount}</strong> leveled</span>
+    <span><strong>${state.ownedPersonas.size}</strong> owned</span>
+    <span><strong>${state.names.length - state.ownedPersonas.size}</strong> missing</span>
+    <span><strong>${Object.keys(state.userLevels).length}</strong> leveled</span>
     <span><strong>${cards.length}</strong> shown</span>
   `;
   $("#personaLogList").innerHTML = cards.length
-    ? cards.slice(0, 80).map(renderPersonaLogCard).join("")
+    ? cards.slice(0, 100).map(renderPersonaLogCard).join("")
     : `<div class="empty mini-empty">No Personas match this log filter.</div>`;
   $("#personaLogList").querySelectorAll("[data-log-view]").forEach((button) => {
     button.addEventListener("click", () => viewLogPersona(button.dataset.logView));
@@ -453,10 +739,64 @@ function renderPersonaLogCard(persona) {
   `;
 }
 
+function renderMargaret() {
+  const list = $("#margaretList");
+  if (!list) return;
+  const entries = Object.entries(MARGARET_REQUESTS).sort((a, b) => a[1].rank - b[1].rank);
+  list.innerHTML = entries.map(([name, request]) => {
+    const done = state.margaretDone.has(name);
+    const owned = state.ownedPersonas.has(name);
+    const persona = state.personas[name];
+    const hasSkill = persona && Object.keys(persona.skills || {}).some((skill) => skill === request.skill);
+    return `
+      <article class="margaret-card ${done ? "is-done" : ""} ${owned ? "is-owned" : ""}">
+        <div class="margaret-main">
+          <img src="${escapeAttr(personaImage(name))}" alt="" loading="lazy">
+          <div>
+            <span class="margaret-rank">Rank ${request.rank}</span>
+            <strong>${escapeHtml(name)}</strong>
+            <em>Needs <b>${escapeHtml(request.skill)}</b>${hasSkill ? " (innate/learnable on self)" : " (inherit onto it)"}</em>
+            <span class="margaret-status">${owned ? "In your log" : "Not marked owned"} · ${done ? "Checked off" : "Open"}</span>
+          </div>
+        </div>
+        <div class="margaret-actions">
+          <button type="button" class="primary-button compact-button" data-margaret-plan="${escapeAttr(name)}" data-skill="${escapeAttr(request.skill)}">Plan craft</button>
+          <button type="button" class="ghost-button" data-margaret-toggle="${escapeAttr(name)}">${done ? "Undo" : "Mark done"}</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  list.querySelectorAll("[data-margaret-plan]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const name = button.dataset.margaretPlan;
+      const skill = button.dataset.skill;
+      if (skill && !state.desiredSkills.includes(skill)) {
+        state.desiredSkills.push(skill);
+        persistDesiredSkills();
+      }
+      setCalculatorTab("search");
+      selectPersona(name, true);
+      renderPathPlan(name);
+      showToast(`Planning ${name} with ${skill}`);
+    });
+  });
+  list.querySelectorAll("[data-margaret-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const name = button.dataset.margaretToggle;
+      if (state.margaretDone.has(name)) state.margaretDone.delete(name);
+      else state.margaretDone.add(name);
+      persistMargaretDone();
+      renderMargaret();
+    });
+  });
+}
+
 function refreshActiveViews() {
   if (state.active) {
     renderActivePersona();
     renderRecipes();
+    renderInheritance();
   }
   renderQueue();
 }
@@ -469,14 +809,8 @@ function setupIntro() {
   const dismissIntro = () => {
     intro.classList.add("is-leaving");
     document.body.classList.remove("intro-active");
-    try {
-      sessionStorage.setItem(INTRO_SEEN_KEY, "true");
-    } catch {
-      // Session storage is a convenience only.
-    }
-    window.setTimeout(() => {
-      intro.hidden = true;
-    }, 620);
+    try { sessionStorage.setItem(INTRO_SEEN_KEY, "true"); } catch { /* ignore */ }
+    window.setTimeout(() => { intro.hidden = true; }, 620);
   };
 
   try {
@@ -486,7 +820,7 @@ function setupIntro() {
       return;
     }
   } catch {
-    // Keep showing the intro if storage is unavailable.
+    // keep intro
   }
 
   enter.addEventListener("click", dismissIntro);
@@ -498,16 +832,32 @@ function setupIntro() {
 }
 
 function renderInitialState() {
+  if (state.active) return;
   $("#personaSearch").value = "";
-  $("#activePersona").innerHTML = `<div class="empty">Search a Persona or Arcana to begin planning a fusion.</div>`;
+  $("#activePersona").innerHTML = `
+    <div class="empty starter-empty">
+      <strong>Search a Persona or Arcana to begin</strong>
+      <span>Reverse fusion recipes, inheritance scoring, and multi-step craft paths start from a target Persona.</span>
+      <div class="starter-actions">
+        <button type="button" class="primary-button compact-button" data-demo-persona="Trumpeter">Trumpeter</button>
+        <button type="button" class="ghost-button" data-demo-persona="Alice">Alice</button>
+        <button type="button" class="ghost-button" data-demo-persona="Yoshitsune">Yoshitsune</button>
+      </div>
+    </div>`;
+  $("#activePersona").querySelectorAll("[data-demo-persona]").forEach((button) => {
+    button.addEventListener("click", () => selectPersona(button.dataset.demoPersona, true));
+  });
   $("#recipeSummary").innerHTML = "";
   $("#recipes").innerHTML = "";
   $("#deckStage").className = "deck-stage";
   $("#deckStage").innerHTML = "";
+  renderInheritance();
   renderQueue();
 }
 
 function handleSearchInput(value) {
+  const tips = $("#starterTips");
+  if (tips) tips.hidden = Boolean(value.trim()) || Boolean(state.active);
   renderSuggestions(value);
   playDeckSearch(value);
 }
@@ -542,6 +892,13 @@ function findArcana(value) {
   if (!normalized) return "";
   return state.arcanas.find((arcana) => arcana.toLowerCase() === normalized)
     || state.arcanas.find((arcana) => arcana.toLowerCase().includes(normalized));
+}
+
+function findSkill(value) {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return "";
+  return state.skillNames.find((name) => name.toLowerCase() === normalized)
+    || state.skillNames.find((name) => name.toLowerCase().includes(normalized));
 }
 
 function renderSuggestions(value, forceArcana = false) {
@@ -620,9 +977,7 @@ function playDeckSearch(value) {
   const normalized = query.toLowerCase();
   const exactPersona = state.names.find((name) => name.toLowerCase() === normalized);
   const arcana = findArcana(query);
-  const personaMatches = state.names
-    .filter((name) => name.toLowerCase().includes(normalized))
-    .slice(0, 7);
+  const personaMatches = state.names.filter((name) => name.toLowerCase().includes(normalized)).slice(0, 7);
   const arcanaMatches = arcana
     ? Object.values(state.personas)
       .filter((persona) => persona.race === arcana)
@@ -630,11 +985,7 @@ function playDeckSearch(value) {
       .map((persona) => persona.name)
       .slice(0, 7)
     : [];
-  const previewNames = exactPersona
-    ? [exactPersona]
-    : personaMatches.length
-      ? personaMatches
-      : arcanaMatches;
+  const previewNames = exactPersona ? [exactPersona] : personaMatches.length ? personaMatches : arcanaMatches;
   const targetName = exactPersona || previewNames[0] || "";
   const target = state.personas[targetName];
   const deckNames = buildDeckNames(targetName, previewNames);
@@ -656,9 +1007,7 @@ function playDeckSearch(value) {
     ${renderSelectedDraw(targetName, query, false)}
   `;
   stage.className = "deck-stage is-visible is-searching is-running";
-  state.searchTimer = setTimeout(() => {
-    stage.classList.remove("is-running");
-  }, 850);
+  state.searchTimer = setTimeout(() => stage.classList.remove("is-running"), 850);
 }
 
 function playDeckDraw(name) {
@@ -684,9 +1033,7 @@ function playDeckDraw(name) {
   stage.className = "deck-stage is-visible is-chosen";
   void stage.offsetWidth;
   stage.classList.add("is-running");
-  state.drawTimer = setTimeout(() => {
-    stage.classList.remove("is-running");
-  }, 2400);
+  state.drawTimer = setTimeout(() => stage.classList.remove("is-running"), 2400);
 }
 
 function buildDeckNames(targetName, preferred = []) {
@@ -722,7 +1069,6 @@ function renderSelectedDraw(name, fallback, chosen) {
       </div>
     `;
   }
-
   return `
     <div class="selected-draw ${chosen ? "is-chosen" : ""}">
       <span>${chosen ? "Chosen card" : "Current draw"}</span>
@@ -738,10 +1084,13 @@ function renderSelectedDraw(name, fallback, chosen) {
 
 function selectPersona(name, primary = false, recipeContext = null) {
   state.active = name;
+  const tips = $("#starterTips");
+  if (tips) tips.hidden = true;
   $("#personaSearch").value = name;
   if (primary) {
     state.queue = [name];
     state.selectedRecipe = null;
+    $("#pathPlan").innerHTML = "";
   } else {
     if (recipeContext) state.selectedRecipe = recipeContext;
     addToQueue(name);
@@ -749,16 +1098,20 @@ function selectPersona(name, primary = false, recipeContext = null) {
   clearSuggestions();
   playDeckDraw(name);
   renderActivePersona();
+  renderInheritance();
   renderRecipes();
   renderQueue();
+  updateUrlState();
 }
 
 function viewPersona(name) {
   state.active = name;
   $("#personaSearch").value = name;
   renderActivePersona();
+  renderInheritance();
   renderRecipes();
   renderQueue();
+  updateUrlState();
 }
 
 function addToQueue(name) {
@@ -768,6 +1121,7 @@ function addToQueue(name) {
 function removeFromQueue(index) {
   state.queue.splice(index, 1);
   renderQueue();
+  updateUrlState();
 }
 
 function renderQueue() {
@@ -779,12 +1133,13 @@ function renderQueue() {
 
   list.innerHTML = state.queue.map((name, index) => {
     const persona = state.personas[name];
+    const owned = state.ownedPersonas.has(name);
     return `
-      <li class="queue-item">
+      <li class="queue-item ${owned ? "is-owned" : ""}">
         <span class="queue-rank">${index + 1}</span>
         <button class="small-action queue-name" type="button" data-select="${escapeAttr(name)}">
           ${escapeHtml(name)}
-          <span class="queue-meta">${escapeHtml(levelLabel(name))} ${escapeHtml(persona.race)}</span>
+          <span class="queue-meta">${escapeHtml(levelLabel(name))} ${escapeHtml(persona.race)}${owned ? " · owned" : ""}</span>
           ${renderPersonaBadges(name, "mini")}
         </button>
         <button class="small-action" type="button" aria-label="Remove ${escapeAttr(name)}" data-remove="${index}">x</button>
@@ -802,6 +1157,7 @@ function renderQueue() {
 
 function renderActivePersona() {
   const persona = state.personas[state.active];
+  if (!persona) return;
   const currentLevel = getPersonaLevel(persona.name);
   const stats = renderStats(persona);
   const resists = decodeResists(persona.resists).map((item) => (
@@ -810,6 +1166,7 @@ function renderActivePersona() {
   const skills = renderSkills(persona);
   const image = personaImage(persona.name);
   const badges = renderPersonaBadges(persona.name);
+  const owned = state.ownedPersonas.has(persona.name);
 
   $("#activePersona").innerHTML = `
     <article class="persona-card">
@@ -827,8 +1184,13 @@ function renderActivePersona() {
               ${currentLevel !== persona.lvl ? `<span>Base level ${persona.lvl}</span>` : ""}
               <span>${escapeHtml(persona.race)} Arcana</span>
               <span>${escapeHtml(persona.inherits || "inheritance")} type</span>
+              <span class="${owned ? "owned-pill" : "missing-pill"}">${owned ? "Owned" : "Not in log"}</span>
             </div>
             ${badges ? `<div class="persona-badges">${badges}</div>` : ""}
+            <div class="persona-quick-actions">
+              <button type="button" class="ghost-button" data-toggle-owned="${escapeAttr(persona.name)}">${owned ? "Unmark owned" : "Mark owned"}</button>
+              <button type="button" class="ghost-button" data-run-path="${escapeAttr(persona.name)}">Auto craft path</button>
+            </div>
           </div>
           <div class="arcana-badge">
             <img src="${escapeAttr(personaImage(persona.name))}" alt="">
@@ -853,6 +1215,17 @@ function renderActivePersona() {
       </div>
     </article>
   `;
+  $("#activePersona").querySelectorAll("[data-toggle-owned]").forEach((button) => {
+    button.addEventListener("click", () => togglePersonaOwned(button.dataset.toggleOwned));
+  });
+  $("#activePersona").querySelectorAll("[data-run-path]").forEach((button) => {
+    button.addEventListener("click", () => renderPathPlan(button.dataset.runPath));
+  });
+  $("#activePersona").querySelectorAll("[data-add-skill]").forEach((button) => {
+    button.addEventListener("click", () => {
+      addDesiredSkill(button.dataset.addSkill);
+    });
+  });
 }
 
 function renderStats(persona) {
@@ -902,28 +1275,184 @@ function renderSkills(persona) {
     const learnedText = learned < 1 ? "Innate" : `Lv ${learned}`;
     const element = detail.element || "skill";
     return `
-      <div class="skill-row" data-element="${escapeAttr(element.toLowerCase())}">
+      <button class="skill-row skill-row-button" type="button" data-element="${escapeAttr(String(element).toLowerCase())}" data-add-skill="${escapeAttr(skill)}" title="Add ${escapeAttr(skill)} to desired inheritance">
         <span class="skill-name">${escapeHtml(skill)}</span>
-        <span class="skill-meta">${escapeHtml(learnedText)} / ${escapeHtml(element)} / ${escapeHtml(detail.target || "self")}</span>
-      </div>
+        <span class="skill-meta">${escapeHtml(learnedText)} / ${escapeHtml(ELEMENT_LABELS[element] || element)} / ${escapeHtml(detail.target || "—")}</span>
+      </button>
     `;
   }).join("") || `<div class="empty mini-empty">No learned moves listed.</div>`;
 }
 
+function addDesiredSkillFromInput() {
+  const skill = findSkill($("#desiredSkillInput").value);
+  if (!skill) {
+    $("#desiredSkillInput").setCustomValidity("Choose a skill from the list.");
+    $("#desiredSkillInput").reportValidity();
+    return;
+  }
+  $("#desiredSkillInput").setCustomValidity("");
+  addDesiredSkill(skill);
+  $("#desiredSkillInput").value = "";
+}
+
+function addDesiredSkill(skill) {
+  if (!skill) return;
+  if (!state.desiredSkills.includes(skill)) {
+    state.desiredSkills.push(skill);
+    persistDesiredSkills();
+  }
+  renderInheritance();
+  renderRecipes();
+  showToast(`Tracking ${skill}`);
+}
+
+function removeDesiredSkill(skill) {
+  state.desiredSkills = state.desiredSkills.filter((item) => item !== skill);
+  persistDesiredSkills();
+  renderInheritance();
+  renderRecipes();
+}
+
+function canInherit(resultName, skillName) {
+  const persona = state.personas[resultName];
+  const skill = state.skills[skillName];
+  if (!persona || !skill) return false;
+  // Result already learns it natively: treat as covered without inheritance.
+  if (persona.skills && skillName in persona.skills) return true;
+  const affinity = INHERIT_AFFINITY[persona.inherits] || INHERIT_AFFINITY.support;
+  const element = skill.element || "sup";
+  return Boolean(affinity[element]);
+}
+
+function renderInheritance() {
+  const box = $("#desiredSkills");
+  const hint = $("#inheritHint");
+  if (!box || !hint) return;
+
+  if (!state.desiredSkills.length) {
+    box.innerHTML = `<span class="level-empty">No desired skills yet. Click a moveset skill or add one above.</span>`;
+  } else {
+    box.innerHTML = state.desiredSkills.map((skill) => {
+      const detail = state.skills[skill] || {};
+      const ok = state.active ? canInherit(state.active, skill) : true;
+      return `
+        <button class="level-chip skill-chip ${ok ? "" : "is-blocked"}" type="button" data-remove-skill="${escapeAttr(skill)}" title="${ok ? "Remove" : "May be blocked by inheritance type"}">
+          <strong>${escapeHtml(skill)}</strong>
+          <span>${escapeHtml(ELEMENT_LABELS[detail.element] || detail.element || "skill")}</span>
+          ${state.active ? `<em>${ok ? "inheritable" : "blocked?"}</em>` : ""}
+        </button>
+      `;
+    }).join("");
+    box.querySelectorAll("[data-remove-skill]").forEach((button) => {
+      button.addEventListener("click", () => removeDesiredSkill(button.dataset.removeSkill));
+    });
+  }
+
+  if (!state.active) {
+    hint.innerHTML = "Select a Persona to score recipes by inheritance coverage.";
+    return;
+  }
+  const persona = state.personas[state.active];
+  const affinity = INHERIT_AFFINITY[persona.inherits] || {};
+  const allowed = Object.entries(affinity)
+    .filter(([, yes]) => yes)
+    .map(([el]) => ELEMENT_LABELS[el] || el);
+  hint.innerHTML = `
+    <strong>${escapeHtml(persona.name)}</strong> inherits as <em>${escapeHtml(persona.inherits || "unknown")}</em>.
+    Likely elements: ${allowed.map(escapeHtml).join(", ") || "support/passives"}.
+    Recipes below are scored by how many desired skills parents can supply.
+  `;
+}
+
+function recipeOwnership(recipe) {
+  const owned = recipe.ingredients.filter((name) => state.ownedPersonas.has(name)).length;
+  const missing = recipe.ingredients.length - owned;
+  return { owned, missing, ready: missing === 0 };
+}
+
+function recipeSkillCoverage(recipe, targetName) {
+  if (!state.desiredSkills.length) return { hits: 0, total: 0, skills: [] };
+  const parentSkills = new Set();
+  for (const name of recipe.ingredients) {
+    const persona = state.personas[name];
+    if (!persona) continue;
+    for (const skill of Object.keys(persona.skills || {})) parentSkills.add(skill);
+  }
+  const skills = state.desiredSkills.filter((skill) => parentSkills.has(skill) && canInherit(targetName, skill));
+  return { hits: skills.length, total: state.desiredSkills.length, skills };
+}
+
+function getFilteredSortedRecipes(name) {
+  let recipes = getRecipes(name).map((recipe, index) => {
+    const ownership = recipeOwnership(recipe);
+    const coverage = recipeSkillCoverage(recipe, name);
+    return {
+      ...recipe,
+      index,
+      missing: ownership.missing,
+      ownedCount: ownership.owned,
+      ready: ownership.ready,
+      skillHits: coverage.hits,
+      skillTotal: coverage.total,
+      coveredSkills: coverage.skills
+    };
+  });
+
+  if (state.recipeFilter === "ready") recipes = recipes.filter((recipe) => recipe.ready);
+  if (state.recipeFilter === "partial") {
+    recipes = recipes.filter((recipe) => recipe.ownedCount > 0 && !recipe.ready);
+  }
+
+  const typeWeight = (type) => (type === "Special" ? 0 : type === "Same Arcana" ? 1 : 2);
+
+  recipes.sort((a, b) => {
+    if (state.recipeSort === "missing") {
+      return a.missing - b.missing || b.skillHits - a.skillHits || (a.score || 0) - (b.score || 0);
+    }
+    if (state.recipeSort === "score") {
+      return (a.score || 0) - (b.score || 0) || a.missing - b.missing;
+    }
+    if (state.recipeSort === "special") {
+      return typeWeight(a.type) - typeWeight(b.type) || a.missing - b.missing || (a.score || 0) - (b.score || 0);
+    }
+    // smart
+    if (b.skillHits !== a.skillHits) return b.skillHits - a.skillHits;
+    if (a.ready !== b.ready) return a.ready ? -1 : 1;
+    if (a.missing !== b.missing) return a.missing - b.missing;
+    return typeWeight(a.type) - typeWeight(b.type) || (a.score || 0) - (b.score || 0);
+  });
+
+  return recipes;
+}
+
 function renderRecipes() {
-  const recipes = getRecipes(state.active);
+  if (!state.active) {
+    $("#recipeSummary").innerHTML = "";
+    $("#recipes").innerHTML = "";
+    return;
+  }
+
+  const recipes = getFilteredSortedRecipes(state.active);
+  const allCount = getRecipes(state.active).length;
   const specialCount = recipes.filter((recipe) => recipe.type === "Special").length;
+  const readyCount = recipes.filter((recipe) => recipe.ready).length;
   const selectedPath = renderSelectedRecipePath();
+
   $("#recipeSummary").innerHTML = [
     selectedPath,
-    `<span class="chip">${recipes.length} recipes</span>`,
+    `<span class="chip">${recipes.length} shown / ${allCount} total</span>`,
+    `<span class="chip">${readyCount} ready</span>`,
     `<span class="chip">${specialCount} special</span>`,
-    `<span class="chip">${Math.max(0, recipes.length - specialCount)} normal</span>`,
+    state.desiredSkills.length ? `<span class="chip">skills tracked ${state.desiredSkills.length}</span>` : "",
     state.useCurrentLevels ? `<span class="chip level-chip-active">My levels on</span>` : ""
   ].filter(Boolean).join("");
 
+  document.querySelectorAll("[data-recipe-filter]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.recipeFilter === state.recipeFilter);
+  });
+
   if (!recipes.length) {
-    $("#recipes").innerHTML = `<div class="empty">No reverse fusion recipes were found for ${escapeHtml(state.active)}.</div>`;
+    $("#recipes").innerHTML = `<div class="empty">No recipes match this filter for ${escapeHtml(state.active)}. Try "All recipes" or mark more Personas as owned.</div>`;
     return;
   }
 
@@ -964,9 +1493,12 @@ function renderRecipe(recipe, index) {
       ? "is-large-special"
       : "";
   const targetBadges = renderPersonaBadges(state.active, "recipe");
-  const ownedCount = recipe.ingredients.filter((name) => state.ownedPersonas.has(name)).length;
   const missingIngredients = recipe.ingredients.filter((name) => !state.ownedPersonas.has(name));
   const isSelectedRecipe = state.selectedRecipe?.target === state.active && state.selectedRecipe.index === index;
+  const skillNote = recipe.skillTotal
+    ? `<div class="recipe-skill-line ${recipe.skillHits ? "has-hits" : ""}"><strong>${recipe.skillHits}/${recipe.skillTotal} skills</strong><span>${recipe.coveredSkills.length ? recipe.coveredSkills.map(escapeHtml).join(", ") : "No tracked skills from these parents"}</span></div>`
+    : "";
+
   const ingredients = isSpecialLayout
     ? `
       <div class="special-fusion-note">
@@ -987,15 +1519,16 @@ function renderRecipe(recipe, index) {
     `;
 
   return `
-    <article class="recipe ${isSpecialLayout ? "is-special-fusion" : ""} ${recipeSizeClass} ${isSelectedRecipe ? "is-selected-recipe" : ""}" style="--i: ${index}; --ingredient-count: ${recipe.ingredients.length}">
+    <article class="recipe ${isSpecialLayout ? "is-special-fusion" : ""} ${recipeSizeClass} ${isSelectedRecipe ? "is-selected-recipe" : ""} ${recipe.ready ? "is-ready-recipe" : ""}" style="--i: ${index}; --ingredient-count: ${recipe.ingredients.length}">
       <div class="recipe-head">
         <span class="recipe-title">${isSelectedRecipe ? "Exploring" : "Recipe"} ${index + 1}</span>
         <span class="recipe-meta">${recipe.type}${recipe.score ? ` / ${state.useCurrentLevels ? "Current" : "Base"} Lv sum ${recipe.score}` : ""}</span>
       </div>
       <div class="recipe-owned-line ${missingIngredients.length ? "" : "is-complete"}">
-        <strong>${ownedCount}/${recipe.ingredients.length} owned</strong>
+        <strong>${recipe.ownedCount}/${recipe.ingredients.length} owned</strong>
         <span>${missingIngredients.length ? `Missing: ${missingIngredients.map(escapeHtml).join(", ")}` : "Ready from your logged Personas"}</span>
       </div>
+      ${skillNote}
       ${targetBadges ? `<div class="recipe-flags">${targetBadges}</div>` : ""}
       <div class="ingredients">${ingredients}</div>
     </article>
@@ -1025,21 +1558,12 @@ function renderIngredientButton(name, index, showStep, recipeIndex) {
 function renderPersonaBadges(name, size = "normal") {
   const badges = [];
   if (SOCIAL_LINK_UNLOCKS[name]) {
-    badges.push({
-      kind: "social",
-      label: "Max S.Link",
-      detail: `${SOCIAL_LINK_UNLOCKS[name]} ultimate`
-    });
+    badges.push({ kind: "social", label: "Max S.Link", detail: `${SOCIAL_LINK_UNLOCKS[name]} ultimate` });
   }
   if (MARGARET_REQUESTS[name]) {
     const request = MARGARET_REQUESTS[name];
-    badges.push({
-      kind: "request",
-      label: `Margaret ${request.rank}`,
-      detail: request.skill
-    });
+    badges.push({ kind: "request", label: `Margaret ${request.rank}`, detail: request.skill });
   }
-
   return badges.map((badge) => `
     <span class="info-badge ${badge.kind} ${size}">
       <strong>${escapeHtml(badge.label)}</strong>
@@ -1074,7 +1598,7 @@ function getSpecialRecipes(name) {
   if (!ingredients.length) return [];
   return [{
     type: "Special",
-    ingredients,
+    ingredients: [...ingredients],
     score: ingredients.reduce((sum, ingredient) => sum + getPersonaLevel(ingredient), 0)
   }];
 }
@@ -1110,7 +1634,6 @@ function splitWithDiffRace(name) {
       }
     }
   }
-
   return recipes;
 }
 
@@ -1140,7 +1663,6 @@ function splitWithSameRace(name) {
       }
     }
   }
-
   return recipes;
 }
 
@@ -1166,6 +1688,365 @@ function getResultLevels(race) {
   return state.raceLevels.get(race) || [];
 }
 
+/** Forward fusion for a directed race lookup table[raceA][raceB]. */
+function fusePersonasDirected(name1, name2) {
+  if (!name1 || !name2 || name1 === name2) return null;
+  const a = state.personas[name1];
+  const b = state.personas[name2];
+  if (!a || !b) return null;
+
+  for (const [result, ingredients] of Object.entries(state.specialRecipes)) {
+    if (ingredients.length === 2) {
+      const set = new Set(ingredients);
+      if (set.has(name1) && set.has(name2)) return { name: result, type: "Special" };
+    }
+  }
+
+  const lvlSum = getPersonaLevel(name1) + getPersonaLevel(name2);
+
+  if (a.race === b.race) {
+    const resultLvls = getResultLevels(a.race);
+    for (let i = 0; i < resultLvls.length; i++) {
+      const targetLvl = resultLvls[i];
+      const target = Object.values(state.personas).find((p) => (
+        p.race === a.race
+        && p.lvl === targetLvl
+        && !state.specialTargets.has(p.name)
+        && p.name !== name1
+        && p.name !== name2
+      ));
+      if (!target) continue;
+      const minResultLvl = 2 * (targetLvl - 1);
+      const maxResultLvl = resultLvls[i + 1] ? 2 * (resultLvls[i + 1] - 1) : 200;
+      if (minResultLvl <= lvlSum && lvlSum < maxResultLvl) {
+        return { name: target.name, type: "Same Arcana" };
+      }
+    }
+    return null;
+  }
+
+  const resultRace = state.fusionTable[a.race]?.[b.race];
+  if (!resultRace || resultRace === "-") return null;
+  const resultLvls = getResultLevels(resultRace);
+  for (let i = 0; i < resultLvls.length; i++) {
+    const targetLvl = resultLvls[i];
+    const target = Object.values(state.personas).find((p) => (
+      p.race === resultRace
+      && p.lvl === targetLvl
+      && !state.specialTargets.has(p.name)
+    ));
+    if (!target) continue;
+    const minResultLvl = resultLvls[i - 1] ? 2 * (resultLvls[i - 1] - 1) : 0;
+    const maxResultLvl = resultLvls[i + 1] ? 2 * (targetLvl - 1) : 200;
+    if (minResultLvl < lvlSum && lvlSum <= maxResultLvl) {
+      return { name: target.name, type: "Normal" };
+    }
+  }
+  return null;
+}
+
+/** Forward fusion: try both ingredient orders when the chart cell differs. */
+function fusePersonas(name1, name2) {
+  const ab = fusePersonasDirected(name1, name2);
+  const ba = fusePersonasDirected(name2, name1);
+  if (ab && ba && ab.name !== ba.name) {
+    // Prefer the result whose reverse recipe list actually contains this pair.
+    const abPair = recipeHasPair(ab.name, name1, name2);
+    const baPair = recipeHasPair(ba.name, name1, name2);
+    if (abPair && !baPair) return ab;
+    if (baPair && !abPair) return ba;
+  }
+  return ab || ba;
+}
+
+function recipeHasPair(resultName, name1, name2) {
+  return getRecipes(resultName).some((recipe) => {
+    if (recipe.ingredients.length !== 2) return false;
+    const set = new Set(recipe.ingredients);
+    return set.has(name1) && set.has(name2);
+  });
+}
+
+function runForwardFusion() {
+  const nameA = findPersona($("#forwardA").value);
+  const nameB = findPersona($("#forwardB").value);
+  const out = $("#forwardResult");
+  if (!nameA || !nameB) {
+    out.innerHTML = `<div class="empty">Pick two valid Personas.</div>`;
+    return;
+  }
+  if (nameA === nameB) {
+    out.innerHTML = `<div class="empty">Choose two different Personas.</div>`;
+    return;
+  }
+  const result = fusePersonas(nameA, nameB);
+  if (!result) {
+    out.innerHTML = `
+      <div class="empty">No normal fusion result for ${escapeHtml(nameA)} + ${escapeHtml(nameB)}.
+      Special multi-Persona recipes still need all listed ingredients.</div>`;
+    return;
+  }
+  const persona = state.personas[result.name];
+  out.innerHTML = `
+    <article class="forward-card">
+      <div class="forward-equation">
+        <span>${escapeHtml(nameA)}</span>
+        <em>x</em>
+        <span>${escapeHtml(nameB)}</span>
+        <em>=</em>
+        <strong>${escapeHtml(result.name)}</strong>
+      </div>
+      <div class="forward-body">
+        <img src="${escapeAttr(personaImage(result.name))}" alt="">
+        <div>
+          <span class="compendium-label">${escapeHtml(result.type)} fusion</span>
+          <h3>${escapeHtml(result.name)}</h3>
+          <p>${escapeHtml(levelLabel(result.name))} / ${escapeHtml(persona.race)} / ${escapeHtml(persona.inherits || "")}</p>
+          <div class="margaret-actions">
+            <button type="button" class="primary-button compact-button" data-open-result="${escapeAttr(result.name)}">Open reverse recipes</button>
+            <button type="button" class="ghost-button" data-queue-result="${escapeAttr(result.name)}">Add to queue</button>
+          </div>
+        </div>
+      </div>
+    </article>
+  `;
+  out.querySelectorAll("[data-open-result]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setCalculatorTab("search");
+      selectPersona(button.dataset.openResult, true);
+    });
+  });
+  out.querySelectorAll("[data-queue-result]").forEach((button) => {
+    button.addEventListener("click", () => {
+      addToQueue(button.dataset.queueResult);
+      renderQueue();
+      showToast(`Queued ${button.dataset.queueResult}`);
+    });
+  });
+}
+
+function renderForwardPartners() {
+  const host = $("#forwardPartners");
+  if (!host) return;
+  const nameA = findPersona($("#forwardA").value);
+  if (!nameA) {
+    host.innerHTML = `<div class="empty mini-empty">Enter Persona A to preview possible partners from your owned list.</div>`;
+    return;
+  }
+  const ownedPartners = [...state.ownedPersonas]
+    .filter((name) => name !== nameA)
+    .map((name) => ({ name, result: fusePersonas(nameA, name) }))
+    .filter((row) => row.result)
+    .sort((a, b) => a.result.name.localeCompare(b.result.name))
+    .slice(0, 24);
+
+  if (!ownedPartners.length) {
+    host.innerHTML = `<div class="empty mini-empty">No owned partners produce a normal fusion with ${escapeHtml(nameA)} yet.</div>`;
+    return;
+  }
+
+  host.innerHTML = `
+    <h3 class="partners-title">Owned partners for ${escapeHtml(nameA)}</h3>
+    <div class="partners-grid">
+      ${ownedPartners.map((row) => `
+        <button type="button" class="partner-chip" data-partner="${escapeAttr(row.name)}">
+          <strong>${escapeHtml(row.name)}</strong>
+          <span>→ ${escapeHtml(row.result.name)}</span>
+        </button>
+      `).join("")}
+    </div>
+  `;
+  host.querySelectorAll("[data-partner]").forEach((button) => {
+    button.addEventListener("click", () => {
+      $("#forwardB").value = button.dataset.partner;
+      runForwardFusion();
+    });
+  });
+}
+
+/**
+ * Depth-limited reverse path planner.
+ * Prefers recipes with fewer missing ingredients and lower level sum.
+ */
+function findCraftPath(target, maxDepth = 3) {
+  const bestQueue = [];
+  const visited = new Set();
+
+  function scoreRecipe(recipe) {
+    const ownership = recipeOwnership(recipe);
+    const coverage = recipeSkillCoverage(recipe, target);
+    return ownership.missing * 1000 - coverage.hits * 50 + (recipe.score || 0) + recipe.ingredients.length * 2;
+  }
+
+  function search(name, depth, trail, trailSet) {
+    if (depth > maxDepth) return;
+    if (state.ownedPersonas.has(name) && depth > 0) {
+      bestQueue.push({ steps: [...trail], leaf: name, ownedLeaf: true });
+      return;
+    }
+    if (visited.has(`${name}@${depth}`)) return;
+    visited.add(`${name}@${depth}`);
+
+    const recipes = getRecipes(name).slice().sort((a, b) => scoreRecipe(a) - scoreRecipe(b)).slice(0, 12);
+    if (!recipes.length) {
+      bestQueue.push({ steps: [...trail], leaf: name, ownedLeaf: state.ownedPersonas.has(name) });
+      return;
+    }
+
+    const recipe = recipes[0];
+    const step = { result: name, type: recipe.type, ingredients: recipe.ingredients, missing: recipeOwnership(recipe).missing };
+    const nextTrail = [...trail, step];
+
+    if (recipeOwnership(recipe).ready || depth === maxDepth) {
+      bestQueue.push({ steps: nextTrail, leaf: name, ownedLeaf: recipeOwnership(recipe).ready });
+      return;
+    }
+
+    for (const ingredient of recipe.ingredients) {
+      if (trailSet.has(ingredient)) continue;
+      if (state.ownedPersonas.has(ingredient)) continue;
+      const nextSet = new Set(trailSet);
+      nextSet.add(ingredient);
+      search(ingredient, depth + 1, nextTrail, nextSet);
+    }
+  }
+
+  search(target, 0, [], new Set([target]));
+  bestQueue.sort((a, b) => {
+    const missA = a.steps.reduce((sum, step) => sum + step.missing, 0);
+    const missB = b.steps.reduce((sum, step) => sum + step.missing, 0);
+    return missA - missB || a.steps.length - b.steps.length;
+  });
+  return bestQueue[0] || null;
+}
+
+function renderPathPlan(target) {
+  const plan = findCraftPath(target, 3);
+  const host = $("#pathPlan");
+  if (!plan || !plan.steps.length) {
+    host.innerHTML = `<div class="empty mini-empty">No multi-step path found for ${escapeHtml(target)}. It may be special-only or already simple.</div>`;
+    // still queue ingredients of best single recipe
+    const recipes = getFilteredSortedRecipes(target);
+    if (recipes[0]) {
+      state.queue = [target, ...recipes[0].ingredients.filter((name) => name !== target)];
+      // unique preserve order
+      state.queue = [...new Set(state.queue)];
+      renderQueue();
+    }
+    return;
+  }
+
+  const queue = [target];
+  for (const step of plan.steps) {
+    for (const ingredient of step.ingredients) {
+      if (!queue.includes(ingredient)) queue.push(ingredient);
+    }
+  }
+  state.queue = queue;
+  renderQueue();
+
+  host.innerHTML = `
+    <div class="path-plan-card">
+      <div class="path-plan-head">
+        <strong>Auto craft path</strong>
+        <span>${plan.steps.length} step${plan.steps.length === 1 ? "" : "s"} toward ${escapeHtml(target)}</span>
+      </div>
+      <ol class="path-steps">
+        ${plan.steps.map((step, index) => `
+          <li>
+            <span class="path-step-num">${index + 1}</span>
+            <div>
+              <strong>${escapeHtml(step.result)}</strong>
+              <em>${escapeHtml(step.type)} · ${step.missing === 0 ? "ready" : `${step.missing} missing`}</em>
+              <span>${step.ingredients.map(escapeHtml).join(" + ")}</span>
+            </div>
+          </li>
+        `).join("")}
+      </ol>
+      <button type="button" class="ghost-button" id="dismissPath">Dismiss</button>
+    </div>
+  `;
+  $("#dismissPath")?.addEventListener("click", () => { host.innerHTML = ""; });
+  showToast(`Craft path filled for ${target}`);
+  updateUrlState();
+}
+
+function buildShareUrl() {
+  const url = new URL(window.location.href);
+  url.search = "";
+  if (state.active) url.searchParams.set("persona", state.active);
+  if (state.queue.length) url.searchParams.set("queue", state.queue.join(","));
+  if (state.activeCalculatorTab && state.activeCalculatorTab !== "search") {
+    url.searchParams.set("tab", state.activeCalculatorTab);
+  }
+  if (state.desiredSkills.length) url.searchParams.set("skills", state.desiredSkills.join(","));
+  if (state.selectedRecipe?.index != null) url.searchParams.set("recipe", String(state.selectedRecipe.index));
+  return url.toString();
+}
+
+function applyUrlState() {
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get("tab");
+  if (tab) state.activeCalculatorTab = tab;
+
+  const skills = params.get("skills");
+  if (skills) {
+    state.desiredSkills = skills.split(",").map((s) => s.trim()).filter(Boolean);
+    persistDesiredSkills();
+  }
+
+  const queue = params.get("queue");
+  const persona = params.get("persona");
+  if (queue) {
+    state.queue = queue.split(",").map((s) => s.trim()).filter((name) => state.personas[name]);
+  }
+  if (persona && state.personas[persona]) {
+    state.active = persona;
+    $("#personaSearch").value = persona;
+    if (!state.queue.includes(persona)) state.queue = [persona, ...state.queue.filter((n) => n !== persona)];
+    const tips = $("#starterTips");
+    if (tips) tips.hidden = true;
+  }
+}
+
+function updateUrlState() {
+  if (!window.history?.replaceState) return;
+  try {
+    const url = buildShareUrl();
+    window.history.replaceState({}, "", url);
+  } catch {
+    // ignore
+  }
+}
+
+function copyText(text) {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+  return new Promise((resolve, reject) => {
+    try {
+      const area = document.createElement("textarea");
+      area.value = text;
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+function showToast(message) {
+  const toast = $("#toast");
+  if (!toast) return;
+  toast.hidden = false;
+  toast.textContent = message;
+  clearTimeout(state.toastTimer);
+  state.toastTimer = setTimeout(() => {
+    toast.hidden = true;
+  }, 2200);
+}
+
 function decodeResists(code = "") {
   const labels = { "-": "normal", s: "strong", w: "weak", n: "null", r: "repel", d: "drain", S: "strong" };
   return code.split("").map((token, index) => ({
@@ -1187,4 +2068,15 @@ function escapeHtml(value) {
 
 function escapeAttr(value) {
   return escapeHtml(value);
+}
+
+// Expose pure helpers for Node tests when bundled/required is not used.
+if (typeof window !== "undefined") {
+  window.__P4G_FUSION__ = {
+    fusePersonas,
+    getRecipes,
+    canInherit,
+    findCraftPath,
+    state
+  };
 }

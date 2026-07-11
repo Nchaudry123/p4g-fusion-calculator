@@ -1,4 +1,4 @@
-const CACHE_NAME = "velvet-fusion-deck-v2";
+const CACHE_NAME = "velvet-fusion-deck-v3";
 const APP_SHELL = [
   "./",
   "index.html",
@@ -38,20 +38,41 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   const requestUrl = new URL(event.request.url);
-  const isAppAsset = requestUrl.origin === self.location.origin;
+  if (requestUrl.origin !== self.location.origin) return;
+
+  // Network-first for app shell / data so deploys update quickly; cache fallback offline.
+  // Cache-first for persona/arcana images for snappy offline art.
+  const isImage = requestUrl.pathname.includes("/assets/personas/")
+    || requestUrl.pathname.includes("/assets/arcana/")
+    || requestUrl.pathname.includes("/assets/icons/")
+    || requestUrl.pathname.endsWith(".png")
+    || requestUrl.pathname.endsWith(".otf");
+
+  if (isImage) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) return cached;
+        return fetch(event.request).then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return response;
+        }).catch(() => caches.match("assets/personas/taowu.png"));
+      })
+    );
+    return;
+  }
 
   event.respondWith(
-    (isAppAsset ? fetch(event.request) : Promise.reject())
+    fetch(event.request)
       .then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
         return response;
       })
-      .catch(() => {
-        return caches.match(event.request).then((cached) => {
-          if (cached) return cached;
-          return fetch(event.request);
-        });
-      })
+      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./")))
   );
 });

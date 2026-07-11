@@ -1,7 +1,7 @@
 {
   "name": "Velvet Fusion Deck",
   "short_name": "Fusion Deck",
-  "description": "A Persona 4 Golden fusion planner with saved current levels, Persona data, and card-based recipe planning.",
+  "description": "A Persona 4 Golden fusion planner with reverse recipes, skill inheritance, craft paths, forward fusion, and a personal compendium log.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

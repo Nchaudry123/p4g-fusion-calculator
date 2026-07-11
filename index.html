@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Velvet Fusion Deck</title>
+    <meta name="description" content="Persona 4 Golden fusion planner with reverse recipes, skill inheritance, pathfinding, and a personal compendium log.">
     <meta name="theme-color" content="#f4ce25">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Fusion Deck">
@@ -26,7 +27,7 @@
         <div class="intro-copy">
           <p>Velvet Room Access</p>
           <h2>Fusion Queue</h2>
-          <span>Reverse recipes, Persona data, and crafting paths.</span>
+          <span>Reverse recipes, inheritance, craft paths, and your compendium.</span>
         </div>
         <div class="intro-deck" aria-hidden="true">
           <span class="intro-card"><img src="assets/arcana/fool.png" alt=""></span>
@@ -63,7 +64,7 @@
         <div>
           <p class="kicker">Fusion Calculator</p>
           <h1 id="page-title">Velvet Fusion Queue</h1>
-          <p class="lede">Search a Persona, inspect every reverse recipe, then click ingredients to build the crafting path in priority order.</p>
+          <p class="lede">Search a Persona, inspect reverse recipes, plan inheritance, and build multi-step craft paths with your own compendium.</p>
         </div>
       </section>
 
@@ -74,15 +75,40 @@
             <button id="clearQueue" class="ghost-button" type="button">Clear</button>
           </div>
           <ol id="queueList" class="queue-list"></ol>
+          <div class="queue-tools">
+            <button id="shareQueue" class="ghost-button" type="button">Copy share link</button>
+            <button id="planPath" class="ghost-button" type="button">Auto craft path</button>
+          </div>
+          <div id="pathPlan" class="path-plan" aria-live="polite"></div>
         </aside>
 
         <section class="panel calculator-panel">
           <div class="calculator-tabs" role="tablist" aria-label="Calculator views">
             <button id="personaSearchTab" class="calculator-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="personaSearchView" data-calculator-tab="search">Persona Search</button>
+            <button id="forwardTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="forwardView" tabindex="-1" data-calculator-tab="forward">Forward Fusion</button>
             <button id="playerDataTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="playerDataView" tabindex="-1" data-calculator-tab="player">Player Data</button>
+            <button id="margaretTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="margaretView" tabindex="-1" data-calculator-tab="margaret">Margaret</button>
           </div>
 
           <section id="personaSearchView" class="calculator-tab-panel is-active" role="tabpanel" aria-labelledby="personaSearchTab" data-calculator-panel="search">
+            <div id="starterTips" class="starter-tips">
+              <div class="tip-card">
+                <strong>Try a reverse search</strong>
+                <span>Look up Trumpeter, Alice, or Yoshitsune and walk the craft path.</span>
+                <button type="button" class="ghost-button" data-demo-persona="Trumpeter">Open Trumpeter</button>
+              </div>
+              <div class="tip-card">
+                <strong>Log what you own</strong>
+                <span>Mark Personas in Player Data so recipes can sort by readiness.</span>
+                <button type="button" class="ghost-button" data-open-tab="player">Open Player Data</button>
+              </div>
+              <div class="tip-card">
+                <strong>Margaret rank 10</strong>
+                <span>Plan Trumpeter with Mind Charge from the Margaret tab.</span>
+                <button type="button" class="ghost-button" data-open-tab="margaret">Open Margaret</button>
+              </div>
+            </div>
+
             <div class="search-row">
               <label class="search-box">
                 <span>Persona search</span>
@@ -94,8 +120,71 @@
             <div id="deckStage" class="deck-stage" aria-live="polite"></div>
 
             <div id="activePersona" class="active-persona"></div>
+
+            <div class="recipe-controls" aria-label="Recipe filters">
+              <div class="log-filter" role="group" aria-label="Ownership filter">
+                <button class="mode-button is-active" type="button" data-recipe-filter="all">All recipes</button>
+                <button class="mode-button" type="button" data-recipe-filter="ready">Ready now</button>
+                <button class="mode-button" type="button" data-recipe-filter="partial">Partially owned</button>
+              </div>
+              <label class="search-box sort-box">
+                <span>Sort by</span>
+                <select id="recipeSort">
+                  <option value="smart">Smart (ready, then missing)</option>
+                  <option value="missing">Fewest missing</option>
+                  <option value="score">Lowest level sum</option>
+                  <option value="special">Special first</option>
+                </select>
+              </label>
+            </div>
+
+            <section class="inherit-panel" aria-labelledby="inherit-title">
+              <div class="user-data-head compact-head">
+                <div>
+                  <span class="compendium-label" id="inherit-title">Skill inheritance</span>
+                  <h2>Desired skills for this fusion</h2>
+                </div>
+              </div>
+              <div class="inherit-tools">
+                <label class="search-box">
+                  <span>Add skill</span>
+                  <input id="desiredSkillInput" list="skillOptions" autocomplete="off" placeholder="Mind Charge, Bufula, Auto-Sukukaja...">
+                  <datalist id="skillOptions"></datalist>
+                </label>
+                <button id="addDesiredSkill" class="primary-button compact-button" type="button">Add</button>
+                <button id="clearDesiredSkills" class="ghost-button" type="button">Clear skills</button>
+              </div>
+              <div id="desiredSkills" class="desired-skills" aria-live="polite"></div>
+              <div id="inheritHint" class="inherit-hint"></div>
+            </section>
+
             <div id="recipeSummary" class="summary-strip"></div>
             <div id="recipes" class="recipes"></div>
+          </section>
+
+          <section id="forwardView" class="calculator-tab-panel" role="tabpanel" aria-labelledby="forwardTab" hidden data-calculator-panel="forward">
+            <section class="user-data-panel" aria-labelledby="forward-title">
+              <div class="user-data-head">
+                <div>
+                  <span class="compendium-label" id="forward-title">Forward Fusion</span>
+                  <h2>What does A + B create?</h2>
+                </div>
+              </div>
+              <div class="forward-grid">
+                <label class="search-box">
+                  <span>Persona A</span>
+                  <input id="forwardA" list="personaLevelList" autocomplete="off" placeholder="Jack Frost">
+                </label>
+                <div class="fusion-x forward-x" aria-hidden="true">x</div>
+                <label class="search-box">
+                  <span>Persona B</span>
+                  <input id="forwardB" list="personaLevelList" autocomplete="off" placeholder="Pyro Jack">
+                </label>
+                <button id="runForward" class="primary-button" type="button">Fuse</button>
+              </div>
+              <div id="forwardResult" class="forward-result" aria-live="polite"></div>
+              <div id="forwardPartners" class="forward-partners"></div>
+            </section>
           </section>
 
           <section id="playerDataView" class="calculator-tab-panel" role="tabpanel" aria-labelledby="playerDataTab" hidden data-calculator-panel="player">
@@ -110,6 +199,19 @@
                   <button id="currentLevelMode" class="mode-button" type="button">My levels</button>
                 </div>
               </div>
+
+              <div id="completionDashboard" class="completion-dashboard" aria-live="polite"></div>
+
+              <div class="data-io" aria-label="Import and export">
+                <button id="exportData" class="ghost-button" type="button">Export JSON</button>
+                <label class="ghost-button file-button">
+                  Import JSON
+                  <input id="importData" type="file" accept="application/json,.json" hidden>
+                </label>
+                <button id="resetData" class="ghost-button danger-ghost" type="button">Reset log</button>
+                <button id="copyShareLink" class="ghost-button" type="button">Copy page link</button>
+              </div>
+
               <div class="level-editor">
                 <label class="search-box level-persona-field">
                   <span>Persona</span>
@@ -146,10 +248,24 @@
               <div id="personaLogList" class="persona-log-list" aria-live="polite"></div>
             </section>
           </section>
+
+          <section id="margaretView" class="calculator-tab-panel" role="tabpanel" aria-labelledby="margaretTab" hidden data-calculator-panel="margaret">
+            <section class="user-data-panel" aria-labelledby="margaret-title">
+              <div class="user-data-head">
+                <div>
+                  <span class="compendium-label" id="margaret-title">Empress Social Link</span>
+                  <h2>Margaret request checklist</h2>
+                </div>
+              </div>
+              <p class="margaret-copy">Track each Persona Margaret asks for, the skill she wants on it, and jump straight into a craft plan.</p>
+              <div id="margaretList" class="margaret-list" aria-live="polite"></div>
+            </section>
+          </section>
         </section>
       </section>
     </main>
 
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
     <script src="scripts/app.js"></script>
   </body>
 </html>

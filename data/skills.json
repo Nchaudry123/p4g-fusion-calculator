@@ -1,4 +1,774 @@
 {
+  "Absorb Elec": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Absorb Fire": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Absorb Ice": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Absorb Physical": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Absorb Wind": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Aeon Rain": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Agi": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Agidyne": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Agilao": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Agneyastra": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Ailment Boost": {
+    "element": "ail",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Akasha Arts": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Alertness": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Ali Dance": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Amrita": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Angelic Grace": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Anima Freeze": {
+    "element": "ail",
+    "target": "All foes",
+    "cost": 3
+  },
+  "Apt Pupil": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Arm Chopper": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 2.5
+  },
+  "Arms Master": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Arrow Rain": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Assault Dive": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Atom Smasher": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 4
+  },
+  "Auto-Maraku": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Auto-Masuku": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Auto-Mataru": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Auto-Rakukaja": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Auto-Sukukaja": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Auto-Tarukaja": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Balzac": {
+    "element": "ail",
+    "target": "1 foe",
+    "cost": 1.5
+  },
+  "Bash": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Black Spot": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Black Viper": {
+    "element": "alm",
+    "target": "1 foe",
+    "cost": 0
+  },
+  "Blade of Fury": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Blight": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 7
+  },
+  "Blue Wall": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Brain Shake": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 3.5
+  },
+  "Brave Blade": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Bufu": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Bufudyne": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Bufula": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Cell Breaker": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 3.5
+  },
+  "Cleave": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Confuse Boost": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Cool Breeze": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Counter": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Counterstrike": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Crazy Chain": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 4
+  },
+  "Cruel Attack": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 4.5
+  },
+  "Deathbound": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Debilitate": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Dekaja": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Dekunda": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Demonic Judgment": {
+    "element": "dar",
+    "target": "\u2014",
+    "cost": 8
+  },
+  "Dia": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Diarahan": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Diarama": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Die for Me!": {
+    "element": "dar",
+    "target": "All foes",
+    "cost": 0
+  },
+  "Divine Grace": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Dodge Elec": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Dodge Fire": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Dodge Ice": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Dodge Physical": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Dodge Wind": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Double Fangs": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Elec Amp": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Elec Boost": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Elec Break": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Endure": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Endure Dark": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Endure Light": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Enduring Soul": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Energy Shower": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Enervate Boost": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Enervation": {
+    "element": "ail",
+    "target": "1 foe",
+    "cost": 1.5
+  },
+  "Evade Elec": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Evade Fire": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Evade Ice": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Evade Physical": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Evade Wind": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Evil Smile": {
+    "element": "ail",
+    "target": "All foes",
+    "cost": 3
+  },
+  "Evil Touch": {
+    "element": "ail",
+    "target": "1 foe",
+    "cost": 1.5
+  },
+  "Exhaust Boost": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Fast Heal": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Fatal End": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Fear Boost": {
+    "element": "ail",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Fire Amp": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Fire Boost": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Fire Break": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Firm Stance": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Foolish Whisper": {
+    "element": "ail",
+    "target": "All foes",
+    "cost": 3
+  },
+  "Foul Breath": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Gale Slash": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Garu": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Garudyne": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Garula": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Ghastly Wail": {
+    "element": "dar",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Gigantic Fist": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "God's Hand": {
+    "element": "lig",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Green Wall": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Growth 1": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Growth 2": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Growth 3": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Hama": {
+    "element": "lig",
+    "target": "1 foe",
+    "cost": 2.5
+  },
+  "Hama Boost": {
+    "element": "lig",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Hamaon": {
+    "element": "lig",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Hassou Tobi": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Heat Riser": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Heat Wave": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Heaven's Blade": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 0
+  },
+  "Herculean Strike": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "High Counter": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Hysterical Slap": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 2.5
+  },
+  "Ice Amp": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Ice Boost": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Ice Break": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Insta-Heal": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Invigorate 1": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Invigorate 2": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Invigorate 3": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Kill Rush": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Life Drain": {
+    "element": "alm",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mabufu": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mabufudyne": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mabufula": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Magaru": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Magarudyne": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Magarula": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mahama": {
+    "element": "lig",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mahamaon": {
+    "element": "lig",
+    "target": "All foes",
+    "cost": 6
+  },
+  "Makajam": {
+    "element": "ail",
+    "target": "1 foe",
+    "cost": 1.5
+  },
+  "Makara Break": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Makarakarn": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mamudo": {
+    "element": "dar",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mamudoon": {
+    "element": "dar",
+    "target": "All foes",
+    "cost": 6
+  },
+  "Maragi": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Maragidyne": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Maragion": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Marakukaja": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Marakunda": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Masukukaja": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Masukunda": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Matarukaja": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Matarunda": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mazio": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Maziodyne": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mazionga": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Me Patra": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Media": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mediarahan": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mediarama": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Medical Kit": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Medical Powder": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Medicine": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
   "Megido": {
     "element": "alm",
     "target": "All foes",
@@ -14,28 +784,23 @@
     "target": "All foes",
     "cost": 8
   },
-  "Black Viper": {
-    "element": "alm",
-    "target": "1 foe",
+  "Mighty Swing": {
+    "element": "sup",
+    "target": "\u2014",
     "cost": 0
+  },
+  "Mind Charge": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Mind Slice": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 4
   },
   "Morning Star": {
     "element": "alm",
-    "target": "All foes",
-    "cost": 0
-  },
-  "Hama": {
-    "element": "lig",
-    "target": "1 foe",
-    "cost": 2.5
-  },
-  "Mahamaon": {
-    "element": "lig",
-    "target": "All foes",
-    "cost": 6
-  },
-  "Samsara": {
-    "element": "lig",
     "target": "All foes",
     "cost": 0
   },
@@ -44,94 +809,179 @@
     "target": "1 foe",
     "cost": 2.5
   },
-  "Mamudoon": {
+  "Mudo Boost": {
     "element": "dar",
-    "target": "All foes",
-    "cost": 6
-  },
-  "Demonic Judgment": {
-    "element": "dar",
-    "target": "-",
-    "cost": 8
-  },
-  "Die for Me!": {
-    "element": "dar",
-    "target": "All foes",
+    "target": "\u2014",
     "cost": 0
   },
-  "Pulinpa": {
-    "element": "ail",
-    "target": "1 foe",
-    "cost": 1.5
+  "Mudoon": {
+    "element": "dar",
+    "target": "\u2014",
+    "cost": 0
   },
-  "Tentarafoo": {
-    "element": "ail",
+  "Mustard Bomb": {
+    "element": "phy",
     "target": "All foes",
-    "cost": 3
+    "cost": 5
   },
-  "Evil Touch": {
-    "element": "ail",
+  "Mutudi": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Muzzle Shot": {
+    "element": "phy",
     "target": "1 foe",
-    "cost": 1.5
+    "cost": 2.5
   },
-  "Evil Smile": {
-    "element": "ail",
+  "Myriad Arrows": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Navas Nebula": {
+    "element": "phy",
     "target": "All foes",
-    "cost": 3
+    "cost": 5
   },
-  "Balzac": {
-    "element": "ail",
-    "target": "1 foe",
-    "cost": 1.5
+  "Nervundi": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
   },
-  "Valiant Dance": {
-    "element": "ail",
-    "target": "All foes",
-    "cost": 3
+  "Niflheim": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
   },
-  "Poisma": {
-    "element": "ail",
-    "target": "1 foe",
-    "cost": 1.5
+  "Null Confuse": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
   },
-  "Poison Mist": {
-    "element": "ail",
-    "target": "All foes",
-    "cost": 3
+  "Null Dark": {
+    "element": "dar",
+    "target": "\u2014",
+    "cost": 0
   },
-  "Soul Break": {
-    "element": "ail",
-    "target": "1 foe",
-    "cost": 1.5
+  "Null Dizzy": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
   },
-  "Anima Freeze": {
-    "element": "ail",
-    "target": "All foes",
-    "cost": 3
+  "Null Elec": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
   },
-  "Enervation": {
-    "element": "ail",
-    "target": "1 foe",
-    "cost": 1.5
+  "Null Enervate": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Null Exhaust": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Null Fear": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Null Fire": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Null Ice": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Null Light": {
+    "element": "lig",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Null Mute": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Null Physical": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Null Poison": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Null Rage": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Null Wind": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
   },
   "Old One": {
     "element": "ail",
     "target": "All foes",
     "cost": 3
   },
-  "Makajam": {
+  "Panta Rhei": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Patra": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Poisma": {
     "element": "ail",
     "target": "1 foe",
     "cost": 1.5
   },
-  "Foolish Whisper": {
+  "Poison Arrow": {
+    "element": "phy",
+    "target": "1 foe",
+    "cost": 5.5
+  },
+  "Poison Boost": {
+    "element": "ail",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Poison Mist": {
     "element": "ail",
     "target": "All foes",
     "cost": 3
   },
-  "Heaven's Blade": {
+  "Poison Skewer": {
     "element": "phy",
     "target": "1 foe",
+    "cost": 2.5
+  },
+  "Posumudi": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Power Charge": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Power Slash": {
+    "element": "phy",
+    "target": "\u2014",
     "cost": 0
   },
   "Pralaya": {
@@ -139,129 +989,439 @@
     "target": "All foes",
     "cost": 0
   },
-  "Poison Skewer": {
-    "element": "phy",
-    "target": "1 foe",
-    "cost": 2.5
+  "Primal Force": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
   },
-  "Poison Arrow": {
-    "element": "phy",
+  "Pulinpa": {
+    "element": "ail",
     "target": "1 foe",
-    "cost": 5.5
+    "cost": 1.5
   },
-  "Blight": {
+  "Rage Boost": {
+    "element": "ail",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Ragnarok": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Rainy Death": {
     "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Rakukaja": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Rakunda": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Rampage": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Re Patra": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Rebellion": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Recarm": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Red Wall": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Regenerate 1": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Regenerate 2": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Regenerate 3": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Repel Dark": {
+    "element": "dar",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Repel Elec": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Repel Fire": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Repel Ice": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Repel Light": {
+    "element": "lig",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Repel Physical": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Repel Wind": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Confuse": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Dark": {
+    "element": "dar",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Dizzy": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Elec": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Enervate": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Exhaust": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Fear": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Fire": {
+    "element": "fir",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Ice": {
+    "element": "ice",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Light": {
+    "element": "lig",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Mute": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Physical": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Poison": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Rage": {
+    "element": "pas",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Resist Wind": {
+    "element": "win",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Revolution": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Salvation": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Samarecarm": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Samsara": {
+    "element": "lig",
     "target": "All foes",
-    "cost": 7
-  },
-  "Virus Wave": {
-    "element": "phy",
-    "target": "All foes",
-    "cost": 6.5
-  },
-  "Skull Cracker": {
-    "element": "phy",
-    "target": "1 foe",
-    "cost": 2.5
-  },
-  "Mind Slice": {
-    "element": "phy",
-    "target": "All foes",
-    "cost": 4
-  },
-  "Hysterical Slap": {
-    "element": "phy",
-    "target": "1 foe",
-    "cost": 2.5
-  },
-  "Crazy Chain": {
-    "element": "phy",
-    "target": "All foes",
-    "cost": 4
-  },
-  "Muzzle Shot": {
-    "element": "phy",
-    "target": "1 foe",
-    "cost": 2.5
+    "cost": 0
   },
   "Seal Bomb": {
     "element": "phy",
     "target": "All foes",
     "cost": 4
   },
-  "Arm Chopper": {
+  "Sharp Student": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Shivering Rondo": {
+    "element": "alm",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Silence Boost": {
+    "element": "ail",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Single Shot": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Skewer": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Skull Cracker": {
     "element": "phy",
     "target": "1 foe",
     "cost": 2.5
   },
-  "Atom Smasher": {
-    "element": "phy",
-    "target": "All foes",
-    "cost": 4
+  "Sonic Punch": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
   },
-  "Cell Breaker": {
-    "element": "phy",
+  "Soul Break": {
+    "element": "ail",
     "target": "1 foe",
-    "cost": 3.5
+    "cost": 1.5
   },
-  "Mustard Bomb": {
+  "Spell Master": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Spirit Drain": {
+    "element": "alm",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Spirit Water": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Stagnant Air": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Sukukaja": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Sukunda": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Survive Dark": {
     "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Survive Light": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Swift Strike": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Tarukaja": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Tarunda": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Tempest Slash": {
+    "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Tentarafoo": {
+    "element": "ail",
     "target": "All foes",
-    "cost": 5
+    "cost": 3
   },
-  "Brain Shake": {
-    "element": "phy",
-    "target": "1 foe",
-    "cost": 3.5
+  "Tetra Break": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
   },
-  "Navas Nebula": {
+  "Tetraja": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Tetrakarn": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Thunder Reign": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Torrent Shot": {
     "element": "phy",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Traesto": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Trafuri": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Twin Shot": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Umugi Water": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Unshaken Will": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Valiant Dance": {
+    "element": "ail",
     "target": "All foes",
-    "cost": 5
+    "cost": 3
   },
-  "Cruel Attack": {
-    "element": "phy",
-    "target": "1 foe",
-    "cost": 4.5
+  "Value Medicine": {
+    "element": "rec",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Vicious Strike": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Victory Cry": {
+    "element": "sup",
+    "target": "\u2014",
+    "cost": 0
   },
   "Vile Assault": {
     "element": "phy",
     "target": "1 foe",
     "cost": 6
   },
-  "Medicine": {
-    "element": "rec",
-    "target": "-",
+  "Virus Wave": {
+    "element": "phy",
+    "target": "All foes",
+    "cost": 6.5
+  },
+  "Vorpal Blade": {
+    "element": "phy",
+    "target": "\u2014",
     "cost": 0
   },
-  "Medical Powder": {
-    "element": "rec",
-    "target": "-",
+  "White Wall": {
+    "element": "win",
+    "target": "\u2014",
     "cost": 0
   },
-  "Spirit Water": {
-    "element": "rec",
-    "target": "-",
+  "Wind Amp": {
+    "element": "win",
+    "target": "\u2014",
     "cost": 0
   },
-  "Value Medicine": {
-    "element": "rec",
-    "target": "-",
+  "Wind Boost": {
+    "element": "win",
+    "target": "\u2014",
     "cost": 0
   },
-  "Medical Kit": {
-    "element": "rec",
-    "target": "-",
+  "Wind Break": {
+    "element": "win",
+    "target": "\u2014",
     "cost": 0
   },
-  "Umugi Water": {
-    "element": "rec",
-    "target": "-",
+  "Zio": {
+    "element": "ele",
+    "target": "\u2014",
     "cost": 0
   },
-  "Shivering Rondo": {
-    "element": "alm",
-    "target": "-",
+  "Ziodyne": {
+    "element": "ele",
+    "target": "\u2014",
+    "cost": 0
+  },
+  "Zionga": {
+    "element": "ele",
+    "target": "\u2014",
     "cost": 0
   }
 }
