@@ -4,6 +4,19 @@ const INTRO_SEEN_KEY = "p4g-fusion-intro-seen";
 const USER_DATA_KEY = "p4g-fusion-user-levels";
 const DESIRED_SKILLS_KEY = "p4g-fusion-desired-skills";
 const MARGARET_DONE_KEY = "p4g-fusion-margaret-done";
+const FOCUS_MODE_KEY = "p4g-fusion-focus-mode";
+const RECIPE_DENSITY_KEY = "p4g-fusion-recipe-density";
+
+const ARCANA_THEME = {
+  Fool: "#f4ce25", Magician: "#ff6b3d", Priestess: "#9b8cff", Empress: "#ff8ad8",
+  Emperor: "#ffb347", Hierophant: "#d4b483", Lovers: "#ff7aa2", Chariot: "#56bfe8",
+  Justice: "#ffe15a", Hermit: "#b8a48a", Fortune: "#7dff9a", Strength: "#ff9f43",
+  Hanged: "#c79bff", Death: "#6f8cff", Temperance: "#8affc1", Devil: "#ff5d4d",
+  Tower: "#ff714d", Star: "#7ecbff", Moon: "#b9a0ff", Sun: "#ffd447",
+  Judgement: "#f0f0f0", World: "#f4ce25", Aeon: "#86f0ff", Jester: "#ff6bcb"
+};
+
+const MATRIX_ELEMENTS = ["phy","fir","ice","ele","win","lig","dar","alm","ail","rec","sup","pas"];
 
 const ARCANA_CARD_IMAGES = {
   Fool: "fool", Magician: "magician", Priestess: "priestess", Empress: "empress",
@@ -84,13 +97,23 @@ const state = {
   activeCalculatorTab: "search",
   drawTimer: 0,
   searchTimer: 0,
-  toastTimer: 0
+  searchDebounce: 0,
+  toastTimer: 0,
+  recipeDensity: "comfort",
+  focusMode: false,
+  dossierTab: "stats",
+  recipeCache: new Map(),
+  recipeCacheKey: "",
+  personasByRace: new Map(),
+  levelModeToken: "base"
 };
 
 const $ = (selector) => document.querySelector(selector);
 
 setupIntro();
 setupInstallSupport();
+loadFocusMode();
+loadRecipeDensity();
 
 Promise.all([
   fetch("data/personas.json").then((res) => res.json()),
@@ -114,6 +137,7 @@ Promise.all([
   loadDesiredSkills();
   loadMargaretDone();
   buildRaceLevels();
+  buildPersonaRaceIndex();
   setupSearch();
   setupUserData();
   setupRecipeControls();
@@ -122,22 +146,34 @@ Promise.all([
   setupMargaret();
   setupShareAndPath();
   setupStarterTips();
+  setupFocusMode();
+  setupTargetStrip();
+  setupMobileQueue();
+  setupRecipeDelegation();
   applyUrlState();
   setupCalculatorTabs();
   renderInitialState();
+  applyFocusMode();
+  applyRecipeDensity();
   if (state.active) {
     const tips = $("#starterTips");
     if (tips) tips.hidden = true;
+    setArcanaTheme(state.personas[state.active]?.race);
+    document.body.classList.add("has-target");
     renderActivePersona();
     renderRecipes();
     renderInheritance();
+    renderTargetStrip();
     playDeckDraw(state.active);
   }
   renderQueue();
   renderMargaret();
   renderInheritance();
+  finishBoot();
 }).catch((error) => {
-  $("#recipes").innerHTML = `<div class="empty">Could not load fusion data: ${escapeHtml(error.message)}</div>`;
+  finishBoot();
+  const host = $("#recipes") || $("#activePersona");
+  if (host) host.innerHTML = `<div class="empty">Could not load fusion data: ${escapeHtml(error.message)}</div>`;
 });
 
 function setupInstallSupport() {
@@ -145,6 +181,204 @@ function setupInstallSupport() {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("service-worker.js").catch(() => {});
   });
+}
+
+function finishBoot() {
+  document.body.classList.remove("is-loading");
+  const boot = $("#bootScreen");
+  if (!boot) return;
+  window.setTimeout(() => { boot.hidden = true; }, 450);
+  // Show intro if needed after boot
+  const intro = $("#introScreen");
+  if (!intro) return;
+  try {
+    if (sessionStorage.getItem(INTRO_SEEN_KEY) === "true") {
+      intro.hidden = true;
+      document.body.classList.remove("intro-active");
+    } else {
+      intro.hidden = false;
+      document.body.classList.add("intro-active");
+    }
+  } catch {
+    intro.hidden = false;
+  }
+}
+
+function invalidateRecipeCache() {
+  state.recipeCache.clear();
+  state.recipeCacheKey = cacheToken();
+}
+
+function cacheToken() {
+  return `${state.levelModeToken}|${state.useCurrentLevels ? "c" : "b"}|${Object.keys(state.userLevels).length}`;
+}
+
+function buildPersonaRaceIndex() {
+  const map = new Map();
+  for (const persona of Object.values(state.personas)) {
+    if (!map.has(persona.race)) map.set(persona.race, []);
+    map.get(persona.race).push(persona);
+  }
+  for (const [race, list] of map) {
+    list.sort((a, b) => a.lvl - b.lvl || a.name.localeCompare(b.name));
+  }
+  state.personasByRace = map;
+}
+
+function setArcanaTheme(arcana) {
+  if (!arcana) {
+    document.body.removeAttribute("data-arcana");
+    document.documentElement.style.removeProperty("--arcana-accent");
+    document.documentElement.style.removeProperty("--arcana-glow");
+    document.documentElement.style.removeProperty("--arcana-soft");
+    return;
+  }
+  const color = ARCANA_THEME[arcana] || "#f4ce25";
+  document.body.dataset.arcana = arcana;
+  document.documentElement.style.setProperty("--arcana-accent", color);
+  document.documentElement.style.setProperty("--arcana-glow", `${color}38`);
+  document.documentElement.style.setProperty("--arcana-soft", `${color}14`);
+}
+
+function loadFocusMode() {
+  try { state.focusMode = localStorage.getItem(FOCUS_MODE_KEY) === "1"; } catch { state.focusMode = false; }
+}
+
+function loadRecipeDensity() {
+  try {
+    const value = localStorage.getItem(RECIPE_DENSITY_KEY);
+    state.recipeDensity = ["comfort", "compact", "list"].includes(value) ? value : "comfort";
+  } catch {
+    state.recipeDensity = "comfort";
+  }
+}
+
+function applyFocusMode() {
+  document.body.classList.toggle("focus-mode", state.focusMode);
+  const btn = $("#focusModeToggle");
+  if (btn) {
+    btn.classList.toggle("is-active", state.focusMode);
+    btn.setAttribute("aria-pressed", String(state.focusMode));
+    btn.textContent = state.focusMode ? "Focus on" : "Focus mode";
+  }
+}
+
+function applyRecipeDensity() {
+  const recipes = $("#recipes");
+  if (recipes) {
+    recipes.classList.remove("density-comfort", "density-compact", "density-list");
+    recipes.classList.add(`density-${state.recipeDensity}`);
+  }
+  document.querySelectorAll("[data-recipe-density]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.recipeDensity === state.recipeDensity);
+  });
+}
+
+function setupFocusMode() {
+  $("#focusModeToggle")?.addEventListener("click", () => {
+    state.focusMode = !state.focusMode;
+    try { localStorage.setItem(FOCUS_MODE_KEY, state.focusMode ? "1" : "0"); } catch { /* ignore */ }
+    applyFocusMode();
+    showToast(state.focusMode ? "Focus mode on" : "Focus mode off");
+  });
+}
+
+function setupTargetStrip() {
+  $("#stripOwned")?.addEventListener("click", () => {
+    if (!state.active) return;
+    togglePersonaOwned(state.active);
+    popNear(document.getElementById("stripOwned"), state.ownedPersonas.has(state.active) ? "+ owned" : "removed");
+  });
+  $("#stripPath")?.addEventListener("click", () => {
+    if (state.active) renderPathPlan(state.active);
+  });
+  $("#stripScrollRecipes")?.addEventListener("click", () => {
+    $("#recipeSection")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
+function setupMobileQueue() {
+  const open = () => {
+    document.body.classList.add("queue-open");
+    $("#queueBackdrop").hidden = false;
+    $("#mobileQueueFab")?.setAttribute("aria-expanded", "true");
+  };
+  const close = () => {
+    document.body.classList.remove("queue-open");
+    $("#queueBackdrop").hidden = true;
+    $("#mobileQueueFab")?.setAttribute("aria-expanded", "false");
+  };
+  $("#mobileQueueFab")?.addEventListener("click", () => {
+    if (document.body.classList.contains("queue-open")) close();
+    else open();
+  });
+  $("#queueBackdrop")?.addEventListener("click", close);
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && document.body.classList.contains("queue-open")) close();
+  });
+}
+
+function setupRecipeDelegation() {
+  const recipes = $("#recipes");
+  if (!recipes || recipes.dataset.bound === "1") return;
+  recipes.dataset.bound = "1";
+  recipes.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-persona]");
+    if (!button || !recipes.contains(button)) return;
+    const recipeIndex = Number(button.dataset.recipeIndex);
+    const list = state._lastFilteredRecipes || [];
+    const recipe = list[recipeIndex];
+    if (!recipe) return;
+    selectPersona(button.dataset.persona, false, {
+      target: state.active,
+      index: recipeIndex,
+      type: recipe.type,
+      score: recipe.score,
+      ingredients: recipe.ingredients,
+      chosen: button.dataset.persona
+    });
+  });
+}
+
+function popNear(el, text) {
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const node = document.createElement("div");
+  node.className = "pop-burst";
+  node.textContent = text;
+  node.style.left = `${rect.left + rect.width / 2}px`;
+  node.style.top = `${rect.top}px`;
+  document.body.appendChild(node);
+  window.setTimeout(() => node.remove(), 720);
+}
+
+function renderTargetStrip() {
+  const strip = $("#targetStrip");
+  if (!strip) return;
+  if (!state.active || !state.personas[state.active]) {
+    strip.hidden = true;
+    document.body.classList.remove("has-target");
+    setArcanaTheme(null);
+    return;
+  }
+  const persona = state.personas[state.active];
+  const recipes = getFilteredSortedRecipes(state.active);
+  const all = getRecipes(state.active);
+  const ready = recipes.filter((r) => r.ready).length;
+  strip.hidden = false;
+  document.body.classList.add("has-target");
+  setArcanaTheme(persona.race);
+  $("#stripImage").src = personaImage(persona.name);
+  $("#stripName").textContent = persona.name;
+  $("#stripMeta").textContent = `${levelLabel(persona.name)} · ${persona.race} · ${persona.inherits || "—"} type`;
+  $("#stripChips").innerHTML = [
+    `<span class="chip">${all.length} recipes</span>`,
+    `<span class="chip ready">${ready} ready</span>`,
+    state.desiredSkills.length ? `<span class="chip">${state.desiredSkills.length} skills</span>` : "",
+    state.ownedPersonas.has(persona.name) ? `<span class="chip ready">Owned</span>` : `<span class="chip">Not in log</span>`
+  ].filter(Boolean).join("");
+  const ownedBtn = $("#stripOwned");
+  if (ownedBtn) ownedBtn.textContent = state.ownedPersonas.has(persona.name) ? "Unmark owned" : "Mark owned";
 }
 
 function normalizePersonas(raw) {
@@ -205,7 +439,11 @@ function buildRaceLevels() {
 
 function setupSearch() {
   $("#selectSearch").addEventListener("click", () => selectPersonaFromInput());
-  $("#personaSearch").addEventListener("input", () => handleSearchInput($("#personaSearch").value));
+  $("#personaSearch").addEventListener("input", () => {
+    const value = $("#personaSearch").value;
+    clearTimeout(state.searchDebounce);
+    state.searchDebounce = setTimeout(() => handleSearchInput(value), 90);
+  });
   $("#personaSearch").addEventListener("focus", () => handleSearchInput($("#personaSearch").value));
   $("#personaSearch").addEventListener("keydown", (event) => {
     if (event.key === "Enter") selectPersonaFromInput();
@@ -226,6 +464,14 @@ function setupRecipeControls() {
       document.querySelectorAll("[data-recipe-filter]").forEach((btn) => {
         btn.classList.toggle("is-active", btn.dataset.recipeFilter === state.recipeFilter);
       });
+      renderRecipes();
+    });
+  });
+  document.querySelectorAll("[data-recipe-density]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.recipeDensity = button.dataset.recipeDensity;
+      try { localStorage.setItem(RECIPE_DENSITY_KEY, state.recipeDensity); } catch { /* ignore */ }
+      applyRecipeDensity();
       renderRecipes();
     });
   });
@@ -255,14 +501,45 @@ function setupInheritance() {
 
 function setupForwardFusion() {
   $("#runForward").addEventListener("click", runForwardFusion);
+  const sync = () => {
+    renderForwardSlotCards();
+    renderForwardPartners();
+  };
   $("#forwardA").addEventListener("keydown", (event) => {
     if (event.key === "Enter") runForwardFusion();
   });
   $("#forwardB").addEventListener("keydown", (event) => {
     if (event.key === "Enter") runForwardFusion();
   });
-  $("#forwardA").addEventListener("change", renderForwardPartners);
-  $("#forwardA").addEventListener("blur", renderForwardPartners);
+  $("#forwardA").addEventListener("input", sync);
+  $("#forwardB").addEventListener("input", sync);
+  $("#forwardA").addEventListener("change", sync);
+  $("#forwardB").addEventListener("change", sync);
+  $("#forwardA").addEventListener("blur", sync);
+  $("#forwardB").addEventListener("blur", sync);
+}
+
+function renderForwardSlotCards() {
+  const paint = (inputId, cardId) => {
+    const name = findPersona($(inputId)?.value || "");
+    const card = $(cardId);
+    if (!card) return name;
+    if (!name) {
+      card.className = "forward-persona-card is-empty" + (cardId.includes("Result") ? " result-card" : "");
+      card.innerHTML = `<strong>${cardId.includes("Result") ? "?" : "Choose"}</strong><em>${cardId.includes("Result") ? "Press Fuse" : "Type a name"}</em>`;
+      return "";
+    }
+    const persona = state.personas[name];
+    card.className = "forward-persona-card is-filled" + (cardId.includes("Result") ? " result-card" : "");
+    card.innerHTML = `
+      <img src="${escapeAttr(personaImage(name))}" alt="" loading="lazy">
+      <strong>${escapeHtml(name)}</strong>
+      <em>${escapeHtml(levelLabel(name))} · ${escapeHtml(persona.race)}</em>
+    `;
+    return name;
+  };
+  paint("#forwardA", "#forwardCardA");
+  paint("#forwardB", "#forwardCardB");
 }
 
 function setupMargaret() {
@@ -375,7 +652,10 @@ function setCalculatorTab(tab) {
     renderCompletionDashboard();
     renderPersonaLog();
   }
-  if (nextTab === "forward") renderForwardPartners();
+  if (nextTab === "forward") {
+    renderForwardSlotCards();
+    renderForwardPartners();
+  }
   updateUrlState();
 }
 
@@ -402,6 +682,7 @@ function persistUserData() {
   } catch {
     // storage may be unavailable
   }
+  invalidateRecipeCache();
 }
 
 function loadDesiredSkills() {
@@ -452,6 +733,7 @@ function clampLevel(level, fallback = 1) {
 
 function setLevelMode(useCurrentLevels) {
   state.useCurrentLevels = useCurrentLevels;
+  state.levelModeToken = useCurrentLevels ? "current" : "base";
   persistUserData();
   renderLevelData();
   refreshActiveViews();
@@ -643,13 +925,14 @@ function renderCompletionDashboard() {
   });
 
   $("#completionDashboard").innerHTML = `
-    <div class="dash-grid">
-      <div class="dash-card">
-        <span>Compendium</span>
-        <strong>${owned}/${total}</strong>
-        <em>${pct}% complete</em>
-        <div class="dash-bar"><i style="width:${pct}%"></i></div>
+    <div class="broadcast-bar">
+      <div class="broadcast-label">
+        <span>Midnight Channel · Compendium</span>
+        <strong>${owned}/${total} · ${pct}%</strong>
       </div>
+      <div class="broadcast-meter"><i style="width:${pct}%"></i></div>
+    </div>
+    <div class="dash-grid">
       <div class="dash-card">
         <span>Ultimates</span>
         <strong>${ownedUltimates.length}/${ultimates.length}</strong>
@@ -664,6 +947,11 @@ function renderCompletionDashboard() {
         <span>Lowest arcana</span>
         <strong>${escapeHtml(byArcana[0]?.arcana || "—")}</strong>
         <em>${byArcana[0] ? `${byArcana[0].ownedCount}/${byArcana[0].total}` : ""}</em>
+      </div>
+      <div class="dash-card">
+        <span>Leveled</span>
+        <strong>${Object.keys(state.userLevels).length}</strong>
+        <em>Custom current levels</em>
       </div>
     </div>
     <div class="dash-arcana">
@@ -743,13 +1031,33 @@ function renderMargaret() {
   const list = $("#margaretList");
   if (!list) return;
   const entries = Object.entries(MARGARET_REQUESTS).sort((a, b) => a[1].rank - b[1].rank);
+  const nextOpen = entries.find(([name]) => !state.margaretDone.has(name));
+  const rail = $("#margaretRail");
+  if (rail) {
+    rail.innerHTML = entries.map(([name, request]) => {
+      const done = state.margaretDone.has(name);
+      const isNext = nextOpen && nextOpen[0] === name;
+      return `
+        <button type="button" class="rail-node ${done ? "is-done" : ""} ${isNext ? "is-next" : ""}" data-margaret-jump="${escapeAttr(name)}">
+          <strong>R${request.rank}</strong>
+          <img src="${escapeAttr(personaImage(name))}" alt="" loading="lazy">
+          <span>${escapeHtml(name)}</span>
+        </button>`;
+    }).join("");
+    rail.querySelectorAll("[data-margaret-jump]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const slug = button.dataset.margaretJump.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        document.getElementById(`margaret-card-${slug}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+  }
   list.innerHTML = entries.map(([name, request]) => {
     const done = state.margaretDone.has(name);
     const owned = state.ownedPersonas.has(name);
     const persona = state.personas[name];
     const hasSkill = persona && Object.keys(persona.skills || {}).some((skill) => skill === request.skill);
     return `
-      <article class="margaret-card ${done ? "is-done" : ""} ${owned ? "is-owned" : ""}">
+      <article class="margaret-card ${done ? "is-done" : ""} ${owned ? "is-owned" : ""}" id="margaret-card-${escapeAttr(name.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}">
         <div class="margaret-main">
           <img src="${escapeAttr(personaImage(name))}" alt="" loading="lazy">
           <div>
@@ -797,6 +1105,7 @@ function refreshActiveViews() {
     renderActivePersona();
     renderRecipes();
     renderInheritance();
+    renderTargetStrip();
   }
   renderQueue();
 }
@@ -813,22 +1122,14 @@ function setupIntro() {
     window.setTimeout(() => { intro.hidden = true; }, 620);
   };
 
-  try {
-    if (sessionStorage.getItem(INTRO_SEEN_KEY) === "true") {
-      intro.hidden = true;
-      document.body.classList.remove("intro-active");
-      return;
-    }
-  } catch {
-    // keep intro
-  }
-
   enter.addEventListener("click", dismissIntro);
   window.addEventListener("keydown", (event) => {
     if (intro.hidden) return;
     if (event.key === "Enter" || event.key === "Escape") dismissIntro();
   });
-  window.setTimeout(() => enter.focus({ preventScroll: true }), 1600);
+  window.setTimeout(() => {
+    if (!intro.hidden) enter.focus({ preventScroll: true });
+  }, 1600);
 }
 
 function renderInitialState() {
@@ -1084,32 +1385,41 @@ function renderSelectedDraw(name, fallback, chosen) {
 
 function selectPersona(name, primary = false, recipeContext = null) {
   state.active = name;
+  state.dossierTab = "stats";
   const tips = $("#starterTips");
   if (tips) tips.hidden = true;
   $("#personaSearch").value = name;
   if (primary) {
     state.queue = [name];
     state.selectedRecipe = null;
-    $("#pathPlan").innerHTML = "";
+    const path = $("#pathPlan");
+    if (path) path.innerHTML = "";
   } else {
     if (recipeContext) state.selectedRecipe = recipeContext;
     addToQueue(name);
   }
   clearSuggestions();
+  setArcanaTheme(state.personas[name]?.race);
+  document.body.classList.add("has-target");
   playDeckDraw(name);
   renderActivePersona();
   renderInheritance();
   renderRecipes();
+  renderTargetStrip();
   renderQueue();
   updateUrlState();
 }
 
 function viewPersona(name) {
   state.active = name;
+  state.dossierTab = "stats";
   $("#personaSearch").value = name;
+  setArcanaTheme(state.personas[name]?.race);
+  document.body.classList.add("has-target");
   renderActivePersona();
   renderInheritance();
   renderRecipes();
+  renderTargetStrip();
   renderQueue();
   updateUrlState();
 }
@@ -1126,6 +1436,9 @@ function removeFromQueue(index) {
 
 function renderQueue() {
   const list = $("#queueList");
+  const fabCount = $("#queueFabCount");
+  if (fabCount) fabCount.textContent = String(state.queue.length);
+  if (!list) return;
   if (!state.queue.length) {
     list.innerHTML = `<li class="empty">Search a Persona to set priority 1. Click recipe ingredients to append priority 2, 3, and beyond.</li>`;
     return;
@@ -1138,9 +1451,12 @@ function renderQueue() {
       <li class="queue-item ${owned ? "is-owned" : ""}">
         <span class="queue-rank">${index + 1}</span>
         <button class="small-action queue-name" type="button" data-select="${escapeAttr(name)}">
-          ${escapeHtml(name)}
-          <span class="queue-meta">${escapeHtml(levelLabel(name))} ${escapeHtml(persona.race)}${owned ? " · owned" : ""}</span>
-          ${renderPersonaBadges(name, "mini")}
+          <img class="queue-thumb" src="${escapeAttr(personaImage(name))}" alt="" loading="lazy">
+          <span>
+            <strong>${escapeHtml(name)}</strong>
+            <span class="queue-meta"><i class="owned-dot ${owned ? "on" : ""}"></i>${escapeHtml(levelLabel(name))} ${escapeHtml(persona.race)}</span>
+            ${renderPersonaBadges(name, "mini")}
+          </span>
         </button>
         <button class="small-action" type="button" aria-label="Remove ${escapeAttr(name)}" data-remove="${index}">x</button>
       </li>
@@ -1167,9 +1483,11 @@ function renderActivePersona() {
   const image = personaImage(persona.name);
   const badges = renderPersonaBadges(persona.name);
   const owned = state.ownedPersonas.has(persona.name);
+  const tab = state.dossierTab || "stats";
 
   $("#activePersona").innerHTML = `
-    <article class="persona-card">
+    <article class="persona-card dossier-card">
+      <span class="comp-stamp ${owned ? "registered" : "unregistered"}">${owned ? "Registered" : "Unregistered"}</span>
       <div class="persona-visual">
         <img class="persona-arcana-card" src="${escapeAttr(arcanaCardImage(persona.race))}" alt="">
         <img src="${escapeAttr(image)}" alt="${escapeAttr(persona.name)} artwork" loading="lazy">
@@ -1198,17 +1516,22 @@ function renderActivePersona() {
             <strong>${escapeHtml(persona.race)}</strong>
           </div>
         </div>
+        <div class="dossier-tabs" role="tablist" aria-label="Persona dossier sections">
+          <button type="button" class="dossier-tab ${tab === "stats" ? "is-active" : ""}" data-dossier="stats">Stats</button>
+          <button type="button" class="dossier-tab ${tab === "resists" ? "is-active" : ""}" data-dossier="resists">Resists</button>
+          <button type="button" class="dossier-tab ${tab === "skills" ? "is-active" : ""}" data-dossier="skills">Skills</button>
+        </div>
         <div class="persona-profile">
-          <section class="detail-block stat-block">
+          <section class="detail-block stat-block dossier-panel" data-dossier-panel="stats" ${tab === "stats" ? "" : "hidden"}>
             <h3>Stats</h3>
             <div class="stats">${stats}</div>
           </section>
-          <section class="detail-block resist-block">
+          <section class="detail-block resist-block dossier-panel" data-dossier-panel="resists" ${tab === "resists" ? "" : "hidden"}>
             <h3>Resistances</h3>
             <div class="resist-grid">${resists}</div>
           </section>
         </div>
-        <section class="detail-block moves-block">
+        <section class="detail-block moves-block dossier-panel" data-dossier-panel="skills" ${tab === "skills" ? "" : "hidden"}>
           <h3>Moveset</h3>
           <div class="skill-list">${skills}</div>
         </section>
@@ -1216,14 +1539,24 @@ function renderActivePersona() {
     </article>
   `;
   $("#activePersona").querySelectorAll("[data-toggle-owned]").forEach((button) => {
-    button.addEventListener("click", () => togglePersonaOwned(button.dataset.toggleOwned));
+    button.addEventListener("click", (event) => {
+      togglePersonaOwned(button.dataset.toggleOwned);
+      popNear(event.currentTarget, state.ownedPersonas.has(button.dataset.toggleOwned) ? "+ owned" : "removed");
+    });
   });
   $("#activePersona").querySelectorAll("[data-run-path]").forEach((button) => {
     button.addEventListener("click", () => renderPathPlan(button.dataset.runPath));
   });
   $("#activePersona").querySelectorAll("[data-add-skill]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
       addDesiredSkill(button.dataset.addSkill);
+      popNear(event.currentTarget, `+ ${button.dataset.addSkill}`);
+    });
+  });
+  $("#activePersona").querySelectorAll("[data-dossier]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.dossierTab = button.dataset.dossier;
+      renderActivePersona();
     });
   });
 }
@@ -1273,7 +1606,7 @@ function renderSkills(persona) {
   return Object.entries(persona.skills || {}).map(([skill, learned]) => {
     const detail = state.skills[skill] || {};
     const learnedText = learned < 1 ? "Innate" : `Lv ${learned}`;
-    const element = detail.element || "skill";
+    const element = detail.element || "sup";
     return `
       <button class="skill-row skill-row-button" type="button" data-element="${escapeAttr(String(element).toLowerCase())}" data-add-skill="${escapeAttr(skill)}" title="Add ${escapeAttr(skill)} to desired inheritance">
         <span class="skill-name">${escapeHtml(skill)}</span>
@@ -1327,6 +1660,7 @@ function canInherit(resultName, skillName) {
 function renderInheritance() {
   const box = $("#desiredSkills");
   const hint = $("#inheritHint");
+  const matrix = $("#inheritMatrix");
   if (!box || !hint) return;
 
   if (!state.desiredSkills.length) {
@@ -1334,11 +1668,13 @@ function renderInheritance() {
   } else {
     box.innerHTML = state.desiredSkills.map((skill) => {
       const detail = state.skills[skill] || {};
+      const element = detail.element || "sup";
       const ok = state.active ? canInherit(state.active, skill) : true;
       return `
-        <button class="level-chip skill-chip ${ok ? "" : "is-blocked"}" type="button" data-remove-skill="${escapeAttr(skill)}" title="${ok ? "Remove" : "May be blocked by inheritance type"}">
+        <button class="level-chip skill-chip ${ok ? "" : "is-blocked"}" type="button" data-element="${escapeAttr(element)}" data-remove-skill="${escapeAttr(skill)}" title="${ok ? "Remove" : "May be blocked by inheritance type"}">
+          <i class="el-dot" aria-hidden="true"></i>
           <strong>${escapeHtml(skill)}</strong>
-          <span>${escapeHtml(ELEMENT_LABELS[detail.element] || detail.element || "skill")}</span>
+          <span>${escapeHtml(ELEMENT_LABELS[element] || element)}</span>
           ${state.active ? `<em>${ok ? "inheritable" : "blocked?"}</em>` : ""}
         </button>
       `;
@@ -1350,17 +1686,25 @@ function renderInheritance() {
 
   if (!state.active) {
     hint.innerHTML = "Select a Persona to score recipes by inheritance coverage.";
+    if (matrix) matrix.innerHTML = "";
     return;
   }
   const persona = state.personas[state.active];
-  const affinity = INHERIT_AFFINITY[persona.inherits] || {};
-  const allowed = Object.entries(affinity)
-    .filter(([, yes]) => yes)
-    .map(([el]) => ELEMENT_LABELS[el] || el);
+  const affinity = INHERIT_AFFINITY[persona.inherits] || INHERIT_AFFINITY.support;
+  if (matrix) {
+    matrix.innerHTML = MATRIX_ELEMENTS.map((el) => {
+      const on = Boolean(affinity[el]);
+      return `<span class="matrix-cell ${on ? "is-on" : ""}" data-element="${el}" style="--el: var(--el, #f4ce25)" title="${ELEMENT_LABELS[el]}"><i></i>${escapeHtml(el)}</span>`;
+    }).join("");
+    // apply element colors via data-element attribute using same CSS as skills
+    matrix.querySelectorAll(".matrix-cell").forEach((cell) => {
+      cell.dataset.element = cell.getAttribute("data-element");
+    });
+  }
+  const allowed = MATRIX_ELEMENTS.filter((el) => affinity[el]).map((el) => ELEMENT_LABELS[el] || el);
   hint.innerHTML = `
     <strong>${escapeHtml(persona.name)}</strong> inherits as <em>${escapeHtml(persona.inherits || "unknown")}</em>.
-    Likely elements: ${allowed.map(escapeHtml).join(", ") || "support/passives"}.
-    Recipes below are scored by how many desired skills parents can supply.
+    Open cells can receive those skill types. Recipes below are scored by desired-skill coverage.
   `;
 }
 
@@ -1427,12 +1771,14 @@ function getFilteredSortedRecipes(name) {
 
 function renderRecipes() {
   if (!state.active) {
-    $("#recipeSummary").innerHTML = "";
-    $("#recipes").innerHTML = "";
+    state._lastFilteredRecipes = [];
+    if ($("#recipeSummary")) $("#recipeSummary").innerHTML = "";
+    if ($("#recipes")) $("#recipes").innerHTML = "";
     return;
   }
 
   const recipes = getFilteredSortedRecipes(state.active);
+  state._lastFilteredRecipes = recipes;
   const allCount = getRecipes(state.active).length;
   const specialCount = recipes.filter((recipe) => recipe.type === "Special").length;
   const readyCount = recipes.filter((recipe) => recipe.ready).length;
@@ -1441,36 +1787,40 @@ function renderRecipes() {
   $("#recipeSummary").innerHTML = [
     selectedPath,
     `<span class="chip">${recipes.length} shown / ${allCount} total</span>`,
-    `<span class="chip">${readyCount} ready</span>`,
+    `<span class="chip ready">${readyCount} ready</span>`,
     `<span class="chip">${specialCount} special</span>`,
-    state.desiredSkills.length ? `<span class="chip">skills tracked ${state.desiredSkills.length}</span>` : "",
+    state.desiredSkills.length ? `<span class="chip">skills ${state.desiredSkills.length}</span>` : "",
     state.useCurrentLevels ? `<span class="chip level-chip-active">My levels on</span>` : ""
   ].filter(Boolean).join("");
 
   document.querySelectorAll("[data-recipe-filter]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.recipeFilter === state.recipeFilter);
   });
+  applyRecipeDensity();
 
   if (!recipes.length) {
-    $("#recipes").innerHTML = `<div class="empty">No recipes match this filter for ${escapeHtml(state.active)}. Try "All recipes" or mark more Personas as owned.</div>`;
+    $("#recipes").innerHTML = `
+      <div class="empty">
+        No recipes match this filter for ${escapeHtml(state.active)}.
+        <div class="recipe-empty-actions">
+          <button type="button" class="primary-button compact-button" id="resetRecipeFilter">Show all recipes</button>
+          <button type="button" class="ghost-button" id="bestPathFromEmpty">Auto craft path</button>
+        </div>
+      </div>`;
+    $("#resetRecipeFilter")?.addEventListener("click", () => {
+      state.recipeFilter = "all";
+      document.querySelectorAll("[data-recipe-filter]").forEach((btn) => {
+        btn.classList.toggle("is-active", btn.dataset.recipeFilter === "all");
+      });
+      renderRecipes();
+    });
+    $("#bestPathFromEmpty")?.addEventListener("click", () => renderPathPlan(state.active));
     return;
   }
 
+  // Event delegation handles clicks; avoid rebinding hundreds of listeners.
   $("#recipes").innerHTML = recipes.map((recipe, index) => renderRecipe(recipe, index)).join("");
-  $("#recipes").querySelectorAll("[data-persona]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const recipeIndex = Number(button.dataset.recipeIndex);
-      const recipe = recipes[recipeIndex];
-      selectPersona(button.dataset.persona, false, {
-        target: state.active,
-        index: recipeIndex,
-        type: recipe.type,
-        score: recipe.score,
-        ingredients: recipe.ingredients,
-        chosen: button.dataset.persona
-      });
-    });
-  });
+  renderTargetStrip();
 }
 
 function renderSelectedRecipePath() {
@@ -1518,6 +1868,8 @@ function renderRecipe(recipe, index) {
       </div>
     `;
 
+  const scorePct = Math.max(8, Math.min(100, 100 - Math.min(90, (recipe.score || 0) / 1.6)));
+  const listLine = `<div class="recipe-list-line">${recipe.ingredients.map(escapeHtml).join(" + ")} → ${escapeHtml(state.active)} · ${recipe.missing} missing${recipe.skillTotal ? ` · skills ${recipe.skillHits}/${recipe.skillTotal}` : ""}</div>`;
   return `
     <article class="recipe ${isSpecialLayout ? "is-special-fusion" : ""} ${recipeSizeClass} ${isSelectedRecipe ? "is-selected-recipe" : ""} ${recipe.ready ? "is-ready-recipe" : ""}" style="--i: ${index}; --ingredient-count: ${recipe.ingredients.length}">
       <div class="recipe-head">
@@ -1528,8 +1880,10 @@ function renderRecipe(recipe, index) {
         <strong>${recipe.ownedCount}/${recipe.ingredients.length} owned</strong>
         <span>${missingIngredients.length ? `Missing: ${missingIngredients.map(escapeHtml).join(", ")}` : "Ready from your logged Personas"}</span>
       </div>
+      ${recipe.score ? `<div class="score-meter" title="Level sum ${recipe.score}"><i style="width:${scorePct}%"></i></div>` : ""}
       ${skillNote}
       ${targetBadges ? `<div class="recipe-flags">${targetBadges}</div>` : ""}
+      ${listLine}
       <div class="ingredients">${ingredients}</div>
     </article>
   `;
@@ -1573,13 +1927,20 @@ function renderPersonaBadges(name, size = "normal") {
 }
 
 function getRecipes(name) {
+  const token = cacheToken();
+  if (state.recipeCacheKey !== token) {
+    state.recipeCache.clear();
+    state.recipeCacheKey = token;
+  }
+  if (state.recipeCache.has(name)) return state.recipeCache.get(name);
+
   const recipes = [];
   recipes.push(...getSpecialRecipes(name));
   recipes.push(...splitWithDiffRace(name));
   recipes.push(...splitWithSameRace(name));
 
   const seen = new Set();
-  return recipes
+  const result = recipes
     .filter((recipe) => recipe.ingredients.every((ingredient) => state.personas[ingredient]))
     .filter((recipe) => {
       const key = recipe.ingredients.slice().sort().join("|");
@@ -1591,6 +1952,9 @@ function getRecipes(name) {
       if (a.type !== b.type) return a.type === "Special" ? -1 : 1;
       return (a.score || 0) - (b.score || 0) || a.ingredients.join("").localeCompare(b.ingredients.join(""));
     });
+
+  state.recipeCache.set(name, result);
+  return result;
 }
 
 function getSpecialRecipes(name) {
@@ -1667,8 +2031,8 @@ function splitWithSameRace(name) {
 }
 
 function getIngredientCandidates(race) {
-  return Object.values(state.personas)
-    .filter((persona) => persona.race === race)
+  const list = state.personasByRace.get(race) || Object.values(state.personas).filter((p) => p.race === race);
+  return list
     .map((persona) => ({
       name: persona.name,
       race: persona.race,
@@ -1750,21 +2114,26 @@ function fusePersonas(name1, name2) {
   const ab = fusePersonasDirected(name1, name2);
   const ba = fusePersonasDirected(name2, name1);
   if (ab && ba && ab.name !== ba.name) {
-    // Prefer the result whose reverse recipe list actually contains this pair.
     const abPair = recipeHasPair(ab.name, name1, name2);
     const baPair = recipeHasPair(ba.name, name1, name2);
     if (abPair && !baPair) return ab;
     if (baPair && !abPair) return ba;
+    // Prefer directed A+B when both claim a pair.
+    if (abPair && baPair) return ab;
   }
   return ab || ba;
 }
 
 function recipeHasPair(resultName, name1, name2) {
-  return getRecipes(resultName).some((recipe) => {
-    if (recipe.ingredients.length !== 2) return false;
-    const set = new Set(recipe.ingredients);
-    return set.has(name1) && set.has(name2);
-  });
+  const recipes = getRecipes(resultName);
+  for (let i = 0; i < recipes.length; i++) {
+    const ingredients = recipes[i].ingredients;
+    if (ingredients.length !== 2) continue;
+    if ((ingredients[0] === name1 && ingredients[1] === name2) || (ingredients[0] === name2 && ingredients[1] === name1)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function runForwardFusion() {
@@ -1781,12 +2150,27 @@ function runForwardFusion() {
   }
   const result = fusePersonas(nameA, nameB);
   if (!result) {
+    const resultCard = $("#forwardCardResult");
+    if (resultCard) {
+      resultCard.className = "forward-persona-card is-empty result-card";
+      resultCard.innerHTML = `<strong>?</strong><em>No result</em>`;
+    }
     out.innerHTML = `
       <div class="empty">No normal fusion result for ${escapeHtml(nameA)} + ${escapeHtml(nameB)}.
       Special multi-Persona recipes still need all listed ingredients.</div>`;
     return;
   }
   const persona = state.personas[result.name];
+  const resultCard = $("#forwardCardResult");
+  if (resultCard) {
+    resultCard.className = "forward-persona-card is-filled result-card";
+    resultCard.innerHTML = `
+      <img src="${escapeAttr(personaImage(result.name))}" alt="" loading="lazy">
+      <strong>${escapeHtml(result.name)}</strong>
+      <em>${escapeHtml(levelLabel(result.name))} · ${escapeHtml(persona.race)}</em>
+    `;
+  }
+  renderForwardSlotCards();
   out.innerHTML = `
     <article class="forward-card">
       <div class="forward-equation">

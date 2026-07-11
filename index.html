@@ -16,9 +16,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/ui-polish.css">
   </head>
-  <body class="intro-active">
-    <section id="introScreen" class="intro-screen" aria-label="Persona 4 Golden Fusion Calculator intro">
+  <body class="intro-active is-loading">
+    <div id="bootScreen" class="boot-screen" aria-live="polite" aria-busy="true">
+      <div class="boot-card">
+        <img src="assets/p4g-logo-transparent.png" alt="" class="boot-logo">
+        <strong>Loading Velvet Room…</strong>
+        <div class="boot-bar" aria-hidden="true"><i></i></div>
+        <span>Compendium · fusion chart · skill data</span>
+      </div>
+    </div>
+
+    <section id="introScreen" class="intro-screen" aria-label="Persona 4 Golden Fusion Calculator intro" hidden>
       <div class="intro-static" aria-hidden="true"></div>
       <div class="intro-slash slash-one" aria-hidden="true"></div>
       <div class="intro-slash slash-two" aria-hidden="true"></div>
@@ -38,40 +48,50 @@
         <button id="introEnter" class="intro-enter" type="button">Enter Calculator</button>
       </div>
     </section>
+
     <div class="scene" aria-hidden="true">
       <div class="scene-grid"></div>
-      <div class="scene-card arcana-card card-one">
-        <img src="assets/arcana/fool.png" alt="">
-      </div>
-      <div class="scene-card arcana-card card-two">
-        <img src="assets/arcana/magician.png" alt="">
-      </div>
-      <div class="scene-card arcana-card card-three">
-        <img src="assets/arcana/lovers.png" alt="">
-      </div>
-      <div class="scene-card arcana-card card-four">
-        <img src="assets/arcana/fortune.png" alt="">
-      </div>
-      <div class="scene-card arcana-card card-five">
-        <img src="assets/arcana/judgement.png" alt="">
-      </div>
+      <div class="scene-card arcana-card card-one"><img src="assets/arcana/fool.png" alt=""></div>
+      <div class="scene-card arcana-card card-two"><img src="assets/arcana/magician.png" alt=""></div>
+      <div class="scene-card arcana-card card-three"><img src="assets/arcana/lovers.png" alt=""></div>
+      <div class="scene-card arcana-card card-four"><img src="assets/arcana/fortune.png" alt=""></div>
+      <div class="scene-card arcana-card card-five"><img src="assets/arcana/judgement.png" alt=""></div>
       <div class="signal-band band-one"></div>
       <div class="signal-band band-two"></div>
     </div>
+
     <main class="shell">
       <section class="hero" aria-labelledby="page-title">
         <img class="brand-logo" src="assets/p4g-logo-transparent.png" alt="Persona 4 Golden">
-        <div>
+        <div class="hero-copy">
           <p class="kicker">Fusion Calculator</p>
           <h1 id="page-title">Velvet Fusion Queue</h1>
           <p class="lede">Search a Persona, inspect reverse recipes, plan inheritance, and build multi-step craft paths with your own compendium.</p>
         </div>
+        <div class="hero-tools">
+          <button id="focusModeToggle" class="ghost-button focus-toggle" type="button" aria-pressed="false" title="Hide deck chrome and tighten layout">Focus mode</button>
+        </div>
       </section>
 
+      <div id="targetStrip" class="target-strip" hidden>
+        <img id="stripImage" src="" alt="" class="strip-image">
+        <div class="strip-main">
+          <span class="strip-kicker">Active target</span>
+          <strong id="stripName">—</strong>
+          <em id="stripMeta">Select a Persona</em>
+        </div>
+        <div id="stripChips" class="strip-chips"></div>
+        <div class="strip-actions">
+          <button id="stripOwned" class="ghost-button" type="button">Mark owned</button>
+          <button id="stripPath" class="ghost-button" type="button">Craft path</button>
+          <button id="stripScrollRecipes" class="primary-button compact-button" type="button">Recipes</button>
+        </div>
+      </div>
+
       <section class="workspace">
-        <aside class="panel queue-panel" aria-label="Fusion priority queue">
+        <aside id="queuePanel" class="panel queue-panel" aria-label="Fusion priority queue">
           <div class="panel-title">
-            <span>Priority Queue</span>
+            <span><i class="ui-ico ico-queue" aria-hidden="true"></i> Priority Queue</span>
             <button id="clearQueue" class="ghost-button" type="button">Clear</button>
           </div>
           <ol id="queueList" class="queue-list"></ol>
@@ -83,11 +103,11 @@
         </aside>
 
         <section class="panel calculator-panel">
-          <div class="calculator-tabs" role="tablist" aria-label="Calculator views">
-            <button id="personaSearchTab" class="calculator-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="personaSearchView" data-calculator-tab="search">Persona Search</button>
-            <button id="forwardTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="forwardView" tabindex="-1" data-calculator-tab="forward">Forward Fusion</button>
-            <button id="playerDataTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="playerDataView" tabindex="-1" data-calculator-tab="player">Player Data</button>
-            <button id="margaretTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="margaretView" tabindex="-1" data-calculator-tab="margaret">Margaret</button>
+          <div class="calculator-tabs channel-tabs" role="tablist" aria-label="Calculator views">
+            <button id="personaSearchTab" class="calculator-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="personaSearchView" data-calculator-tab="search"><i class="ui-ico ico-search" aria-hidden="true"></i><span>Search</span></button>
+            <button id="forwardTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="forwardView" tabindex="-1" data-calculator-tab="forward"><i class="ui-ico ico-fuse" aria-hidden="true"></i><span>Fuse</span></button>
+            <button id="playerDataTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="playerDataView" tabindex="-1" data-calculator-tab="player"><i class="ui-ico ico-log" aria-hidden="true"></i><span>Log</span></button>
+            <button id="margaretTab" class="calculator-tab" type="button" role="tab" aria-selected="false" aria-controls="margaretView" tabindex="-1" data-calculator-tab="margaret"><i class="ui-ico ico-link" aria-hidden="true"></i><span>Margaret</span></button>
           </div>
 
           <section id="personaSearchView" class="calculator-tab-panel is-active" role="tabpanel" aria-labelledby="personaSearchTab" data-calculator-panel="search">
@@ -99,8 +119,8 @@
               </div>
               <div class="tip-card">
                 <strong>Log what you own</strong>
-                <span>Mark Personas in Player Data so recipes can sort by readiness.</span>
-                <button type="button" class="ghost-button" data-open-tab="player">Open Player Data</button>
+                <span>Mark Personas in the Log so recipes can sort by readiness.</span>
+                <button type="button" class="ghost-button" data-open-tab="player">Open Log</button>
               </div>
               <div class="tip-card">
                 <strong>Margaret rank 10</strong>
@@ -109,36 +129,21 @@
               </div>
             </div>
 
-            <div class="search-row">
-              <label class="search-box">
-                <span>Persona search</span>
-                <input id="personaSearch" type="search" autocomplete="off" placeholder="Try Alice, Trumpeter, Jack Frost, or Tower...">
-              </label>
-              <button id="selectSearch" class="primary-button" type="button">Set Priority 1</button>
-            </div>
-            <div id="suggestions" class="suggestions" aria-live="polite"></div>
-            <div id="deckStage" class="deck-stage" aria-live="polite"></div>
-
-            <div id="activePersona" class="active-persona"></div>
-
-            <div class="recipe-controls" aria-label="Recipe filters">
-              <div class="log-filter" role="group" aria-label="Ownership filter">
-                <button class="mode-button is-active" type="button" data-recipe-filter="all">All recipes</button>
-                <button class="mode-button" type="button" data-recipe-filter="ready">Ready now</button>
-                <button class="mode-button" type="button" data-recipe-filter="partial">Partially owned</button>
+            <div class="stage stage-search">
+              <div class="search-row">
+                <label class="search-box">
+                  <span>Persona search</span>
+                  <input id="personaSearch" type="search" autocomplete="off" placeholder="Try Alice, Trumpeter, Jack Frost, or Tower..." enterkeyhint="search">
+                </label>
+                <button id="selectSearch" class="primary-button" type="button">Set Priority 1</button>
               </div>
-              <label class="search-box sort-box">
-                <span>Sort by</span>
-                <select id="recipeSort">
-                  <option value="smart">Smart (ready, then missing)</option>
-                  <option value="missing">Fewest missing</option>
-                  <option value="score">Lowest level sum</option>
-                  <option value="special">Special first</option>
-                </select>
-              </label>
+              <div id="suggestions" class="suggestions" aria-live="polite"></div>
+              <div id="deckStage" class="deck-stage" aria-live="polite"></div>
             </div>
 
-            <section class="inherit-panel" aria-labelledby="inherit-title">
+            <div id="activePersona" class="active-persona stage stage-dossier"></div>
+
+            <section class="inherit-panel stage stage-inherit" aria-labelledby="inherit-title">
               <div class="user-data-head compact-head">
                 <div>
                   <span class="compendium-label" id="inherit-title">Skill inheritance</span>
@@ -155,32 +160,80 @@
                 <button id="clearDesiredSkills" class="ghost-button" type="button">Clear skills</button>
               </div>
               <div id="desiredSkills" class="desired-skills" aria-live="polite"></div>
+              <div id="inheritMatrix" class="inherit-matrix" aria-label="Inheritance affinity matrix"></div>
               <div id="inheritHint" class="inherit-hint"></div>
             </section>
 
-            <div id="recipeSummary" class="summary-strip"></div>
-            <div id="recipes" class="recipes"></div>
+            <div id="recipeSection" class="stage stage-recipes">
+              <div class="recipe-toolbar">
+                <div class="recipe-controls" aria-label="Recipe filters">
+                  <div class="log-filter" role="group" aria-label="Ownership filter">
+                    <button class="mode-button is-active" type="button" data-recipe-filter="all">All</button>
+                    <button class="mode-button" type="button" data-recipe-filter="ready">Ready</button>
+                    <button class="mode-button" type="button" data-recipe-filter="partial">Partial</button>
+                  </div>
+                  <label class="search-box sort-box">
+                    <span>Sort by</span>
+                    <select id="recipeSort">
+                      <option value="smart">Smart (ready, then missing)</option>
+                      <option value="missing">Fewest missing</option>
+                      <option value="score">Lowest level sum</option>
+                      <option value="special">Special first</option>
+                    </select>
+                  </label>
+                  <div class="log-filter density-filter" role="group" aria-label="Recipe density">
+                    <button class="mode-button is-active" type="button" data-recipe-density="comfort">Cards</button>
+                    <button class="mode-button" type="button" data-recipe-density="compact">Compact</button>
+                    <button class="mode-button" type="button" data-recipe-density="list">List</button>
+                  </div>
+                </div>
+                <div id="recipeSummary" class="summary-strip"></div>
+              </div>
+              <div id="recipes" class="recipes density-comfort"></div>
+            </div>
           </section>
 
           <section id="forwardView" class="calculator-tab-panel" role="tabpanel" aria-labelledby="forwardTab" hidden data-calculator-panel="forward">
-            <section class="user-data-panel" aria-labelledby="forward-title">
+            <section class="user-data-panel forward-stage" aria-labelledby="forward-title">
               <div class="user-data-head">
                 <div>
                   <span class="compendium-label" id="forward-title">Forward Fusion</span>
                   <h2>What does A + B create?</h2>
                 </div>
               </div>
-              <div class="forward-grid">
-                <label class="search-box">
-                  <span>Persona A</span>
-                  <input id="forwardA" list="personaLevelList" autocomplete="off" placeholder="Jack Frost">
-                </label>
-                <div class="fusion-x forward-x" aria-hidden="true">x</div>
-                <label class="search-box">
-                  <span>Persona B</span>
-                  <input id="forwardB" list="personaLevelList" autocomplete="off" placeholder="Pyro Jack">
-                </label>
-                <button id="runForward" class="primary-button" type="button">Fuse</button>
+              <div class="forward-arena" aria-label="Fusion card stage">
+                <div class="forward-slot" data-slot="a">
+                  <span class="slot-label">Persona A</span>
+                  <div id="forwardCardA" class="forward-persona-card is-empty">
+                    <strong>Choose A</strong>
+                    <em>Type a name below</em>
+                  </div>
+                  <label class="search-box">
+                    <span class="sr-only">Persona A</span>
+                    <input id="forwardA" list="personaLevelList" autocomplete="off" placeholder="Jack Frost">
+                  </label>
+                </div>
+                <div class="forward-operator" aria-hidden="true"><span>X</span></div>
+                <div class="forward-slot" data-slot="b">
+                  <span class="slot-label">Persona B</span>
+                  <div id="forwardCardB" class="forward-persona-card is-empty">
+                    <strong>Choose B</strong>
+                    <em>Type a name below</em>
+                  </div>
+                  <label class="search-box">
+                    <span class="sr-only">Persona B</span>
+                    <input id="forwardB" list="personaLevelList" autocomplete="off" placeholder="Pyro Jack">
+                  </label>
+                </div>
+                <div class="forward-operator result-op" aria-hidden="true"><span>=</span></div>
+                <div class="forward-slot result-slot">
+                  <span class="slot-label">Result</span>
+                  <div id="forwardCardResult" class="forward-persona-card is-empty result-card">
+                    <strong>?</strong>
+                    <em>Press Fuse</em>
+                  </div>
+                  <button id="runForward" class="primary-button" type="button">Fuse</button>
+                </div>
               </div>
               <div id="forwardResult" class="forward-result" aria-live="polite"></div>
               <div id="forwardPartners" class="forward-partners"></div>
@@ -200,7 +253,7 @@
                 </div>
               </div>
 
-              <div id="completionDashboard" class="completion-dashboard" aria-live="polite"></div>
+              <div id="completionDashboard" class="completion-dashboard broadcast-dash" aria-live="polite"></div>
 
               <div class="data-io" aria-label="Import and export">
                 <button id="exportData" class="ghost-button" type="button">Export JSON</button>
@@ -258,12 +311,20 @@
                 </div>
               </div>
               <p class="margaret-copy">Track each Persona Margaret asks for, the skill she wants on it, and jump straight into a craft plan.</p>
+              <div id="margaretRail" class="margaret-rail" aria-label="Social Link ranks"></div>
               <div id="margaretList" class="margaret-list" aria-live="polite"></div>
             </section>
           </section>
         </section>
       </section>
     </main>
+
+    <button id="mobileQueueFab" class="mobile-queue-fab" type="button" aria-controls="queuePanel" aria-expanded="false">
+      <i class="ui-ico ico-queue" aria-hidden="true"></i>
+      <span>Queue</span>
+      <em id="queueFabCount">0</em>
+    </button>
+    <div id="queueBackdrop" class="queue-backdrop" hidden></div>
 
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
     <script src="scripts/app.js"></script>

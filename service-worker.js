@@ -1,8 +1,9 @@
-const CACHE_NAME = "velvet-fusion-deck-v3";
+const CACHE_NAME = "velvet-fusion-deck-v4";
 const APP_SHELL = [
   "./",
   "index.html",
   "styles/main.css",
+  "styles/ui-polish.css",
   "scripts/app.js",
   "manifest.webmanifest",
   "data/personas.json",
