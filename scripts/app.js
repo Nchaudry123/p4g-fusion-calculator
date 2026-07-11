@@ -247,10 +247,17 @@ function loadFocusMode() {
 function loadRecipeDensity() {
   try {
     const value = localStorage.getItem(RECIPE_DENSITY_KEY);
-    state.recipeDensity = ["comfort", "compact", "list"].includes(value) ? value : "comfort";
+    if (["comfort", "compact", "list"].includes(value)) {
+      state.recipeDensity = value;
+      return;
+    }
   } catch {
-    state.recipeDensity = "comfort";
+    // fall through
   }
+  // Default to compact cards on phones for less scrolling.
+  state.recipeDensity = (typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches)
+    ? "compact"
+    : "comfort";
 }
 
 function applyFocusMode() {
@@ -297,25 +304,62 @@ function setupTargetStrip() {
   });
 }
 
+function isMobileLayout() {
+  return window.matchMedia("(max-width: 820px)").matches;
+}
+
+function openMobileQueue() {
+  if (!isMobileLayout()) return;
+  document.body.classList.add("queue-open");
+  const backdrop = $("#queueBackdrop");
+  if (backdrop) backdrop.hidden = false;
+  $("#mobileQueueFab")?.setAttribute("aria-expanded", "true");
+  // Prevent background scroll under sheet
+  document.documentElement.style.overflow = "hidden";
+}
+
+function closeMobileQueue() {
+  document.body.classList.remove("queue-open");
+  const backdrop = $("#queueBackdrop");
+  if (backdrop) backdrop.hidden = true;
+  $("#mobileQueueFab")?.setAttribute("aria-expanded", "false");
+  document.documentElement.style.overflow = "";
+}
+
 function setupMobileQueue() {
-  const open = () => {
-    document.body.classList.add("queue-open");
-    $("#queueBackdrop").hidden = false;
-    $("#mobileQueueFab")?.setAttribute("aria-expanded", "true");
-  };
-  const close = () => {
-    document.body.classList.remove("queue-open");
-    $("#queueBackdrop").hidden = true;
-    $("#mobileQueueFab")?.setAttribute("aria-expanded", "false");
-  };
   $("#mobileQueueFab")?.addEventListener("click", () => {
-    if (document.body.classList.contains("queue-open")) close();
-    else open();
+    if (document.body.classList.contains("queue-open")) closeMobileQueue();
+    else openMobileQueue();
   });
-  $("#queueBackdrop")?.addEventListener("click", close);
+  $("#queueBackdrop")?.addEventListener("click", closeMobileQueue);
   window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && document.body.classList.contains("queue-open")) close();
+    if (event.key === "Escape" && document.body.classList.contains("queue-open")) closeMobileQueue();
   });
+  window.matchMedia("(max-width: 820px)").addEventListener("change", (event) => {
+    if (!event.matches) closeMobileQueue();
+  });
+
+  // Touch swipe-down to close queue sheet
+  const panel = $("#queuePanel");
+  if (!panel || panel.dataset.swipeBound === "1") return;
+  panel.dataset.swipeBound = "1";
+  let startY = 0;
+  let dragging = false;
+  panel.addEventListener("touchstart", (event) => {
+    if (!isMobileLayout() || !document.body.classList.contains("queue-open")) return;
+    if (panel.scrollTop > 0) return;
+    startY = event.touches[0].clientY;
+    dragging = true;
+  }, { passive: true });
+  panel.addEventListener("touchmove", (event) => {
+    if (!dragging) return;
+    const dy = event.touches[0].clientY - startY;
+    if (dy > 72) {
+      dragging = false;
+      closeMobileQueue();
+    }
+  }, { passive: true });
+  panel.addEventListener("touchend", () => { dragging = false; }, { passive: true });
 }
 
 function setupRecipeDelegation() {
@@ -636,6 +680,7 @@ function setCalculatorTab(tab) {
   const allowed = new Set(["search", "forward", "player", "margaret"]);
   const nextTab = allowed.has(tab) ? tab : "search";
   state.activeCalculatorTab = nextTab;
+  closeMobileQueue();
   document.querySelectorAll("[data-calculator-tab]").forEach((button) => {
     const isActive = button.dataset.calculatorTab === nextTab;
     button.classList.toggle("is-active", isActive);
@@ -1386,6 +1431,7 @@ function renderSelectedDraw(name, fallback, chosen) {
 function selectPersona(name, primary = false, recipeContext = null) {
   state.active = name;
   state.dossierTab = "stats";
+  closeMobileQueue();
   const tips = $("#starterTips");
   if (tips) tips.hidden = true;
   $("#personaSearch").value = name;
@@ -2328,6 +2374,9 @@ function renderPathPlan(target) {
   }
   state.queue = queue;
   renderQueue();
+  if (isMobileLayout()) {
+    openMobileQueue();
+  }
 
   host.innerHTML = `
     <div class="path-plan-card">
