@@ -48,7 +48,10 @@ Checks data integrity, special recipes, and reverse↔forward round-trips for sa
 ```
 index.html              App shell
 scripts/app.js          UI + fusion engine
+scripts/needed-features.js  Craft, compare, inheritance sources, a11y extras
 styles/main.css         Persona-inspired styling
+styles/needed-features.css  Feature panel styles
+styles/ui-polish.css    Layout/mobile polish layer
 data/
   personas.json         205 P4G Personas
   fusion-chart.json     Arcana fusion table (incl. Aeon / Jester)
