@@ -34,6 +34,18 @@
     if (api.state.highContrast) document.body.classList.add("high-contrast");
     const ver = document.getElementById("appVersion");
     if (ver) ver.textContent = "v2026.07 · fan tool, not affiliated with Atlus/SEGA";
+
+    // Keep Craft tab fresh when ownership flips anywhere in the app.
+    const originalToggle = api.togglePersonaOwned;
+    if (typeof originalToggle === "function") {
+      api.togglePersonaOwned = function patchedToggle(name) {
+        originalToggle(name);
+        renderUltimates();
+        if (api.state.activeCalculatorTab === "craft") renderCraft();
+      };
+      // also expose for direct state mutations path if needed
+      window.__P4G_FUSION__.togglePersonaOwned = api.togglePersonaOwned;
+    }
   }
 
   function loadPersisted() {
